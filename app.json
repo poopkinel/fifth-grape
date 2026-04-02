@@ -9,6 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      // "config": {
+      //   "googleMapsApiKey": "AIzaSyAgWPr7gYenzz2uZLSYQSOJxYdAiyq6xpk"
+      // },
       "supportsTablet": true
     },
     "android": {
@@ -19,14 +22,33 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ophek.fifthgrape",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location while you are using the app."
+        }
+      ],
+      [
+        "react-native-maps",
+        {
+          "androidGoogleMapsApiKey": "AIzaSyD5WxB_UnyAm6wlIzsp1yo5spuMhb4b2cY"
+        }
+      ],
       "expo-router",
+      "expo-localization",
       [
         "expo-splash-screen",
         {
@@ -43,6 +65,14 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "45d46881-9d14-4233-a795-cacb0fd36f44"
+      },
+      "supportsRTL": true
+    },
+    "owner": "ophek"
   }
 }
