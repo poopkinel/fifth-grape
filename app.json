@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       // "config": {
-      //   "googleMapsApiKey": "AIzaSyAgWPr7gYenzz2uZLSYQSOJxYdAiyq6xpk"
+      //   "googleMapsApiKey": ""
       // },
       "supportsTablet": true
     },
@@ -44,7 +44,7 @@
       [
         "react-native-maps",
         {
-          "androidGoogleMapsApiKey": "AIzaSyD5WxB_UnyAm6wlIzsp1yo5spuMhb4b2cY"
+          "androidGoogleMapsApiKey": ""
         }
       ],
       "expo-router",
@@ -69,7 +69,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "45d46881-9d14-4233-a795-cacb0fd36f44"
+        "projectId": ""
       },
       "supportsRTL": true
     },

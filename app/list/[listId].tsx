@@ -1,19 +1,19 @@
+import { useBasketStore } from "@/src/features/basket/store";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import ListItemRow from "../../src/components/list/ListItemRow";
 import SearchResultRow from "../../src/components/list/SearchResultRow";
 import AppHeader from "../../src/components/ui/AppHeader";
-import { useListStore } from "../../src/features/lists/store";
 import { realProducts } from "../../src/lib/constants/realProducts";
 
 export default function ListScreen() {
   const router = useRouter();
 
-  const items = useListStore((state) => state.items);
-  const addItem = useListStore((state) => state.addItem);
-  const increaseQuantity = useListStore((state) => state.increaseQuantity);
-  const decreaseQuantity = useListStore((state) => state.decreaseQuantity);
+  const items = useBasketStore((state) => state.items);
+  const addItem = useBasketStore((state) => state.addItem);
+  const increaseQuantity = useBasketStore((state) => state.increaseQuantity);
+  const decreaseQuantity = useBasketStore((state) => state.decreaseQuantity);
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 

@@ -1,8 +1,9 @@
+import { formatCurrency } from "@/src/utils/format";
 import { useIsFocused } from "@react-navigation/native";
 import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { BasketItem } from "../../lists/types";
+import { BasketItem } from "../../basket/types";
 import { useUserLocation } from "../../location/useUserLocation";
 import { getMapScreenModel } from "../selectors";
 
@@ -117,7 +118,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                             textAlign: "center",
                           }}
                         >
-                          ₪{store.total}
+                          {formatCurrency(store.total)}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -297,7 +298,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                       color: "#111827",
                     }}
                   >
-                    ₪{store.total}
+                    {formatCurrency(store.total)}
                   </Text>
                 </TouchableOpacity>
               ))}

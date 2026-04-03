@@ -29,7 +29,7 @@ export function getDistanceKm(
 }
 
 export function formatDistanceKm(distanceKm: number | null): string {
-  if (distanceKm == null) return "—";
+  if (distanceKm === null) return "—";
 
   if (distanceKm < 1) {
     return `${Math.round(distanceKm * 1000)} מ׳`;

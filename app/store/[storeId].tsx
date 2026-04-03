@@ -1,15 +1,18 @@
+import { useBasketStore } from "@/src/features/basket/store";
+import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { getStoreScreenModel } from "@/src/features/stores/selectors";
+import { formatCurrency } from "@/src/utils/format";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import AppHeader from "../../src/components/ui/AppHeader";
-import { useListStore } from "../../src/features/lists/store";
 
 export default function StoreDetailsScreen() {
   const { storeId } = useLocalSearchParams<{ storeId: string }>();
   const router = useRouter();
-  const items = useListStore((state) => state.items);
+  const items = useBasketStore((state) => state.items);
+  const { userCoords } = useUserLocation();
 
-  const storeModel = getStoreScreenModel(items, storeId);
+  const storeModel = getStoreScreenModel(items, storeId, userCoords);
 
   if (!storeModel) {
     return (
@@ -59,7 +62,7 @@ export default function StoreDetailsScreen() {
               marginBottom: 14,
             }}
           >
-            ₪{storeModel.total}
+            {formatCurrency(storeModel.total)}
           </Text>
 
           <View
@@ -96,7 +99,7 @@ export default function StoreDetailsScreen() {
                   fontWeight: "700",
                 }}
               >
-                ₪{storeModel.total}
+                {formatCurrency(storeModel.total)}
               </Text>
             </View>
 
@@ -243,7 +246,7 @@ export default function StoreDetailsScreen() {
                         color: missing ? "#b45309" : "#111827",
                       }}
                     >
-                      {item.totalPrice == null ? "—" : `₪${item.totalPrice}`}
+                      {item.totalPrice == null ? "—" : formatCurrency(item.totalPrice)}
                     </Text>
                   </View>
                 </View>

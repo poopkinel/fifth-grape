@@ -19,7 +19,7 @@ export const mockLists = [
   },
 ];
 
-export const mockListItems = [
+export const mockBasketItems = [
   {
     id: "1",
     productId: "milk-tnuva-3-1l",

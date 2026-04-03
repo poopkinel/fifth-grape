@@ -1,4 +1,4 @@
-import { BasketItem } from "../lists/types";
+import { BasketItem } from "../basket/types";
 import { StoreProductPrice } from "../pricing/types";
 import { Store, StoreBasketDetails, StoreBasketRow } from "./types";
 

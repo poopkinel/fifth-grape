@@ -1,17 +1,17 @@
+import { useBasketStore } from "@/src/features/basket/store";
 import { getCompareScreenModel } from "@/src/features/compare/selectors";
 import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import RecommendationCard from "../../src/components/compare/RecommendationCard";
 import AppHeader from "../../src/components/ui/AppHeader";
-import { useListStore } from "../../src/features/lists/store";
 
 export default function CompareScreen() {
   const router = useRouter();
-  const items = useListStore((state) => state.items);
+  const items = useBasketStore((state) => state.items);
 
   const { userCoords } = useUserLocation();
-  const compareModel = getCompareScreenModel(items, userCoords);
+  const compareModel = getCompareScreenModel(userCoords);
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 

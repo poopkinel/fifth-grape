@@ -23,7 +23,7 @@ export type CompareCard = {
   chainName: string;
   branchName: string;
   address: string;
-  distnaceKm: number | null;
+  distanceKm: number | null;
   total: number;
   missingCount: number;
   coverage: number;
@@ -32,7 +32,6 @@ export type CompareCard = {
   distanceText: string;
   isBest: boolean;
   color: string;
-  decisionScore: number;
 };
 
 export type CompareScreenModel = {

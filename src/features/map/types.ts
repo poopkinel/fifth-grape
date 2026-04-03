@@ -9,7 +9,7 @@ export type MapStoreMarker = {
   color: string;
   lat: number,
   lng: number,
-  decisionScore: number,
+  // decisionScore: number,
 };
 
 export type MapScreenModel = {

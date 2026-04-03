@@ -1,13 +1,13 @@
+import { useBasketStore } from "@/src/features/basket/store";
 import { useRouter } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import AppHeader from "../../src/components/ui/AppHeader";
-import { useListStore } from "../../src/features/lists/store";
 import { mockLists } from "../../src/lib/constants/mockData";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const items = useListStore((state) => state.items);
-  const resetItems = useListStore((state) => state.resetItems);
+  const items = useBasketStore((state) => state.items);
+  const resetToDemoBasket = useBasketStore((state) => state.resetToDemoBasket);
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const uniqueCount = items.length;
@@ -19,7 +19,7 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
-      <AppHeader title="השוואת סל קניות" subtitle="מה הכי משתלם לידך" />
+      <AppHeader title="איפה הכי זול לקנות את הסל שלך?" subtitle="מה הכי משתלם לידך" />
 
       <ScrollView
         contentContainerStyle={{
@@ -172,7 +172,7 @@ export default function HomeScreen() {
             </View>
 
             <TouchableOpacity
-              onPress={resetItems}
+              onPress={resetToDemoBasket}
               style={{
                 marginTop: 10,
                 backgroundColor: "#fef2f2",

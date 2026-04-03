@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/src/utils/format";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type RecommendationCardProps = {
@@ -95,7 +96,7 @@ export default function RecommendationCard({
               textAlign: "center",
             }}
           >
-            ₪{total}
+            {formatCurrency(total)}
           </Text>
         </View>
 

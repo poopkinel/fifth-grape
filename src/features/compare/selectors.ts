@@ -1,75 +1,79 @@
-import { getDistanceInfo } from "@/src/utils/distance";
-import { getStoreById } from "@/src/utils/stores";
-import { realPrices } from "../../lib/constants/realPrices";
-import { realStores } from "../../lib/constants/realStores";
-import { BasketItem } from "../lists/types";
-import { UserCoords } from "../location/useUserLocation";
-import { getStoreDecisionScore } from "../stores/getStoreDecisionScore";
-import { compareBasket } from "./compareBasket";
-import { CompareScreenModel } from "./types";
-
+import { getAllPrices } from "@/src/data/prices/priceRepository";
+import { getAllStores } from "@/src/data/stores/storeRepository";
+import { rankStores } from "@/src/domain/recommendation/rankStores";
+import { useBasketStore } from "@/src/features/basket/store";
+import { formatDistanceKm } from "@/src/utils/distance";
+import { formatCurrency } from "@/src/utils/format";
+import { CompareCard, CompareScreenModel } from "./types";
 
 export function getCompareScreenModel(
-  basket: BasketItem[], 
-  userCoords: UserCoords | null
+  userCoords: { latitude: number; longitude: number } | null
 ): CompareScreenModel {
-  const result = compareBasket(basket, realStores, realPrices);
+  const basket = useBasketStore.getState().items;
 
-  const cards = result.stores.map((store) => {
-    const isBest = store.storeId === result.bestStoreId;
-    const isFullBasket = store.storeId === result.cheapestFullBasketStoreId;    
-    
-    const realStore = getStoreById(store.storeId);
-    const { distanceKm, distanceText } = getDistanceInfo(userCoords, realStore);
-    const score = getStoreDecisionScore(store.total, store.missingCount, distanceKm)
+  if (!basket.length) {
+    return {
+      cards: [],
+      summaryText: "אין מוצרים להשוואה",
+    };
+  }
+
+  const stores = getAllStores();
+  const prices = getAllPrices();
+
+  const result = rankStores({
+    basket,
+    stores,
+    prices,
+    userCoords,
+  });
+
+  const cards: CompareCard[] = result.rankedStores.map((store) => {
+    const distanceText =
+      store.distanceKm !== null
+        ? formatDistanceKm(store.distanceKm)
+        : "—";
+
+    const isBest = store.rank === 0;
 
     return {
-      storeId: store.storeId,
-      chainName: store.chainName,
-      branchName: store.branchName,
-      address: store.address,
-      distnaceKm: distanceKm,
+      storeId: store.store.storeId,
+      chainName: store.store.chainName,
+      branchName: store.store.branchName,
+      address: store.store.address,
+      distanceKm: store.distanceKm,
+      distanceText,
       total: store.total,
       missingCount: store.missingCount,
       coverage: store.coverage,
       title: isBest
-        ? "הבחירה הטובה ביותר"
-        : isFullBasket
-        ? "הסל המלא הזול ביותר"
-        : "אפשרות נוספת",
+        ? "הבחירה הכי טובה עבורך"
+        : store.missingCount === 0
+        ? "אפשרות מלאה"
+        : "אפשרות חלקית",
       badge: isBest
-        ? "הכי משתלם"
-        : isFullBasket
-        ? "סל מלא"
-        : "אפשרות נוספת",
-      distanceText: distanceText,
+        ? "BEST"
+        : store.missingCount === 0
+        ? "FULL"
+        : "MISSING",
+      reason: isBest
+        ? store.savingsVsNext !== null
+          ? `חוסך ${formatCurrency(store.savingsVsNext)} לעומת הבא`
+          : "הבחירה המשתלמת ביותר"
+        : store.missingCount === 0
+        ? "כל המוצרים זמינים"
+        : `חסרים ${store.missingCount} מוצרים`,
       isBest,
-      color: isBest ? "#10b981" : isFullBasket ? "#f59e0b" : "#ef4444",
-      decisionScore: score,
+      color: isBest ? "#22c55e" : "#e5e7eb",
+      savingsVsNext: store.savingsVsNext,
     };
   });
 
-  const totalCount = basket.reduce((sum, item) => sum + item.quantity, 0);
-
-  const bestStore = result.stores.find((store) => store.storeId === result.bestStoreId);
-  
-  const fullBasketStore = result.stores.find(
-    (store) => store.storeId === result.cheapestFullBasketStoreId
-  );
-
-  const summaryText =
-    totalCount === 0
-        ? "עדיין אין מוצרים ברשימה."
-        : bestStore && fullBasketStore
-        ? `${bestStore.chainName} היא הבחירה הכי משתלמת כרגע עבור ${totalCount} מוצרים. אם חשוב לך סל מלא, ${fullBasketStore.chainName} עדיפה.`
-        : bestStore
-        ? `${bestStore.chainName} היא הבחירה הכי משתלמת כרגע עבור ${totalCount} מוצרים.`
-        : "לא נמצאה השוואה כרגע.";
+  const best = cards[0];
 
   return {
     cards,
-    summaryText,
+    summaryText: best ? `${best.chainName} היא הבחירה הכי משתלמת` : "",
     bestStoreId: result.bestStoreId,
-    cheapestFullBasketStoreId: result.cheapestFullBasketStoreId,
-  }
+  };
 }

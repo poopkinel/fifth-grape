@@ -1,14 +1,13 @@
+import { useBasketStore } from "@/src/features/basket/store";
 import StoreMapScene from "@/src/features/map/components/StoreMapScene";
 import { useRouter } from "expo-router";
 import { View } from "react-native";
 import AppHeader from "../../src/components/ui/AppHeader";
-import { useListStore } from "../../src/features/lists/store";
-
 
 export default function MapScreen() {
   const router = useRouter();
 
-  const items = useListStore((state) => state.items);
+  const items = useBasketStore((state) => state.items);
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
