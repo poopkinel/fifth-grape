@@ -1,8 +1,8 @@
 import { formatCurrency } from "@/src/utils/format";
 import { useIsFocused } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BasketItem } from "../../basket/types";
 import { useUserLocation } from "../../location/useUserLocation";
 import { getMapScreenModel } from "../selectors";
@@ -19,6 +19,16 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
   const [selectedStoreId, setSelectedStoreId] = useState(
     mapModel.defaultSelectedStoreId ?? mapModel.markers[0]?.storeId ?? ""
   );
+
+  useEffect(() => {
+    setSelectedStoreId((current) => {
+      if (mapModel.markers.some((store) => store.storeId === current)) {
+        return current;
+      }
+
+      return mapModel.defaultSelectedStoreId ?? mapModel.markers[0]?.storeId ?? "";
+    });
+  }, [mapModel.defaultSelectedStoreId, mapModel.markers]);
 
   const selectedStore =
     mapModel.markers.find((s) => s.storeId === selectedStoreId) ??
@@ -164,7 +174,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                   >
                     <Text
                       style={{
-                        color: "#065f46",
+                        color: selectedStore.isBest ? "#065f46" : "#92400e",
                         fontWeight: "700",
                         fontSize: 12,
                       }}
@@ -174,6 +184,15 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                   </View>
 
                   <View style={{ alignItems: "flex-end" }}>
+                    <Text
+                      style={{
+                        color: "#6b7280",
+                        textAlign: "right",
+                        marginBottom: 4,
+                      }}
+                    >
+                      {selectedStore.title}
+                    </Text>
                     <Text
                       style={{
                         fontSize: 18,
@@ -188,9 +207,18 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                       style={{
                         color: "#6b7280",
                         textAlign: "right",
+                        marginBottom: 4,
                       }}
                     >
                       {selectedStore.distanceText} • {selectedStore.missingCount} חסרים
+                    </Text>
+                    <Text
+                      style={{
+                        color: "#6b7280",
+                        textAlign: "right",
+                      }}
+                    >
+                      {selectedStore.trustText}
                     </Text>
                   </View>
                 </View>

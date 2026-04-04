@@ -7,9 +7,14 @@ type RecommendationCardProps = {
   total: number;
   distanceText: string;
   missingCount: number;
+  reasonText: string;
+  trustText: string;
+  baselineText?: string;
   isBest?: boolean;
+  isUsualStore?: boolean;
   onPressDetails?: () => void;
   onPressMap?: () => void;
+  onPressSetUsualStore?: () => void;
 };
 
 export default function RecommendationCard({
@@ -18,9 +23,14 @@ export default function RecommendationCard({
   total,
   distanceText,
   missingCount,
+  reasonText,
+  trustText,
+  baselineText,
   isBest = false,
+  isUsualStore = false,
   onPressDetails,
   onPressMap,
+  onPressSetUsualStore,
 }: RecommendationCardProps) {
   const bgColor = isBest ? "#10b981" : "#ffffff";
   const textColor = isBest ? "#ffffff" : "#111827";
@@ -60,6 +70,57 @@ export default function RecommendationCard({
         >
           {chainName}
         </Text>
+        <Text
+          style={{
+            color: textColor,
+            textAlign: "right",
+            marginTop: 8,
+            fontWeight: "600",
+          }}
+        >
+          {reasonText}
+        </Text>
+        <Text
+          style={{
+            color: subTextColor,
+            textAlign: "right",
+            marginTop: 4,
+          }}
+        >
+          {trustText}
+        </Text>
+        {baselineText ? (
+          <Text
+            style={{
+              color: subTextColor,
+              textAlign: "right",
+              marginTop: 4,
+            }}
+          >
+            {baselineText}
+          </Text>
+        ) : null}
+        <TouchableOpacity
+          onPress={onPressSetUsualStore}
+          style={{
+            alignSelf: "flex-end",
+            marginTop: 10,
+            backgroundColor: isBest ? "rgba(255,255,255,0.14)" : "#f3f4f6",
+            borderRadius: 999,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+          }}
+        >
+          <Text
+            style={{
+              color: textColor,
+              fontWeight: "700",
+              textAlign: "right",
+            }}
+          >
+            {isUsualStore ? "הסופר הרגיל שלך" : "קבע כסופר הרגיל"}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <View

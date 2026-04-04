@@ -1,23 +1,3 @@
-export type ComparedStore = {
-  storeId: string;
-  chainName: string;
-  branchName: string;
-  address: string;
-  lat: number;
-  lng: number;
-  total: number;
-  missingCount: number;
-  availableCount: number;
-  coverage: number;
-};
-
-export type CompareBasketResult = {
-  stores: ComparedStore[];
-  bestStoreId?: string;
-  cheapestFullBasketStoreId?: string;
-  closestStoreId?: string;
-};
-
 export type CompareCard = {
   storeId: string;
   chainName: string;
@@ -30,13 +10,16 @@ export type CompareCard = {
   title: string;
   badge: string;
   distanceText: string;
+  reasonText: string;
+  trustText: string;
+  baselineText?: string;
   isBest: boolean;
   color: string;
+  isUsualStore: boolean;
 };
 
 export type CompareScreenModel = {
   cards: CompareCard[];
   summaryText: string;
   bestStoreId?: string;
-  cheapestFullBasketStoreId?: string,
 };

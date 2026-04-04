@@ -1,6 +1,7 @@
 import { useBasketStore } from "@/src/features/basket/store";
 import { getCompareScreenModel } from "@/src/features/compare/selectors";
 import { useUserLocation } from "@/src/features/location/useUserLocation";
+import { usePreferenceStore } from "@/src/features/preferences/store";
 import { useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import RecommendationCard from "../../src/components/compare/RecommendationCard";
@@ -9,6 +10,7 @@ import AppHeader from "../../src/components/ui/AppHeader";
 export default function CompareScreen() {
   const router = useRouter();
   const items = useBasketStore((state) => state.items);
+  const setUsualStore = usePreferenceStore((state) => state.setUsualStore);
 
   const { userCoords } = useUserLocation();
   const compareModel = getCompareScreenModel(userCoords);
@@ -68,9 +70,14 @@ export default function CompareScreen() {
             total={card.total}
             distanceText={card.distanceText}
             missingCount={card.missingCount}
+            reasonText={card.reasonText}
+            trustText={card.trustText}
+            baselineText={card.baselineText}
             isBest={card.isBest}
+            isUsualStore={card.isUsualStore}
             onPressDetails={() => router.push(`/store/${card.storeId}`)}
             onPressMap={() => router.push("/map/compare")}
+            onPressSetUsualStore={() => setUsualStore(card.storeId)}
           />
         ))}
       </ScrollView>

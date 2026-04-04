@@ -2,14 +2,38 @@ import { getAllPrices } from "@/src/data/prices/priceRepository";
 import { getAllStores } from "@/src/data/stores/storeRepository";
 import { rankStores } from "@/src/domain/recommendation/rankStores";
 import { useBasketStore } from "@/src/features/basket/store";
+import { usePreferenceStore } from "@/src/features/preferences/store";
 import { formatDistanceKm } from "@/src/utils/distance";
-import { formatCurrency } from "@/src/utils/format";
+import { formatCurrency, formatRelativeUpdateTime } from "@/src/utils/format";
 import { CompareCard, CompareScreenModel } from "./types";
+
+function getReasonText(card: {
+  isBest: boolean;
+  matchedCount: number;
+  missingCount: number;
+  savingsVsNext: number | null;
+  savingsVsUsualStore: number | null;
+}) {
+  if (card.isBest && card.savingsVsUsualStore !== null && card.savingsVsUsualStore > 0) {
+    return `חוסך ${formatCurrency(card.savingsVsUsualStore)} לעומת הסופר הרגיל שלך`;
+  }
+
+  if (card.isBest && card.savingsVsNext !== null && card.savingsVsNext > 0) {
+    return `חוסך ${formatCurrency(card.savingsVsNext)} לעומת האפשרות הבאה`;
+  }
+
+  if (card.missingCount === 0) {
+    return "כל המוצרים נמצאים כאן";
+  }
+
+  return `חסרים ${card.missingCount} מוצרים`;
+}
 
 export function getCompareScreenModel(
   userCoords: { latitude: number; longitude: number } | null
 ): CompareScreenModel {
   const basket = useBasketStore.getState().items;
+  const usualStoreId = usePreferenceStore.getState().usualStoreId;
 
   if (!basket.length) {
     return {
@@ -26,6 +50,7 @@ export function getCompareScreenModel(
     stores,
     prices,
     userCoords,
+    usualStoreId,
   });
 
   const cards: CompareCard[] = result.rankedStores.map((store) => {
@@ -35,6 +60,17 @@ export function getCompareScreenModel(
         : "—";
 
     const isBest = store.rank === 0;
+    const isUsualStore = store.store.storeId === usualStoreId;
+    const trustText = formatRelativeUpdateTime(store.updatedAt);
+    const baselineText = isBest
+      ? store.savingsVsUsualStore === null
+        ? undefined
+        : store.savingsVsUsualStore > 0
+        ? `חוסך ${formatCurrency(store.savingsVsUsualStore)} לעומת הסופר הרגיל שלך`
+        : store.savingsVsUsualStore < 0
+        ? `עולה ${formatCurrency(Math.abs(store.savingsVsUsualStore))} יותר מהסופר הרגיל שלך`
+        : "זו אותה עלות כמו הסופר הרגיל שלך"
+      : undefined;
 
     return {
       storeId: store.store.storeId,
@@ -56,16 +92,18 @@ export function getCompareScreenModel(
         : store.missingCount === 0
         ? "FULL"
         : "MISSING",
-      reason: isBest
-        ? store.savingsVsNext !== null
-          ? `חוסך ${formatCurrency(store.savingsVsNext)} לעומת הבא`
-          : "הבחירה המשתלמת ביותר"
-        : store.missingCount === 0
-        ? "כל המוצרים זמינים"
-        : `חסרים ${store.missingCount} מוצרים`,
+      reasonText: getReasonText({
+        isBest,
+        matchedCount: store.matchedCount,
+        missingCount: store.missingCount,
+        savingsVsNext: store.savingsVsNext,
+        savingsVsUsualStore: store.savingsVsUsualStore,
+      }),
+      trustText,
+      baselineText,
       isBest,
       color: isBest ? "#22c55e" : "#e5e7eb",
-      savingsVsNext: store.savingsVsNext,
+      isUsualStore,
     };
   });
 
@@ -73,7 +111,7 @@ export function getCompareScreenModel(
 
   return {
     cards,
-    summaryText: best ? `${best.chainName} היא הבחירה הכי משתלמת` : "",
+    summaryText: best ? `${best.chainName} היא ההמלצה המובילה לסל הנוכחי` : "",
     bestStoreId: result.bestStoreId,
   };
 }

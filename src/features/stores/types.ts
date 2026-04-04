@@ -48,8 +48,13 @@ export type StoreScreenModel = {
   subtitle: string;
   total: number;
   missingCount: number;
+  matchedCount: number;
   distanceText: string;
+  reasonText: string;
+  trustText: string;
   updatedAtText: string;
+  baselineText?: string;
+  isUsualStore: boolean;
   splitTripText: string;
   rows: StoreScreenRow[];
 };

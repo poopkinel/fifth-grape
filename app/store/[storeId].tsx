@@ -1,5 +1,6 @@
 import { useBasketStore } from "@/src/features/basket/store";
 import { useUserLocation } from "@/src/features/location/useUserLocation";
+import { usePreferenceStore } from "@/src/features/preferences/store";
 import { getStoreScreenModel } from "@/src/features/stores/selectors";
 import { formatCurrency } from "@/src/utils/format";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -10,6 +11,8 @@ export default function StoreDetailsScreen() {
   const { storeId } = useLocalSearchParams<{ storeId: string }>();
   const router = useRouter();
   const basket = useBasketStore((state) => state.items);
+  const setUsualStore = usePreferenceStore((state) => state.setUsualStore);
+  const clearUsualStore = usePreferenceStore((state) => state.clearUsualStore);
   const { userCoords } = useUserLocation();
 
   if (!storeId) return null;
@@ -176,6 +179,77 @@ export default function StoreDetailsScreen() {
           <Text
             style={{
               textAlign: "right",
+              fontWeight: "700",
+              color: "#111827",
+              marginBottom: 6,
+            }}
+          >
+            למה הסניף הזה
+          </Text>
+          <Text
+            style={{
+              textAlign: "right",
+              color: "#111827",
+              marginBottom: 6,
+            }}
+          >
+            {storeModel.reasonText}
+          </Text>
+          <Text
+            style={{
+              textAlign: "right",
+              color: "#6b7280",
+              marginBottom: storeModel.baselineText ? 6 : 12,
+            }}
+          >
+            {storeModel.trustText}
+          </Text>
+          {storeModel.baselineText ? (
+            <Text
+              style={{
+                textAlign: "right",
+                color: "#6b7280",
+                marginBottom: 12,
+              }}
+            >
+              {storeModel.baselineText}
+            </Text>
+          ) : null}
+
+          <TouchableOpacity
+            onPress={() =>
+              storeModel.isUsualStore ? clearUsualStore() : setUsualStore(storeModel.storeId)
+            }
+            style={{
+              alignSelf: "flex-end",
+              backgroundColor: "#f3f4f6",
+              borderRadius: 999,
+              paddingHorizontal: 14,
+              paddingVertical: 10,
+            }}
+          >
+            <Text
+              style={{
+                color: "#111827",
+                textAlign: "right",
+                fontWeight: "700",
+              }}
+            >
+              {storeModel.isUsualStore ? "הסר כסופר הרגיל" : "קבע כסופר הרגיל"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View
+          style={{
+            backgroundColor: "white",
+            borderRadius: 20,
+            padding: 16,
+          }}
+        >
+          <Text
+            style={{
+              textAlign: "right",
               fontSize: 16,
               fontWeight: "700",
               marginBottom: 12,
@@ -290,16 +364,38 @@ export default function StoreDetailsScreen() {
               style={{
                 textAlign: "right",
                 fontWeight: "700",
-                marginBottom: 6,
-                color: "#111827",
-              }}
-            >
-              כדאי לפצל?
+              marginBottom: 6,
+              color: "#111827",
+            }}
+          >
+              נמצאו בסל
             </Text>
             <Text style={{ textAlign: "right", color: "#6b7280" }}>
-              {storeModel.splitTripText}
+              {storeModel.matchedCount} מתוך {storeModel.matchedCount + storeModel.missingCount} מוצרים
             </Text>
           </View>
+        </View>
+
+        <View
+          style={{
+            backgroundColor: "white",
+            borderRadius: 20,
+            padding: 16,
+          }}
+        >
+          <Text
+            style={{
+              textAlign: "right",
+              fontWeight: "700",
+              marginBottom: 6,
+              color: "#111827",
+            }}
+          >
+            כדאי לפצל?
+          </Text>
+          <Text style={{ textAlign: "right", color: "#6b7280" }}>
+            {storeModel.splitTripText}
+          </Text>
         </View>
 
         <TouchableOpacity

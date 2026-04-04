@@ -6,8 +6,9 @@ import { getDistanceKm } from "@/src/utils/distance";
 import { calculateDecisionScore } from "./calculateDecisionScore";
 import { compareBasket } from "./compareBasket";
 import {
-    RankedStore,
-    RecommendationResult,
+  RankedStore,
+  RecommendationReasonCode,
+  RecommendationResult,
 } from "./types";
 
 type Input = {
@@ -15,13 +16,31 @@ type Input = {
   stores: Store[];
   prices: StoreProductPrice[];
   userCoords: { latitude: number; longitude: number } | null;
+  usualStoreId?: string;
 };
+
+function getStoreUpdatedAt(
+  prices: StoreProductPrice[],
+  storeId: string
+): string {
+  return (
+    prices
+      .filter((price) => price.storeId === storeId && price.updatedAt)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0]?.updatedAt ?? ""
+  );
+}
+
+function getReasonCode(rank: number, missingCount: number): RecommendationReasonCode {
+  if (rank === 0) return "best_overall";
+  return missingCount === 0 ? "full_basket" : "missing_items";
+}
 
 export function rankStores({
   basket,
   stores,
   prices,
   userCoords,
+  usualStoreId,
 }: Input): RecommendationResult {
   const baseResults = compareBasket({ basket, stores, prices });
 
@@ -46,20 +65,29 @@ export function rankStores({
       distanceKm,
       decisionScore,
       isFullBasket: result.missingCount === 0,
+      updatedAt: getStoreUpdatedAt(prices, result.store.storeId),
     };
   });
 
   const sorted = [...enriched].sort(
     (a, b) => a.decisionScore - b.decisionScore
   );
+  const usualStore = usualStoreId
+    ? sorted.find((store) => store.store.storeId === usualStoreId)
+    : null;
 
   const ranked: RankedStore[] = sorted.map((store, index) => {
     const next = index < sorted.length - 1 ? sorted[index + 1] : null;
+    const savingsVsUsualStore = usualStore
+      ? Number((usualStore.total - store.total).toFixed(2))
+      : null;
 
     return {
       ...store,
       rank: index,
-      savingsVsNext: next ? next.total - store.total : null,
+      reasonCode: getReasonCode(index, store.missingCount),
+      savingsVsNext: next ? Number((next.total - store.total).toFixed(2)) : null,
+      savingsVsUsualStore,
     };
   });
 
