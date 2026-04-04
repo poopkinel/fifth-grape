@@ -9,10 +9,12 @@ import AppHeader from "../../src/components/ui/AppHeader";
 export default function StoreDetailsScreen() {
   const { storeId } = useLocalSearchParams<{ storeId: string }>();
   const router = useRouter();
-  const items = useBasketStore((state) => state.items);
+  const basket = useBasketStore((state) => state.items);
   const { userCoords } = useUserLocation();
 
-  const storeModel = getStoreScreenModel(items, storeId, userCoords);
+  if (!storeId) return null;
+
+  const storeModel = getStoreScreenModel(basket, storeId, userCoords);
 
   if (!storeModel) {
     return (
@@ -24,10 +26,7 @@ export default function StoreDetailsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
-      <AppHeader
-        title={storeModel.title}
-        subtitle={storeModel.subtitle}
-      />
+      <AppHeader title={storeModel.title} subtitle={storeModel.subtitle} />
 
       <ScrollView
         contentContainerStyle={{
@@ -104,35 +103,35 @@ export default function StoreDetailsScreen() {
             </View>
 
             <View
+              style={{
+                flex: 1,
+                backgroundColor: "rgba(255,255,255,0.12)",
+                borderRadius: 14,
+                paddingVertical: 12,
+                paddingHorizontal: 10,
+              }}
+            >
+              <Text
                 style={{
-                    flex: 1,
-                    backgroundColor: "rgba(255,255,255,0.12)",
-                    borderRadius: 14,
-                    paddingVertical: 12,
-                    paddingHorizontal: 10,
+                  color: "#d1fae5",
+                  textAlign: "center",
+                  fontSize: 12,
+                  marginBottom: 4,
                 }}
-                >
-                <Text
-                    style={{
-                    color: "#d1fae5",
-                    textAlign: "center",
-                    fontSize: 12,
-                    marginBottom: 4,
-                    }}
-                >
-                    מרחק
-                </Text>
-                <Text
-                    style={{
-                    color: "white",
-                    textAlign: "center",
-                    fontSize: 18,
-                    fontWeight: "700",
-                    }}
-                >
-                    {storeModel.distanceText ?? "—"}
-                </Text>
-              </View>
+              >
+                מרחק
+              </Text>
+              <Text
+                style={{
+                  color: "white",
+                  textAlign: "center",
+                  fontSize: 18,
+                  fontWeight: "700",
+                }}
+              >
+                {storeModel.distanceText}
+              </Text>
+            </View>
 
             <View
               style={{

@@ -13,9 +13,7 @@ export function getStoreBasketDetails(
 
   const rows: StoreBasketRow[] = basket.map((item) => {
     const priceRecord = prices.find(
-      (price) =>
-        price.storeId === storeId &&
-        price.productId === item.productId
+      (price) => price.storeId === storeId && price.productId === item.productId
     );
 
     const inStock = Boolean(priceRecord?.inStock);
@@ -36,16 +34,15 @@ export function getStoreBasketDetails(
     };
   });
 
-  const total = rows.reduce((sum, row) => {
-    return sum + (row.totalPrice ?? 0);
-  }, 0);
+  const total = rows.reduce((sum, row) => sum + (row.totalPrice ?? 0), 0);
 
   const missingCount = rows.filter((row) => !row.inStock).length;
 
-  const relevantPriceRecords = prices.filter((p) => p.storeId === storeId);
-  const updatedAt =
-    relevantPriceRecords.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0]
-      ?.updatedAt ?? "";
+  const relevantPriceRecords = prices
+    .filter((p) => p.storeId === storeId && p.updatedAt)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+
+  const updatedAt = relevantPriceRecords[0]?.updatedAt ?? "";
 
   return {
     storeId: store.storeId,
