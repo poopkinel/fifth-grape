@@ -1,8 +1,12 @@
 import { getAllPrices } from "@/src/data/prices/priceRepository";
 import { getAllStores, getStoreById } from "@/src/data/stores/storeRepository";
+import {
+  buildBaselineText,
+  buildReasonText,
+} from "@/src/domain/recommendation/explain";
 import { rankStores } from "@/src/domain/recommendation/rankStores";
 import { formatDistanceKm, getDistanceKm } from "@/src/utils/distance";
-import { formatCurrency, formatRelativeUpdateTime } from "@/src/utils/format";
+import { formatRelativeUpdateTime } from "@/src/utils/format";
 import { BasketItem } from "../basket/types";
 import { UserCoords } from "../location/useUserLocation";
 import { usePreferenceStore } from "../preferences/store";
@@ -43,28 +47,14 @@ export function getStoreScreenModel(
   const updatedAtText = formatRelativeUpdateTime(
     recommendation?.updatedAt ?? details.updatedAt
   );
-  const recommendationSavingsVsUsual = recommendation?.savingsVsUsualStore ?? null;
-  const recommendationSavingsVsNext = recommendation?.savingsVsNext ?? null;
-  const recommendationRank = recommendation?.rank;
-  const recommendationMissingCount = recommendation?.missingCount ?? details.missingCount;
-  const reasonText =
-    recommendationRank === 0
-      ? recommendationSavingsVsUsual !== null && recommendationSavingsVsUsual > 0
-        ? `חוסך ${formatCurrency(recommendationSavingsVsUsual)} לעומת הסופר הרגיל שלך`
-        : recommendationSavingsVsNext !== null && recommendationSavingsVsNext > 0
-        ? `חוסך ${formatCurrency(recommendationSavingsVsNext)} לעומת האפשרות הבאה`
-        : "הבחירה הכי טובה עבורך"
-      : recommendationMissingCount === 0
-      ? "כל המוצרים נמצאים כאן"
-      : `נמצאו ${matchedCount} מתוך ${basket.length} מוצרים`;
-  const baselineText =
-    recommendationSavingsVsUsual === null
-      ? undefined
-      : recommendationSavingsVsUsual > 0
-      ? `חוסך ${formatCurrency(recommendationSavingsVsUsual)} לעומת הסופר הרגיל שלך`
-      : recommendationSavingsVsUsual < 0
-      ? `עולה ${formatCurrency(Math.abs(recommendationSavingsVsUsual))} יותר מהסופר הרגיל שלך`
-      : "זו אותה עלות כמו הסופר הרגיל שלך";
+  const reasonText = recommendation
+    ? buildReasonText(recommendation)
+    : details.missingCount === 0
+    ? "כל המוצרים נמצאים כאן"
+    : `חסרים ${details.missingCount} מוצרים`;
+  const baselineText = buildBaselineText(
+    recommendation?.savingsVsUsualStore ?? null
+  );
 
   return {
     storeId,
