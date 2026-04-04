@@ -210,7 +210,10 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                         marginBottom: 4,
                       }}
                     >
-                      {selectedStore.distanceText} • {selectedStore.missingCount} חסרים
+                      {selectedStore.distanceText} •{" "}
+                      {selectedStore.missingCount === 0
+                        ? "הכול נמצא"
+                        : `${selectedStore.missingCount} חסרים`}
                     </Text>
                     <Text
                       style={{
