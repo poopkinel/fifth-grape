@@ -11,6 +11,7 @@ export default function CompareScreen() {
   const router = useRouter();
   const items = useBasketStore((state) => state.items);
   const setUsualStore = usePreferenceStore((state) => state.setUsualStore);
+  const clearUsualStore = usePreferenceStore((state) => state.clearUsualStore);
 
   const { userCoords } = useUserLocation();
   const compareModel = getCompareScreenModel(userCoords);
@@ -77,7 +78,9 @@ export default function CompareScreen() {
             isUsualStore={card.isUsualStore}
             onPressDetails={() => router.push(`/store/${card.storeId}`)}
             onPressMap={() => router.push("/map/compare")}
-            onPressSetUsualStore={() => setUsualStore(card.storeId)}
+            onPressSetUsualStore={() =>
+              card.isUsualStore ? clearUsualStore() : setUsualStore(card.storeId)
+            }
           />
         ))}
       </ScrollView>

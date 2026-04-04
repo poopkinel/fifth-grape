@@ -8,7 +8,7 @@ import { rankStores } from "@/src/domain/recommendation/rankStores";
 import { useBasketStore } from "@/src/features/basket/store";
 import { usePreferenceStore } from "@/src/features/preferences/store";
 import { formatDistanceKm } from "@/src/utils/distance";
-import { formatRelativeUpdateTime } from "@/src/utils/format";
+import { formatCurrency, formatRelativeUpdateTime } from "@/src/utils/format";
 import { CompareCard, CompareScreenModel } from "./types";
 
 export function getCompareScreenModel(
@@ -43,7 +43,11 @@ export function getCompareScreenModel(
 
     const isBest = store.rank === 0;
     const isUsualStore = store.store.storeId === usualStoreId;
-    const trustText = formatRelativeUpdateTime(store.updatedAt);
+    const relativeUpdateText = formatRelativeUpdateTime(store.updatedAt);
+    const trustText =
+      relativeUpdateText === "לא ידוע"
+        ? "מידע לא זמין"
+        : `מידע ${relativeUpdateText}`;
     const baselineText =
       usualStoreId && isBest && !isUsualStore
         ? buildBaselineText(store.savingsVsUsualStore)
@@ -69,7 +73,7 @@ export function getCompareScreenModel(
         : store.missingCount === 0
         ? "FULL"
         : "MISSING",
-      reasonText: buildReasonText(store),
+      reasonText: buildReasonText(store, { isUsualStore }),
       trustText,
       baselineText,
       isBest,
@@ -79,10 +83,20 @@ export function getCompareScreenModel(
   });
 
   const best = cards[0];
+  const bestStore = result.rankedStores[0];
+  const summaryText = !best || !bestStore
+    ? ""
+    : bestStore.savingsVsUsualStore !== null &&
+      bestStore.savingsVsUsualStore > 0 &&
+      bestStore.store.storeId !== usualStoreId
+    ? `${best.chainName} חוסכת ${formatCurrency(bestStore.savingsVsUsualStore)} לעומת הסופר הרגיל שלך`
+    : bestStore.store.storeId === usualStoreId
+    ? `${best.chainName} נשארת הבחירה הטובה ביותר לסל הנוכחי`
+    : `${best.chainName} היא ההמלצה המובילה לסל הנוכחי`;
 
   return {
     cards,
-    summaryText: best ? `${best.chainName} היא ההמלצה המובילה לסל הנוכחי` : "",
+    summaryText,
     bestStoreId: result.bestStoreId,
   };
 }

@@ -38,6 +38,7 @@ export default function RecommendationCard({
   const statBg = isBest ? "rgba(255,255,255,0.12)" : "#f3f4f6";
   const borderWidth = isBest ? 0 : 1;
   const borderColor = "#e5e7eb";
+  const showReasonText = reasonText !== title;
 
   return (
     <View
@@ -70,21 +71,45 @@ export default function RecommendationCard({
         >
           {chainName}
         </Text>
-        <Text
-          style={{
-            color: textColor,
-            textAlign: "right",
-            marginTop: 8,
-            fontWeight: "600",
-          }}
-        >
-          {reasonText}
-        </Text>
+        {isUsualStore ? (
+          <View
+            style={{
+              marginTop: 8,
+              backgroundColor: isBest ? "rgba(255,255,255,0.14)" : "#ecfdf5",
+              borderRadius: 999,
+              paddingHorizontal: 10,
+              paddingVertical: 6,
+            }}
+          >
+            <Text
+              style={{
+                color: isBest ? "#ffffff" : "#047857",
+                fontWeight: "700",
+                textAlign: "right",
+                fontSize: 12,
+              }}
+            >
+              הסופר הרגיל שלך
+            </Text>
+          </View>
+        ) : null}
+        {showReasonText ? (
+          <Text
+            style={{
+              color: textColor,
+              textAlign: "right",
+              marginTop: 8,
+              fontWeight: "600",
+            }}
+          >
+            {reasonText}
+          </Text>
+        ) : null}
         <Text
           style={{
             color: subTextColor,
             textAlign: "right",
-            marginTop: 4,
+            marginTop: showReasonText ? 4 : 8,
           }}
         >
           {trustText}
@@ -105,20 +130,20 @@ export default function RecommendationCard({
           style={{
             alignSelf: "flex-end",
             marginTop: 10,
-            backgroundColor: isBest ? "rgba(255,255,255,0.14)" : "#f3f4f6",
-            borderRadius: 999,
-            paddingHorizontal: 12,
-            paddingVertical: 8,
+            backgroundColor: isUsualStore ? "transparent" : isBest ? "rgba(255,255,255,0.14)" : "#f3f4f6",
+            borderRadius: isUsualStore ? 0 : 999,
+            paddingHorizontal: isUsualStore ? 0 : 12,
+            paddingVertical: isUsualStore ? 0 : 8,
           }}
         >
           <Text
             style={{
-              color: textColor,
+              color: isUsualStore ? subTextColor : textColor,
               fontWeight: "700",
               textAlign: "right",
             }}
           >
-            {isUsualStore ? "הסופר הרגיל שלך" : "קבע כסופר הרגיל"}
+            {isUsualStore ? "הסר מהרגיל" : "קבע כסופר הרגיל"}
           </Text>
         </TouchableOpacity>
       </View>

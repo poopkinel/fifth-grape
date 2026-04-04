@@ -49,7 +49,7 @@ export function getStoreScreenModel(
   );
   const isUsualStore = storeId === usualStoreId;
   const reasonText = recommendation
-    ? buildReasonText(recommendation)
+    ? buildReasonText(recommendation, { isUsualStore })
     : details.missingCount === 0
     ? "כל המוצרים נמצאים כאן"
     : `חסרים ${details.missingCount} מוצרים`;

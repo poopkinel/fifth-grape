@@ -195,6 +195,29 @@ export default function StoreDetailsScreen() {
           >
             {storeModel.reasonText}
           </Text>
+          {storeModel.isUsualStore ? (
+            <View
+              style={{
+                alignSelf: "flex-end",
+                backgroundColor: "#ecfdf5",
+                borderRadius: 999,
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                marginBottom: 8,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#047857",
+                  textAlign: "right",
+                  fontWeight: "700",
+                  fontSize: 12,
+                }}
+              >
+                הסופר הרגיל שלך
+              </Text>
+            </View>
+          ) : null}
           <Text
             style={{
               textAlign: "right",
