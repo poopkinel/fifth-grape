@@ -1,4 +1,4 @@
-import { StoreProductPrice } from "../../features/pricing/types";
+import { StoreProductPrice } from "../../domain/pricing/types";
 
 export const realPrices: StoreProductPrice[] = [
   {

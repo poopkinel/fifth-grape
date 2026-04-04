@@ -26,7 +26,7 @@ export function compareBasket({
           p.productId === item.productId
       );
 
-      if (!price) {
+      if (!price || !price.inStock) {
         missingCount++;
         continue;
       }
@@ -40,7 +40,7 @@ export function compareBasket({
 
     return {
       store,
-      total,
+      total: Number(total.toFixed(2)),
       missingCount,
       matchedCount,
       coverage,
