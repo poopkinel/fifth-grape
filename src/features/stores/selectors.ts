@@ -47,14 +47,16 @@ export function getStoreScreenModel(
   const updatedAtText = formatRelativeUpdateTime(
     recommendation?.updatedAt ?? details.updatedAt
   );
+  const isUsualStore = storeId === usualStoreId;
   const reasonText = recommendation
     ? buildReasonText(recommendation)
     : details.missingCount === 0
     ? "כל המוצרים נמצאים כאן"
     : `חסרים ${details.missingCount} מוצרים`;
-  const baselineText = buildBaselineText(
-    recommendation?.savingsVsUsualStore ?? null
-  );
+  const baselineText =
+    usualStoreId && recommendation?.rank === 0 && !isUsualStore
+      ? buildBaselineText(recommendation?.savingsVsUsualStore ?? null)
+      : undefined;
 
   return {
     storeId,
@@ -68,7 +70,7 @@ export function getStoreScreenModel(
     trustText: `נמצאו ${matchedCount} מתוך ${basket.length} מוצרים`,
     updatedAtText,
     baselineText,
-    isUsualStore: storeId === usualStoreId,
+    isUsualStore,
     splitTripText:
       details.missingCount === 0
         ? "הכול זמין כאן, אין צורך לפצל."

@@ -44,7 +44,10 @@ export function getCompareScreenModel(
     const isBest = store.rank === 0;
     const isUsualStore = store.store.storeId === usualStoreId;
     const trustText = formatRelativeUpdateTime(store.updatedAt);
-    const baselineText = isBest ? buildBaselineText(store.savingsVsUsualStore) : undefined;
+    const baselineText =
+      usualStoreId && isBest && !isUsualStore
+        ? buildBaselineText(store.savingsVsUsualStore)
+        : undefined;
 
     return {
       storeId: store.store.storeId,
