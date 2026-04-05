@@ -51,7 +51,7 @@ export default function RecommendationCard({
         gap: 14,
       }}
     >
-      <View style={{ alignItems: "flex-end" }}>
+      <View style={{ alignItems: "flex-start" }}>
         <Text
           style={{
             color: subTextColor,
@@ -66,7 +66,7 @@ export default function RecommendationCard({
             color: textColor,
             fontSize: 22,
             fontWeight: "700",
-            textAlign: "right",
+            
           }}
         >
           {chainName}
@@ -85,7 +85,7 @@ export default function RecommendationCard({
               style={{
                 color: isBest ? "#ffffff" : "#047857",
                 fontWeight: "700",
-                textAlign: "right",
+                
                 fontSize: 12,
               }}
             >
@@ -97,7 +97,7 @@ export default function RecommendationCard({
           <Text
             style={{
               color: textColor,
-              textAlign: "right",
+              
               marginTop: 8,
               fontWeight: "600",
             }}
@@ -108,7 +108,7 @@ export default function RecommendationCard({
         <Text
           style={{
             color: subTextColor,
-            textAlign: "right",
+            
             marginTop: showReasonText ? 4 : 8,
           }}
         >
@@ -118,7 +118,7 @@ export default function RecommendationCard({
           <Text
             style={{
               color: subTextColor,
-              textAlign: "right",
+              
               marginTop: 4,
             }}
           >
@@ -140,7 +140,7 @@ export default function RecommendationCard({
             style={{
               color: isUsualStore ? subTextColor : textColor,
               fontWeight: "700",
-              textAlign: "right",
+              
             }}
           >
             {isUsualStore ? "הסר מהרגיל" : "קבע כסופר הרגיל"}

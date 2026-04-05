@@ -27,13 +27,13 @@ export default function SearchResultRow({
     >
       <View
         style={{
-          flexDirection: "row-reverse",
+          flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
           gap: 12,
         }}
       >
-        <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 12, flex: 1 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, flex: 1 }}>
           <View
             style={{
               width: 44,
@@ -47,7 +47,7 @@ export default function SearchResultRow({
             <Text style={{ fontSize: 22 }}>{emoji}</Text>
           </View>
 
-          <View style={{ flex: 1, alignItems: "flex-end" }}>
+          <View style={{ flex: 1, alignItems: "flex-start" }}>
             <Text
               style={{
                 fontSize: 15,
@@ -76,7 +76,7 @@ export default function SearchResultRow({
               <View
                 style={{
                   marginTop: 8,
-                  alignSelf: "flex-end",
+                  alignSelf: "flex-start",
                   backgroundColor: "#ecfdf5",
                   paddingHorizontal: 10,
                   paddingVertical: 6,

@@ -13,15 +13,12 @@ export default function AppHeader({ title, subtitle }: Props) {
         backgroundColor: "white",
         borderBottomWidth: 1,
         borderBottomColor: "#e5e7eb",
-        alignItems: "flex-start",
       }}
     >
       <Text
         style={{
-          width: "100%",
           fontSize: 18,
           fontWeight: "bold",
-          textAlign: "right",
           color: "#111827",
         }}
       >
@@ -31,10 +28,7 @@ export default function AppHeader({ title, subtitle }: Props) {
       {subtitle ? (
         <Text
           style={{
-            width: "100%",
             color: "#6b7280",
-            textAlign: "right",
-            writingDirection: "rtl",
             marginTop: 4,
           }}
         >

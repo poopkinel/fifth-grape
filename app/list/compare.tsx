@@ -4,6 +4,7 @@ import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { usePreferenceStore } from "@/src/features/preferences/store";
 import { useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import RecommendationCard from "../../src/components/compare/RecommendationCard";
 import AppHeader from "../../src/components/ui/AppHeader";
 
@@ -19,7 +20,7 @@ export default function CompareScreen() {
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right", "bottom"]}>
       <AppHeader
         title="התוצאה הכי טובה עבורך"
         subtitle={`תל אביב • רדיוס 5 ק״מ • ${totalCount} מוצרים`}
@@ -43,7 +44,7 @@ export default function CompareScreen() {
         >
           <Text
             style={{
-              textAlign: "right",
+              
               color: "#065f46",
               fontWeight: "700",
               marginBottom: 4,
@@ -54,7 +55,7 @@ export default function CompareScreen() {
 
           <Text
             style={{
-              textAlign: "right",
+              
               color: "#047857",
               lineHeight: 22,
             }}
@@ -84,6 +85,6 @@ export default function CompareScreen() {
           />
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

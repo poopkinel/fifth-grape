@@ -5,6 +5,7 @@ import { getStoreScreenModel } from "@/src/features/stores/selectors";
 import { formatCurrency } from "@/src/utils/format";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../src/components/ui/AppHeader";
 
 export default function StoreDetailsScreen() {
@@ -21,14 +22,14 @@ export default function StoreDetailsScreen() {
 
   if (!storeModel) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right", "bottom"]}>
         <AppHeader title="סניף לא נמצא" subtitle="לא הצלחנו לטעון את פרטי הסניף" />
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right", "bottom"]}>
       <AppHeader title={storeModel.title} subtitle={storeModel.subtitle} />
 
       <ScrollView
@@ -48,7 +49,7 @@ export default function StoreDetailsScreen() {
           <Text
             style={{
               color: "#d1fae5",
-              textAlign: "right",
+              
               marginBottom: 4,
             }}
           >
@@ -60,7 +61,7 @@ export default function StoreDetailsScreen() {
               color: "white",
               fontSize: 24,
               fontWeight: "700",
-              textAlign: "right",
+              
               marginBottom: 14,
             }}
           >
@@ -178,7 +179,7 @@ export default function StoreDetailsScreen() {
         >
           <Text
             style={{
-              textAlign: "right",
+              
               fontWeight: "700",
               color: "#111827",
               marginBottom: 6,
@@ -188,7 +189,7 @@ export default function StoreDetailsScreen() {
           </Text>
           <Text
             style={{
-              textAlign: "right",
+              
               color: "#111827",
               marginBottom: 6,
             }}
@@ -209,7 +210,7 @@ export default function StoreDetailsScreen() {
               <Text
                 style={{
                   color: "#047857",
-                  textAlign: "right",
+                  
                   fontWeight: "700",
                   fontSize: 12,
                 }}
@@ -220,7 +221,7 @@ export default function StoreDetailsScreen() {
           ) : null}
           <Text
             style={{
-              textAlign: "right",
+              
               color: "#6b7280",
               marginBottom: storeModel.baselineText ? 6 : 12,
             }}
@@ -230,7 +231,7 @@ export default function StoreDetailsScreen() {
           {storeModel.baselineText ? (
             <Text
               style={{
-                textAlign: "right",
+                
                 color: "#6b7280",
                 marginBottom: 12,
               }}
@@ -254,7 +255,7 @@ export default function StoreDetailsScreen() {
             <Text
               style={{
                 color: "#111827",
-                textAlign: "right",
+                
                 fontWeight: "700",
               }}
             >
@@ -272,7 +273,7 @@ export default function StoreDetailsScreen() {
         >
           <Text
             style={{
-              textAlign: "right",
+              
               fontSize: 16,
               fontWeight: "700",
               marginBottom: 12,
@@ -307,7 +308,7 @@ export default function StoreDetailsScreen() {
                   <View style={{ alignItems: "flex-end", flex: 1 }}>
                     <Text
                       style={{
-                        textAlign: "right",
+                        
                         fontWeight: "600",
                         color: "#111827",
                         marginBottom: 4,
@@ -317,7 +318,7 @@ export default function StoreDetailsScreen() {
                     </Text>
                     <Text
                       style={{
-                        textAlign: "right",
+                        
                         color: "#6b7280",
                         marginBottom: 2,
                       }}
@@ -326,7 +327,7 @@ export default function StoreDetailsScreen() {
                     </Text>
                     <Text
                       style={{
-                        textAlign: "right",
+                        
                         color: missing ? "#b45309" : "#6b7280",
                       }}
                     >
@@ -362,7 +363,7 @@ export default function StoreDetailsScreen() {
           >
             <Text
               style={{
-                textAlign: "right",
+                
                 fontWeight: "700",
                 marginBottom: 6,
                 color: "#111827",
@@ -370,7 +371,7 @@ export default function StoreDetailsScreen() {
             >
               עדכון אחרון
             </Text>
-            <Text style={{ textAlign: "right", color: "#6b7280" }}>
+            <Text style={{  color: "#6b7280" }}>
               {storeModel.updatedAtText}
             </Text>
           </View>
@@ -385,7 +386,7 @@ export default function StoreDetailsScreen() {
           >
             <Text
               style={{
-                textAlign: "right",
+                
                 fontWeight: "700",
               marginBottom: 6,
               color: "#111827",
@@ -393,7 +394,7 @@ export default function StoreDetailsScreen() {
           >
               נמצאו בסל
             </Text>
-            <Text style={{ textAlign: "right", color: "#6b7280" }}>
+            <Text style={{  color: "#6b7280" }}>
               {storeModel.matchedCount} מתוך {storeModel.matchedCount + storeModel.missingCount} מוצרים
             </Text>
           </View>
@@ -408,7 +409,7 @@ export default function StoreDetailsScreen() {
         >
           <Text
             style={{
-              textAlign: "right",
+              
               fontWeight: "700",
               marginBottom: 6,
               color: "#111827",
@@ -416,7 +417,7 @@ export default function StoreDetailsScreen() {
           >
             כדאי לפצל?
           </Text>
-          <Text style={{ textAlign: "right", color: "#6b7280" }}>
+          <Text style={{  color: "#6b7280" }}>
             {storeModel.splitTripText}
           </Text>
         </View>
@@ -440,6 +441,6 @@ export default function StoreDetailsScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -33,13 +33,13 @@ export default function ListItemRow({
     >
       <View
         style={{
-          flexDirection: "row-reverse",
+          flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
           gap: 12,
         }}
       >
-        <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 12, flex: 1 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, flex: 1 }}>
           <View
             style={{
               width: 44,
@@ -53,13 +53,13 @@ export default function ListItemRow({
             <Text style={{ fontSize: 22 }}>{emoji}</Text>
           </View>
 
-          <View style={{ flex: 1, alignItems: "flex-end" }}>
+          <View style={{ flex: 1, alignItems: "flex-start" }}>
             <Text
               style={{
                 fontSize: 16,
                 fontWeight: "600",
                 color: "#111827",
-                textAlign: "right",
+                
               }}
             >
               {name}
@@ -71,7 +71,7 @@ export default function ListItemRow({
                   marginTop: 4,
                   fontSize: 13,
                   color: "#6b7280",
-                  textAlign: "right",
+                  
                 }}
               >
                 {subtitle}

@@ -44,7 +44,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
             backgroundColor: "white",
             borderRadius: 20,
             padding: 12,
-            flexDirection: "row-reverse",
+            flexDirection: "row",
             gap: 8,
           }}
         >
@@ -61,11 +61,11 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                         borderRadius: 14,
                     }}
                     >
-                    <Text style={{ textAlign: "right" }}>
+                    <Text style={{  }}>
                         {store.chainName}
                     </Text>
 
-                    <Text style={{ textAlign: "right" }}>
+                    <Text style={{  }}>
                         {store.distanceText}
                     </Text>
                 </TouchableOpacity>
@@ -183,11 +183,11 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                     </Text>
                   </View>
 
-                  <View style={{ alignItems: "flex-end" }}>
+                  <View style={{ alignItems: "flex-start" }}>
                     <Text
                       style={{
                         color: "#6b7280",
-                        textAlign: "right",
+                        
                         marginBottom: 4,
                       }}
                     >
@@ -198,7 +198,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                         fontSize: 18,
                         fontWeight: "700",
                         color: "#111827",
-                        textAlign: "right",
+                        
                       }}
                     >
                       {selectedStore.chainName}
@@ -206,7 +206,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                     <Text
                       style={{
                         color: "#6b7280",
-                        textAlign: "right",
+                        
                         marginBottom: 4,
                       }}
                     >
@@ -218,7 +218,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                     <Text
                       style={{
                         color: "#6b7280",
-                        textAlign: "right",
+                        
                       }}
                     >
                       {selectedStore.trustText}
@@ -279,7 +279,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
         >
           <Text
             style={{
-              textAlign: "right",
+              
               fontWeight: "700",
               color: "#111827",
               marginBottom: 8,
@@ -289,7 +289,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
           </Text>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={{ flexDirection: "row-reverse", gap: 10 }}>
+            <View style={{ flexDirection: "row", gap: 10 }}>
               {mapModel.markers.map((store) => (
                 <TouchableOpacity
                   key={store.storeId}
@@ -305,7 +305,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                 >
                   <Text
                     style={{
-                      textAlign: "right",
+                      
                       fontWeight: "700",
                       color: "#111827",
                       marginBottom: 4,
@@ -315,7 +315,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                   </Text>
                   <Text
                     style={{
-                      textAlign: "right",
+                      
                       color: "#6b7280",
                       marginBottom: 8,
                     }}
@@ -324,7 +324,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                   </Text>
                   <Text
                     style={{
-                      textAlign: "right",
+                      
                       fontWeight: "700",
                       color: "#111827",
                     }}

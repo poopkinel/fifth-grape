@@ -1,7 +1,7 @@
 import { useBasketStore } from "@/src/features/basket/store";
 import StoreMapScene from "@/src/features/map/components/StoreMapScene";
 import { useRouter } from "expo-router";
-import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../src/components/ui/AppHeader";
 
 export default function MapScreen() {
@@ -11,7 +11,7 @@ export default function MapScreen() {
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right"]}>
       <AppHeader
         title="מפה"
         subtitle={`השוואה סביבך • ${totalCount} מוצרים`}
@@ -20,6 +20,6 @@ export default function MapScreen() {
         items={items}
         onOpenStore={(id) => router.push(`/store/${id}`)}
       />
-    </View>
+    </SafeAreaView>
   );
 }

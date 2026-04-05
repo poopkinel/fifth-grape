@@ -2,6 +2,7 @@ import { useBasketStore } from "@/src/features/basket/store";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import ListItemRow from "../../src/components/list/ListItemRow";
 import SearchResultRow from "../../src/components/list/SearchResultRow";
 import AppHeader from "../../src/components/ui/AppHeader";
@@ -36,7 +37,7 @@ export default function ListScreen() {
 });
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right"]}>
       <AppHeader title="קניות שבועיות" subtitle={`${totalCount} מוצרים`} />
 
       <ScrollView
@@ -163,6 +164,6 @@ export default function ListScreen() {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
