@@ -1,7 +1,7 @@
 import { formatCurrency } from "@/src/utils/format";
 import { useIsFocused } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BasketItem } from "../../basket/types";
 import { useUserLocation } from "../../location/useUserLocation";
@@ -15,9 +15,10 @@ type Props = {
 export default function StoreMapScene({ items, onOpenStore }: Props) {
   const { userCoords, hasPermission } = useUserLocation();
   const mapModel = getMapScreenModel(items, userCoords);
+  const mapRef = useRef<MapView>(null);
 
   const [selectedStoreId, setSelectedStoreId] = useState(
-    mapModel.defaultSelectedStoreId ?? mapModel.markers[0]?.storeId ?? ""
+    mapModel.bestStoreId ?? mapModel.markers[0]?.storeId ?? ""
   );
 
   useEffect(() => {
@@ -25,135 +26,318 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
       if (mapModel.markers.some((store) => store.storeId === current)) {
         return current;
       }
-
-      return mapModel.defaultSelectedStoreId ?? mapModel.markers[0]?.storeId ?? "";
+      return mapModel.bestStoreId ?? mapModel.markers[0]?.storeId ?? "";
     });
-  }, [mapModel.defaultSelectedStoreId, mapModel.markers]);
+  }, [mapModel.bestStoreId, mapModel.markers]);
 
   const selectedStore =
     mapModel.markers.find((s) => s.storeId === selectedStoreId) ??
     mapModel.markers[0];
 
+  // Center map when selected store changes
+  useEffect(() => {
+    if (!selectedStore) return;
+    mapRef.current?.animateToRegion(
+      {
+        latitude: selectedStore.lat,
+        longitude: selectedStore.lng,
+        latitudeDelta: 0.04,
+        longitudeDelta: 0.04,
+      },
+      400
+    );
+  }, [selectedStoreId]);
+
+  const cheapestStoreId = mapModel.markers.reduce(
+    (cheapest, store) =>
+      store.total < (mapModel.markers.find((s) => s.storeId === cheapest)?.total ?? Infinity)
+        ? store.storeId
+        : cheapest,
+    mapModel.markers[0]?.storeId ?? ""
+  );
+
   const isFocused = useIsFocused();
 
   return (
-      <View style={{ padding: 16, gap: 12, flex: 1 }}>
-        
-        <View
-          style={{
-            backgroundColor: "white",
-            borderRadius: 20,
-            padding: 12,
-            flexDirection: "row",
-            gap: 8,
-          }}
-        >
+    <View style={{ flex: 1, padding: 16, gap: 14 }}>
+
+      {/* Store selector tabs — lean: name + distance only */}
+      <View style={{ backgroundColor: "white", borderRadius: 22, padding: 12 }}>
+        <View style={{ flexDirection: "row", gap: 8 }}>
           {mapModel.markers.map((store) => {
             const isActive = selectedStoreId === store.storeId;
-
             return (
-                <TouchableOpacity
-                    key={store.storeId}
-                    onPress={() => setSelectedStoreId(store.storeId)}
-                    style={{
-                        backgroundColor: isActive ? "#111827" : "white",
-                        padding: 12,
-                        borderRadius: 14,
-                    }}
-                    >
-                    <Text style={{  }}>
-                        {store.chainName}
-                    </Text>
-
-                    <Text style={{  }}>
-                        {store.distanceText}
-                    </Text>
-                </TouchableOpacity>
-              );
+              <TouchableOpacity
+                key={store.storeId}
+                onPress={() => setSelectedStoreId(store.storeId)}
+                style={{
+                  flex: 1,
+                  backgroundColor: isActive ? "#111827" : "#ffffff",
+                  borderRadius: 16,
+                  paddingVertical: 12,
+                  paddingHorizontal: 10,
+                  borderWidth: isActive ? 0 : 1,
+                  borderColor: "#e5e7eb",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: isActive ? "700" : "500",
+                    color: isActive ? "white" : "#111827",
+                    marginBottom: 4,
+                    textAlign: "center",
+                  }}
+                  numberOfLines={1}
+                >
+                  {store.chainName}
+                </Text>
+                <Text
+                  style={{
+                    color: isActive ? "#cbd5e1" : "#6b7280",
+                    fontSize: 13,
+                    textAlign: "center",
+                  }}
+                >
+                  {store.distanceText}
+                </Text>
+              </TouchableOpacity>
+            );
           })}
         </View>
+      </View>
 
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "white",
-            borderRadius: 24,
-            overflow: "hidden",
-          }}
-        >
-          {isFocused ? (
-            <MapView 
-              provider={PROVIDER_GOOGLE}
-              showsUserLocation={hasPermission}
-              style={{ flex: 1 }}
-              initialRegion={{
-                latitude: 32.0853,
-                longitude: 34.7818,
-                latitudeDelta: 0.08,
-                longitudeDelta: 0.08
+      {/* Map */}
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "white",
+          borderRadius: 24,
+          overflow: "hidden",
+        }}
+      >
+        {isFocused ? (
+          <MapView
+            ref={mapRef}
+            provider={PROVIDER_GOOGLE}
+            showsUserLocation={hasPermission}
+            style={{ flex: 1 }}
+            initialRegion={{
+              latitude: 32.0853,
+              longitude: 34.7818,
+              latitudeDelta: 0.08,
+              longitudeDelta: 0.08,
+            }}
+          >
+            {mapModel.markers.map((store) => {
+              const isSelected = selectedStore?.storeId === store.storeId;
+              return (
+                <Marker
+                  key={store.storeId}
+                  coordinate={{ latitude: store.lat, longitude: store.lng }}
+                  onPress={() => setSelectedStoreId(store.storeId)}
+                >
+                  <TouchableOpacity
+                    onPress={() => setSelectedStoreId(store.storeId)}
+                    style={{
+                      backgroundColor: store.color,
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 16,
+                      alignItems: "center",
+                      shadowColor: "#000",
+                      shadowOpacity: 0.15,
+                      shadowRadius: 8,
+                      shadowOffset: { width: 0, height: 4 },
+                      elevation: 3,
+                      borderWidth: isSelected ? 3 : 0,
+                      borderColor: isSelected ? "#111827" : "transparent",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "white",
+                        fontWeight: "700",
+                        fontSize: 14,
+                        textAlign: "center",
+                      }}
+                    >
+                      {formatCurrency(store.total)}
+                    </Text>
+                    <Text
+                      style={{
+                        color: "rgba(255,255,255,0.85)",
+                        fontSize: 11,
+                        fontWeight: "500",
+                        textAlign: "center",
+                        marginTop: 2,
+                      }}
+                    >
+                      {store.chainName}
+                    </Text>
+                  </TouchableOpacity>
+                </Marker>
+              );
+            })}
+          </MapView>
+        ) : null}
+
+        {/* Bottom sheet — all detail lives here, not repeated elsewhere */}
+        {selectedStore ? (
+          <View
+            style={{
+              position: "absolute",
+              left: 12,
+              right: 12,
+              bottom: 12,
+              backgroundColor: "white",
+              borderRadius: 22,
+              paddingTop: 10,
+              paddingHorizontal: 18,
+              paddingBottom: 18,
+              shadowColor: "#000",
+              shadowOpacity: 0.08,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 3,
+            }}
+          >
+            {/* Drag handle */}
+            <View
+              style={{
+                width: 36,
+                height: 4,
+                backgroundColor: "#e5e7eb",
+                borderRadius: 999,
+                alignSelf: "center",
+                marginBottom: 14,
+              }}
+            />
+
+            <View
+              style={{
+                flexDirection: "row-reverse",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: 14,
+                gap: 12,
               }}
             >
-              {mapModel.markers.map((store) => {
-                const isSelected = selectedStore?.storeId === store.storeId;
-
-                return (
-                  <Marker 
-                    key={store.storeId}
-                    coordinate={{ latitude: store.lat, longitude: store.lng }}
-                    onPress={() => setSelectedStoreId(store.storeId)}
-                  >
-                    <View>
-                      <TouchableOpacity
-                        onPress={() => setSelectedStoreId(store.storeId)}
-                        style={{
-                          position: "relative",
-                          backgroundColor: store.color,
-                          paddingHorizontal: 12,
-                          paddingVertical: 10,
-                          borderRadius: 16,
-                          shadowColor: "#000",
-                          shadowOpacity: 0.15,
-                          shadowRadius: 8,
-                          shadowOffset: { width: 0, height: 4 },
-                          elevation: 3,
-                          borderWidth: isSelected ? 3 : 0,
-                          borderColor: isSelected ? "#111827" : "transparent",
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: "white",
-                            fontWeight: "700",
-                            fontSize: 14,
-                            textAlign: "center",
-                          }}
-                        >
-                          {formatCurrency(store.total)}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </Marker>
-                );
-            })}
-              
-            </MapView>
-          ): null}
-
-          {selectedStore ? (
+              {/* Completeness badge */}
               <View
                 style={{
-                  position: "absolute",
-                  left: 12,
-                  right: 12,
-                  bottom: 12,
-                  backgroundColor: "white",
-                  borderRadius: 20,
-                  padding: 16,
-                  shadowColor: "#000",
-                  shadowOpacity: 0.08,
-                  shadowRadius: 10,
-                  shadowOffset: { width: 0, height: 4 },
-                  elevation: 3,
+                  backgroundColor: selectedStoreId === mapModel.bestStoreId ? "#d1fae5" : "#fef3c7",
+                  paddingHorizontal: 10,
+                  paddingVertical: 6,
+                  borderRadius: 999,
+                  alignSelf: "flex-start",
+                }}
+              >
+                <Text
+                  style={{
+                    color: selectedStore.missingCount === 0 ? "#065f46" : "#92400e",
+                    fontWeight: "700",
+                    fontSize: 12,
+                  }}
+                >
+                  {selectedStoreId === mapModel.bestStoreId
+                    ? "הבחירה הטובה ביותר"
+                    : `${selectedStore.missingCount} חסרים`}
+                </Text>
+              </View>
+
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "700",
+                    color: "#111827",
+                    marginBottom: 8
+                  }}
+                >
+                  {selectedStore.chainName}
+                </Text>
+
+                {/* Three scoring signals as chips — makes "why best" transparent */}
+                <View style={{ 
+                  flexDirection: "row-reverse", 
+                  gap: 6, 
+                  flexWrap: "wrap", 
+                  justifyContent: "flex-end",
+                  width: "100%",
+                }}
+                  >
+                  <ScoreChip
+                    icon=""
+                    label={formatCurrency(selectedStore.total)}
+                  />
+                  <ScoreChip icon="📍" label={selectedStore.distanceText} />
+                  <ScoreChip icon="" label={selectedStore.missingCount === 0
+                    ? "✓ הכל נמצא"
+                    : `${selectedStore.missingCount} חסרים`} />
+                  <ScoreChip icon="🕐" label={selectedStore.trustText} />
+                </View>
+              </View>
+            </View>
+
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => onOpenStore(selectedStore.storeId)}
+                style={{
+                  flex: 1,
+                  backgroundColor: "#111827",
+                  paddingVertical: 14,
+                  borderRadius: 14,
+                }}
+              >
+                <Text style={{ color: "white", textAlign: "center", fontWeight: "700" }}>
+                  פרטים
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: "#f3f4f6",
+                  paddingVertical: 14,
+                  borderRadius: 14,
+                }}
+              >
+                <Text style={{ color: "#111827", textAlign: "center", fontWeight: "700" }}>
+                  נווט לשם
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Nearby stores — lean cards: price + distance only, no missing count repetition */}
+      {/* <View style={{ backgroundColor: "white", borderRadius: 20, padding: 14 }}>
+        <Text style={{ fontWeight: "700", color: "#111827", marginBottom: 10, fontSize: 15 }}>
+          סניפים באזור
+        </Text>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ flexDirection: "row", gap: 10 }}
+        >
+          {mapModel.markers.map((store) => {
+            const isSelected = selectedStore?.storeId === store.storeId;
+            const isCheapest = store.storeId === cheapestStoreId;
+
+            return (
+              <TouchableOpacity
+                key={store.storeId}
+                onPress={() => setSelectedStoreId(store.storeId)}
+                style={{
+                  width: 160,
+                  backgroundColor: isSelected ? "#ecfdf5" : "#f9fafb",
+                  borderRadius: 16,
+                  padding: 12,
+                  borderWidth: 1,
+                  borderColor: isSelected ? "#34d399" : "#e5e7eb",
                 }}
               >
                 <View
@@ -161,181 +345,77 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                     flexDirection: "row-reverse",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    marginBottom: 12,
+                    marginBottom: 6,
                   }}
                 >
-                  <View
-                    style={{
-                      backgroundColor: "#d1fae5",
-                      paddingHorizontal: 10,
-                      paddingVertical: 6,
-                      borderRadius: 999,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: selectedStore.isBest ? "#065f46" : "#92400e",
-                        fontWeight: "700",
-                        fontSize: 12,
-                      }}
-                    >
-                      {selectedStore.badge}
-                    </Text>
-                  </View>
-
-                  <View style={{ alignItems: "flex-start" }}>
-                    <Text
-                      style={{
-                        color: "#6b7280",
-                        
-                        marginBottom: 4,
-                      }}
-                    >
-                      {selectedStore.title}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        fontWeight: "700",
-                        color: "#111827",
-                        
-                      }}
-                    >
-                      {selectedStore.chainName}
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#6b7280",
-                        
-                        marginBottom: 4,
-                      }}
-                    >
-                      {selectedStore.distanceText} •{" "}
-                      {selectedStore.missingCount === 0
-                        ? "הכול נמצא"
-                        : `${selectedStore.missingCount} חסרים`}
-                    </Text>
-                    <Text
-                      style={{
-                        color: "#6b7280",
-                        
-                      }}
-                    >
-                      {selectedStore.trustText}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={{ flexDirection: "row-reverse", gap: 10 }}>
-                  <TouchableOpacity
-                    onPress={() => onOpenStore(selectedStore.storeId)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#111827",
-                      paddingVertical: 14,
-                      borderRadius: 14,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "white",
-                        textAlign: "center",
-                        fontWeight: "700",
-                      }}
-                    >
-                      פרטים
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#f3f4f6",
-                      paddingVertical: 14,
-                      borderRadius: 14,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "#111827",
-                        textAlign: "center",
-                        fontWeight: "700",
-                      }}
-                    >
-                      נווט לשם
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : null}
-        </View>
-
-        <View
-          style={{
-            backgroundColor: "white",
-            borderRadius: 20,
-            padding: 14,
-          }}
-        >
-          <Text
-            style={{
-              
-              fontWeight: "700",
-              color: "#111827",
-              marginBottom: 8,
-            }}
-          >
-            סניפים באזור
-          </Text>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              {mapModel.markers.map((store) => (
-                <TouchableOpacity
-                  key={store.storeId}
-                  onPress={() => setSelectedStoreId(store.storeId)}
-                  style={{
-                    width: 180,
-                    backgroundColor: selectedStore?.storeId === store.storeId ? "#ecfdf5" : "#f9fafb",
-                    borderRadius: 16,
-                    padding: 12,
-                    borderWidth: 1,
-                    borderColor: selectedStore?.storeId === store.storeId ? "#34d399" : "#e5e7eb",
-                  }}
-                >
-                  <Text
-                    style={{
-                      
-                      fontWeight: "700",
-                      color: "#111827",
-                      marginBottom: 4,
-                    }}
-                  >
+                  <Text style={{ fontWeight: "700", color: "#111827" }}>
                     {store.chainName}
                   </Text>
-                  <Text
-                    style={{
-                      
-                      color: "#6b7280",
-                      marginBottom: 8,
-                    }}
-                  >
-                    {store.distanceText} • {store.missingCount} חסרים
-                  </Text>
-                  <Text
-                    style={{
-                      
-                      fontWeight: "700",
-                      color: "#111827",
-                    }}
-                  >
-                    {formatCurrency(store.total)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    )    
+                  {isCheapest && (
+                    <View
+                      style={{
+                        backgroundColor: "#d1fae5",
+                        paddingHorizontal: 7,
+                        paddingVertical: 3,
+                        borderRadius: 999,
+                      }}
+                    >
+                      <Text style={{ color: "#065f46", fontSize: 11, fontWeight: "700" }}>
+                        הכי זול
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                <Text style={{ fontWeight: "800", color: "#111827", fontSize: 20, marginBottom: 4 }}>
+                  {formatCurrency(store.total)}
+                </Text>
+                <Text style={{ color: "#6b7280", fontSize: 13 }}>
+                  {store.distanceText}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View> */}
+    </View>
+  );
+}
+
+// Chip showing a single scoring signal, optionally highlighted
+function ScoreChip({
+  icon,
+  label,
+  highlight,
+  highlightLabel,
+}: {
+  icon: string;
+  label: string;
+  highlight?: boolean;
+  highlightLabel?: string;
+}) {
+  return (
+    <View
+      style={{
+        flexDirection: "row-reverse",
+        alignItems: "center",
+        gap: 4,
+        backgroundColor: highlight ? "#d1fae5" : "#f3f4f6",
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 999,
+      }}
+    >
+      <Text style={{ fontSize: 12 }}>{icon}</Text>
+      <Text
+        style={{
+          fontSize: 12,
+          fontWeight: highlight ? "700" : "500",
+          color: highlight ? "#065f46" : "#374151",
+        }}
+      >
+        {highlightLabel ? `${label} · ${highlightLabel}` : label}
+      </Text>
+    </View>
+  );
 }

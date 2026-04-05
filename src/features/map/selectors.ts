@@ -62,6 +62,6 @@ export function getMapScreenModel(
 
   return {
     markers,
-    defaultSelectedStoreId: result.bestStoreId,
+    bestStoreId: result.bestStoreId,
   };
 }

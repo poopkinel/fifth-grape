@@ -18,5 +18,5 @@ export type MapStoreMarker = {
 
 export type MapScreenModel = {
   markers: MapStoreMarker[];
-  defaultSelectedStoreId?: string;
+  bestStoreId?: string;
 };
