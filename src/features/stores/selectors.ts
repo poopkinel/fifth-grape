@@ -9,18 +9,17 @@ import { formatDistanceKm, getDistanceKm } from "@/src/utils/distance";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
 import { BasketItem } from "../basket/types";
 import { UserCoords } from "../location/useUserLocation";
-import { usePreferenceStore } from "../preferences/store";
 import { getStoreBasketDetails } from "./getStoreBasketDetails";
 import { StoreScreenModel } from "./types";
 
 export function getStoreScreenModel(
   basket: BasketItem[],
   storeId: string,
-  userCoords: UserCoords | null
+  userCoords: UserCoords | null,
+  usualStoreId?: string
 ): StoreScreenModel | null {
   const stores = getAllStores();
   const prices = getAllPrices();
-  const usualStoreId = usePreferenceStore.getState().usualStoreId;
 
   const details = getStoreBasketDetails(basket, storeId, stores, prices);
   const store = getStoreById(storeId);

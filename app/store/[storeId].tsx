@@ -12,13 +12,14 @@ export default function StoreDetailsScreen() {
   const { storeId } = useLocalSearchParams<{ storeId: string }>();
   const router = useRouter();
   const basket = useBasketStore((state) => state.items);
+  const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
   const setUsualStore = usePreferenceStore((state) => state.setUsualStore);
   const clearUsualStore = usePreferenceStore((state) => state.clearUsualStore);
   const { userCoords } = useUserLocation();
 
   if (!storeId) return null;
 
-  const storeModel = getStoreScreenModel(basket, storeId, userCoords);
+  const storeModel = getStoreScreenModel(basket, storeId, userCoords, usualStoreId);
 
   if (!storeModel) {
     return (
@@ -170,98 +171,41 @@ export default function StoreDetailsScreen() {
           </View>
         </View>
 
-        <View
-          style={{
-            backgroundColor: "white",
-            borderRadius: 20,
-            padding: 16,
-          }}
-        >
-          <Text
-            style={{
-              
-              fontWeight: "700",
-              color: "#111827",
-              marginBottom: 6,
-            }}
-          >
+        <View style={{ backgroundColor: "white", borderRadius: 20, padding: 16 }}>
+          <Text style={{ fontWeight: "700", color: "#111827", marginBottom: 6 }}>
             למה הסניף הזה
           </Text>
-          <Text
-            style={{
-              
-              color: "#111827",
-              marginBottom: 6,
-            }}
-          >
+          <Text style={{ color: "#111827", marginBottom: 6 }}>
             {storeModel.reasonText}
           </Text>
-          {storeModel.isUsualStore ? (
-            <View
-              style={{
-                alignSelf: "flex-end",
-                backgroundColor: "#ecfdf5",
-                borderRadius: 999,
-                paddingHorizontal: 10,
-                paddingVertical: 6,
-                marginBottom: 8,
-              }}
-            >
-              <Text
-                style={{
-                  color: "#047857",
-                  
-                  fontWeight: "700",
-                  fontSize: 12,
-                }}
-              >
-                הסופר הרגיל שלך
-              </Text>
-            </View>
-          ) : null}
-          <Text
-            style={{
-              
-              color: "#6b7280",
-              marginBottom: storeModel.baselineText ? 6 : 12,
-            }}
-          >
+          <Text style={{ color: "#6b7280", marginBottom: storeModel.baselineText ? 6 : 16 }}>
             {storeModel.trustText}
           </Text>
           {storeModel.baselineText ? (
-            <Text
-              style={{
-                
-                color: "#6b7280",
-                marginBottom: 12,
-              }}
-            >
+            <Text style={{ color: "#6b7280", marginBottom: 16 }}>
               {storeModel.baselineText}
             </Text>
           ) : null}
 
-          <TouchableOpacity
-            onPress={() =>
-              storeModel.isUsualStore ? clearUsualStore() : setUsualStore(storeModel.storeId)
-            }
-            style={{
-              alignSelf: "flex-end",
-              backgroundColor: "#f3f4f6",
-              borderRadius: 999,
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-            }}
-          >
-            <Text
-              style={{
-                color: "#111827",
-                
-                fontWeight: "700",
-              }}
+          {/* Badge + button in one row */}
+          <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-between" }}>
+            {storeModel.isUsualStore ? (
+              <View style={{ backgroundColor: "#ecfdf5", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 }}>
+                <Text style={{ color: "#047857", fontWeight: "700", fontSize: 12 }}>
+                  הסופר הרגיל שלך
+                </Text>
+              </View>
+            ) : <View />}
+
+            <TouchableOpacity
+              onPress={() => storeModel.isUsualStore ? clearUsualStore() : setUsualStore(storeModel.storeId)}
+              style={{ backgroundColor: "#f3f4f6", borderRadius: 999, paddingHorizontal: 14, paddingVertical: 10 }}
             >
-              {storeModel.isUsualStore ? "הסר כסופר הרגיל" : "קבע כסופר הרגיל"}
-            </Text>
-          </TouchableOpacity>
+              <Text style={{ color: "#111827", fontWeight: "700" }}>
+                {storeModel.isUsualStore ? "הסר כסופר הרגיל" : "קבע כסופר הרגיל"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View

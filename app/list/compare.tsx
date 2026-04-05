@@ -15,7 +15,8 @@ export default function CompareScreen() {
   const clearUsualStore = usePreferenceStore((state) => state.clearUsualStore);
 
   const { userCoords } = useUserLocation();
-  const compareModel = getCompareScreenModel(userCoords);
+  const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
+  const compareModel = getCompareScreenModel({ userCoords, usualStoreId });
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 

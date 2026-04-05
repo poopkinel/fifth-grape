@@ -45,5 +45,6 @@ export function compareBasket({
       matchedCount,
       coverage,
     };
-  });
+    
+  }).filter((store) => store.matchedCount > 0);
 }

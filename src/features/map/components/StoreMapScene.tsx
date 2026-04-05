@@ -48,14 +48,6 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
     );
   }, [selectedStoreId]);
 
-  const cheapestStoreId = mapModel.markers.reduce(
-    (cheapest, store) =>
-      store.total < (mapModel.markers.find((s) => s.storeId === cheapest)?.total ?? Infinity)
-        ? store.storeId
-        : cheapest,
-    mapModel.markers[0]?.storeId ?? ""
-  );
-
   const isFocused = useIsFocused();
 
   return (
@@ -295,7 +287,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={{
                   flex: 1,
                   backgroundColor: "#f3f4f6",
@@ -306,78 +298,12 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                 <Text style={{ color: "#111827", textAlign: "center", fontWeight: "700" }}>
                   נווט לשם
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
         ) : null}
       </View>
 
-      {/* Nearby stores — lean cards: price + distance only, no missing count repetition */}
-      {/* <View style={{ backgroundColor: "white", borderRadius: 20, padding: 14 }}>
-        <Text style={{ fontWeight: "700", color: "#111827", marginBottom: 10, fontSize: 15 }}>
-          סניפים באזור
-        </Text>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ flexDirection: "row", gap: 10 }}
-        >
-          {mapModel.markers.map((store) => {
-            const isSelected = selectedStore?.storeId === store.storeId;
-            const isCheapest = store.storeId === cheapestStoreId;
-
-            return (
-              <TouchableOpacity
-                key={store.storeId}
-                onPress={() => setSelectedStoreId(store.storeId)}
-                style={{
-                  width: 160,
-                  backgroundColor: isSelected ? "#ecfdf5" : "#f9fafb",
-                  borderRadius: 16,
-                  padding: 12,
-                  borderWidth: 1,
-                  borderColor: isSelected ? "#34d399" : "#e5e7eb",
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row-reverse",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 6,
-                  }}
-                >
-                  <Text style={{ fontWeight: "700", color: "#111827" }}>
-                    {store.chainName}
-                  </Text>
-                  {isCheapest && (
-                    <View
-                      style={{
-                        backgroundColor: "#d1fae5",
-                        paddingHorizontal: 7,
-                        paddingVertical: 3,
-                        borderRadius: 999,
-                      }}
-                    >
-                      <Text style={{ color: "#065f46", fontSize: 11, fontWeight: "700" }}>
-                        הכי זול
-                      </Text>
-                    </View>
-                  )}
-                </View>
-
-                <Text style={{ fontWeight: "800", color: "#111827", fontSize: 20, marginBottom: 4 }}>
-                  {formatCurrency(store.total)}
-                </Text>
-                <Text style={{ color: "#6b7280", fontSize: 13 }}>
-                  {store.distanceText}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      </View> */}
     </View>
   );
 }

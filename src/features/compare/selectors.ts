@@ -6,16 +6,19 @@ import {
 } from "@/src/domain/recommendation/explain";
 import { rankStores } from "@/src/domain/recommendation/rankStores";
 import { useBasketStore } from "@/src/features/basket/store";
-import { usePreferenceStore } from "@/src/features/preferences/store";
 import { formatDistanceKm } from "@/src/utils/distance";
 import { formatCurrency, formatRelativeUpdateTime } from "@/src/utils/format";
 import { CompareCard, CompareScreenModel } from "./types";
 
-export function getCompareScreenModel(
-  userCoords: { latitude: number; longitude: number } | null
-): CompareScreenModel {
+type CompareScreenModelInput = {
+  userCoords: { latitude: number; longitude: number } | null;
+  usualStoreId?: string;
+};
+
+export function getCompareScreenModel({
+   userCoords, usualStoreId 
+  }: CompareScreenModelInput): CompareScreenModel {
   const basket = useBasketStore.getState().items;
-  const usualStoreId = usePreferenceStore.getState().usualStoreId;
 
   if (!basket.length) {
     return {
