@@ -16,7 +16,7 @@ type Input = {
   stores: Store[];
   prices: StoreProductPrice[];
   userCoords: { latitude: number; longitude: number } | null;
-  usualStoreId?: string;
+  usualStoreId?: string | null;
 };
 
 function getStoreUpdatedAt(

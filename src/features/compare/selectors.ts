@@ -1,24 +1,30 @@
-import { getAllPrices } from "@/src/data/prices/priceRepository";
-import { getAllStores } from "@/src/data/stores/storeRepository";
+import { StoreProductPrice } from "@/src/domain/pricing/types";
 import {
   buildBaselineText,
   buildReasonText,
 } from "@/src/domain/recommendation/explain";
 import { rankStores } from "@/src/domain/recommendation/rankStores";
-import { useBasketStore } from "@/src/features/basket/store";
 import { formatDistanceKm } from "@/src/utils/distance";
 import { formatCurrency, formatRelativeUpdateTime } from "@/src/utils/format";
+import { BasketItem } from "../basket/types";
+import { Store } from "../stores/types";
 import { CompareCard, CompareScreenModel } from "./types";
 
 type CompareScreenModelInput = {
+  basket: BasketItem[];
   userCoords: { latitude: number; longitude: number } | null;
-  usualStoreId?: string;
+  usualStoreId?: string | null;
+  stores: Store[];
+  prices: StoreProductPrice[];
 };
 
 export function getCompareScreenModel({
-   userCoords, usualStoreId 
-  }: CompareScreenModelInput): CompareScreenModel {
-  const basket = useBasketStore.getState().items;
+  basket,
+  userCoords,
+  usualStoreId,
+  stores,
+  prices,
+}: CompareScreenModelInput): CompareScreenModel {
 
   if (!basket.length) {
     return {
@@ -27,15 +33,12 @@ export function getCompareScreenModel({
     };
   }
 
-  const stores = getAllStores();
-  const prices = getAllPrices();
-
   const result = rankStores({
     basket,
     stores,
     prices,
     userCoords,
-    usualStoreId,
+    usualStoreId
   });
 
   const cards: CompareCard[] = result.rankedStores.map((store) => {

@@ -1,6 +1,8 @@
+import { useMarketData } from "@/src/data/market/useMarketData";
 import { useBasketStore } from "@/src/features/basket/store";
 import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { usePreferenceStore } from "@/src/features/preferences/store";
+import { getStoreBasketDetails } from "@/src/features/stores/getStoreBasketDetails";
 import { getStoreScreenModel } from "@/src/features/stores/selectors";
 import { formatCurrency } from "@/src/utils/format";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -19,7 +21,61 @@ export default function StoreDetailsScreen() {
 
   if (!storeId) return null;
 
-  const storeModel = getStoreScreenModel(basket, storeId, userCoords, usualStoreId);
+  const { data, isLoading, error } = useMarketData();
+
+  if (error) {
+      return (
+        
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: "#f9fafb" }}
+          edges={["top", "left", "right", "bottom"]}
+        >
+          <AppHeader title="סניף לא נמצא" subtitle="לא הצלחנו לטעון את פרטי הסניף" />
+        </SafeAreaView> 
+      );
+    }
+
+  if (isLoading) {
+      return (
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: "#f9fafb" }}
+          edges={["top", "left", "right", "bottom"]}
+        >
+          <AppHeader
+            title="התוצאה הכי טובה עבורך"
+            subtitle={`תל אביב • רדיוס 5 ק״מ • ${2} מוצרים`}
+          />
+          <View style={{ padding: 16 }}>
+            <Text>טוען נתוני חנויות</Text>
+          </View>
+        </SafeAreaView>
+      );
+    }
+  
+  if (!data) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right", "bottom"]}>
+        <AppHeader title="סניף לא נמצא" subtitle="לא הצלחנו לטעון את פרטי הסניף" />
+      </SafeAreaView>
+    );
+  }
+
+  const details = getStoreBasketDetails(
+    basket,
+    storeId,
+    data.stores,
+    data.prices
+  );
+
+  const storeModel = getStoreScreenModel({
+    basket,
+    storeId,
+    userCoords,
+    usualStoreId,
+    stores: data.stores,
+    prices: data.prices,
+    details,
+  });
 
   if (!storeModel) {
     return (

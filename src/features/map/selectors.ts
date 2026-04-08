@@ -1,8 +1,7 @@
-import { getAllPrices } from "@/src/data/prices/priceRepository";
-import { getAllStores } from "@/src/data/stores/storeRepository";
+import { StoreProductPrice } from "@/src/domain/pricing/types";
 import { rankStores } from "@/src/domain/recommendation/rankStores";
 import { BasketItem } from "@/src/features/basket/types";
-import { usePreferenceStore } from "@/src/features/preferences/store";
+import { Store } from "@/src/features/stores/types";
 import { formatDistanceKm } from "@/src/utils/distance";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
 import { MapScreenModel } from "./types";
@@ -12,14 +11,21 @@ type UserCoords = {
   longitude: number;
 };
 
-export function getMapScreenModel(
-  basket: BasketItem[],
-  userCoords: UserCoords | null
-): MapScreenModel {
-  const stores = getAllStores();
-  const prices = getAllPrices();
-  const usualStoreId = usePreferenceStore.getState().usualStoreId;
+type MapScreenModelInput = {
+  basket: BasketItem[];
+  userCoords: UserCoords | null;
+  usualStoreId?: string;
+  stores: Store[];
+  prices: StoreProductPrice[];
+};
 
+export function getMapScreenModel({
+  basket,
+  userCoords,
+  usualStoreId,
+  stores,
+  prices,
+}: MapScreenModelInput): MapScreenModel {
   const result = rankStores({
     basket,
     stores,
@@ -42,9 +48,7 @@ export function getMapScreenModel(
       matchedCount: store.matchedCount,
       distanceKm: store.distanceKm,
       distanceText:
-        store.distanceKm !== null
-          ? formatDistanceKm(store.distanceKm)
-          : "—",
+        store.distanceKm !== null ? formatDistanceKm(store.distanceKm) : "—",
       title: isBest ? "הבחירה הטובה ביותר" : "השוואה מהירה",
       trustText:
         store.missingCount === 0
@@ -53,8 +57,8 @@ export function getMapScreenModel(
       badge: isBest
         ? "BEST"
         : store.missingCount === 0
-        ? "FULL"
-        : "MISSING",
+          ? "FULL"
+          : "MISSING",
       color: isBest ? "#22c55e" : "#ef4444",
       isBest,
     };

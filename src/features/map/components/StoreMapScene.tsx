@@ -1,3 +1,4 @@
+import { useMarketData } from "@/src/data/market/useMarketData";
 import { formatCurrency } from "@/src/utils/format";
 import { useIsFocused } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
@@ -5,6 +6,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BasketItem } from "../../basket/types";
 import { useUserLocation } from "../../location/useUserLocation";
+import { usePreferenceStore } from "../../preferences/store";
 import { getMapScreenModel } from "../selectors";
 
 type Props = {
@@ -14,7 +16,32 @@ type Props = {
 
 export default function StoreMapScene({ items, onOpenStore }: Props) {
   const { userCoords, hasPermission } = useUserLocation();
-  const mapModel = getMapScreenModel(items, userCoords);
+  const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
+  const { data, isLoading, error } = useMarketData();
+
+  if (isLoading || !data) {
+    return (
+      <View style={{ flex: 1, padding: 16 }}>
+        <Text>טוען נתוני מחירים…</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, padding: 16 }}>
+        <Text>לא הצלחנו לטעון את נתוני המפה.</Text>
+      </View>
+    );
+  }
+
+  const mapModel = getMapScreenModel({
+    basket: items,
+    userCoords,
+    usualStoreId,
+    stores: data.stores,
+    prices: data.prices,
+  });
   const mapRef = useRef<MapView>(null);
 
   const [selectedStoreId, setSelectedStoreId] = useState(
@@ -34,7 +61,6 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
     mapModel.markers.find((s) => s.storeId === selectedStoreId) ??
     mapModel.markers[0];
 
-  // Center map when selected store changes
   useEffect(() => {
     if (!selectedStore) return;
     mapRef.current?.animateToRegion(
@@ -46,14 +72,13 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
       },
       400
     );
-  }, [selectedStoreId]);
+  }, [selectedStoreId, selectedStore]);
 
   const isFocused = useIsFocused();
 
   return (
     <View style={{ flex: 1, padding: 16, gap: 14 }}>
 
-      {/* Store selector tabs — lean: name + distance only */}
       <View style={{ backgroundColor: "white", borderRadius: 22, padding: 12 }}>
         <View style={{ flexDirection: "row", gap: 8 }}>
           {mapModel.markers.map((store) => {
@@ -99,7 +124,6 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
         </View>
       </View>
 
-      {/* Map */}
       <View
         style={{
           flex: 1,
@@ -174,7 +198,6 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
           </MapView>
         ) : null}
 
-        {/* Bottom sheet — all detail lives here, not repeated elsewhere */}
         {selectedStore ? (
           <View
             style={{
@@ -194,7 +217,6 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
               elevation: 3,
             }}
           >
-            {/* Drag handle */}
             <View
               style={{
                 width: 36,
@@ -215,7 +237,6 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                 gap: 12,
               }}
             >
-              {/* Completeness badge */}
               <View
                 style={{
                   backgroundColor: selectedStoreId === mapModel.bestStoreId ? "#d1fae5" : "#fef3c7",
@@ -250,7 +271,6 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                   {selectedStore.chainName}
                 </Text>
 
-                {/* Three scoring signals as chips — makes "why best" transparent */}
                 <View style={{ 
                   flexDirection: "row-reverse", 
                   gap: 6, 

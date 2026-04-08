@@ -1,5 +1,4 @@
-import { getAllPrices } from "@/src/data/prices/priceRepository";
-import { getAllStores, getStoreById } from "@/src/data/stores/storeRepository";
+import { StoreProductPrice } from "@/src/domain/pricing/types";
 import {
   buildBaselineText,
   buildReasonText,
@@ -9,20 +8,28 @@ import { formatDistanceKm, getDistanceKm } from "@/src/utils/distance";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
 import { BasketItem } from "../basket/types";
 import { UserCoords } from "../location/useUserLocation";
-import { getStoreBasketDetails } from "./getStoreBasketDetails";
-import { StoreScreenModel } from "./types";
+import { Store, StoreBasketDetails, StoreScreenModel } from "./types";
 
-export function getStoreScreenModel(
-  basket: BasketItem[],
-  storeId: string,
-  userCoords: UserCoords | null,
-  usualStoreId?: string
-): StoreScreenModel | null {
-  const stores = getAllStores();
-  const prices = getAllPrices();
+type StoreScreenModelInput = {
+  basket: BasketItem[];
+  storeId: string;
+  userCoords: UserCoords | null;
+  usualStoreId?: string;
+  stores: Store[];
+  prices: StoreProductPrice[];
+  details: StoreBasketDetails | null;
+};
 
-  const details = getStoreBasketDetails(basket, storeId, stores, prices);
-  const store = getStoreById(storeId);
+export function getStoreScreenModel({
+  basket,
+  storeId,
+  userCoords,
+  usualStoreId,
+  stores,
+  prices,
+  details
+}: StoreScreenModelInput): StoreScreenModel | null {
+  const store = stores.find((s) => s.storeId === storeId);
 
   if (!details || !store) return null;
 
@@ -42,16 +49,23 @@ export function getStoreScreenModel(
         store.lng
       )
     : null;
-  const matchedCount = recommendation?.matchedCount ?? details.rows.filter((row) => row.inStock).length;
+
+  const matchedCount =
+    recommendation?.matchedCount ??
+    details.rows.filter((row) => row.inStock).length;
+
   const updatedAtText = formatRelativeUpdateTime(
     recommendation?.updatedAt ?? details.updatedAt
   );
+
   const isUsualStore = storeId === usualStoreId;
+
   const reasonText = recommendation
     ? buildReasonText(recommendation, { isUsualStore })
     : details.missingCount === 0
-    ? "כל המוצרים נמצאים כאן"
-    : `חסרים ${details.missingCount} מוצרים`;
+      ? "כל המוצרים נמצאים כאן"
+      : `חסרים ${details.missingCount} מוצרים`;
+
   const baselineText =
     usualStoreId && recommendation?.rank === 0 && !isUsualStore
       ? buildBaselineText(recommendation?.savingsVsUsualStore ?? null)
