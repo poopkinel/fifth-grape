@@ -1,5 +1,3 @@
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
-
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export class ApiError extends Error {
@@ -13,6 +11,8 @@ export class ApiError extends Error {
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
+  const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
   if (!API_BASE_URL) {
     throw new ApiError(0, "API base URL is not configured");
   }
