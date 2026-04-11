@@ -1,9 +1,16 @@
-import { MarketDataSnapshot } from "@/src/data/market/types";
-import { apiGet } from "./apiClient";
-import { MarketSnapshotResponse } from "./types";
+import { PriceLookup } from "@/src/data/market/types";
+import { Product } from "@/src/features/products/types";
+import { apiGet, apiPost } from "./apiClient";
+import { normalizeMarketData } from "./normalizeMarketData";
+import { PriceLookupResponse, ProductSearchResponse } from "./types";
 
-export async function fetchRemoteMarketSnapshot(): Promise<MarketDataSnapshot> {
-  const data = await apiGet<MarketSnapshotResponse>("/v1/market/snapshot");
+export async function fetchRemotePriceLookup(
+  productIds: string[],
+): Promise<PriceLookup> {
+  const raw = await apiPost<PriceLookupResponse>("/v1/prices/lookup", {
+    productIds,
+  });
+  const data = normalizeMarketData(raw);
 
   return {
     stores: data.stores,
@@ -12,4 +19,12 @@ export async function fetchRemoteMarketSnapshot(): Promise<MarketDataSnapshot> {
     source: "remote",
     fetchedAt: data.generatedAt,
   };
+}
+
+export async function fetchRemoteProductSearch(
+  query: string,
+  limit = 50,
+): Promise<Product[]> {
+  const params = new URLSearchParams({ q: query, limit: String(limit) });
+  return apiGet<ProductSearchResponse>(`/v1/products/search?${params}`);
 }

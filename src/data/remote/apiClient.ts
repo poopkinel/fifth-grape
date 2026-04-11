@@ -10,7 +10,12 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
+type RequestOptions = {
+  method: "GET" | "POST";
+  body?: unknown;
+};
+
+async function apiRequest<T>(path: string, options: RequestOptions): Promise<T> {
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
   if (!API_BASE_URL) {
@@ -22,8 +27,14 @@ export async function apiGet<T>(path: string): Promise<T> {
 
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
-      method: "GET",
-      headers: { Accept: "application/json" },
+      method: options.method,
+      headers: {
+        Accept: "application/json",
+        ...(options.body !== undefined && {
+          "Content-Type": "application/json",
+        }),
+      },
+      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
       signal: controller.signal,
     });
 
@@ -46,4 +57,12 @@ export async function apiGet<T>(path: string): Promise<T> {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+export function apiGet<T>(path: string): Promise<T> {
+  return apiRequest<T>(path, { method: "GET" });
+}
+
+export function apiPost<T>(path: string, body: unknown): Promise<T> {
+  return apiRequest<T>(path, { method: "POST", body });
 }
