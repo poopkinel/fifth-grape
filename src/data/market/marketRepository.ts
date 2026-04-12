@@ -2,12 +2,23 @@ import { getAllPrices } from "@/src/data/prices/priceRepository";
 import { getAllProducts } from "@/src/data/products/productRepository";
 import { getAllStores } from "@/src/data/stores/storeRepository";
 import { DATA_SOURCE } from "@/src/data/config/dataSource";
-import { fetchRemoteMarketSnapshot } from "@/src/data/remote/marketApi";
-import { MarketDataSnapshot } from "./types";
+import { fetchRemotePriceLookup } from "@/src/data/remote/marketApi";
+import { PriceLookup } from "./types";
 
-export async function getMarketDataSnapshot(): Promise<MarketDataSnapshot> {
+export async function getPriceLookup(
+  productIds: string[],
+): Promise<PriceLookup> {
   if (DATA_SOURCE === "remote") {
-    return fetchRemoteMarketSnapshot();
+    if (productIds.length === 0) {
+      return {
+        stores: [],
+        products: [],
+        prices: [],
+        source: "remote",
+        fetchedAt: new Date().toISOString(),
+      };
+    }
+    return fetchRemotePriceLookup(productIds);
   }
 
   const [stores, products, prices] = await Promise.all([

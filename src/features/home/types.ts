@@ -10,5 +10,4 @@ export type HomeRecommendation = {
 
 export type HomeScreenModel = {
   recommendation: HomeRecommendation | null;
-  storeCount: number;
 };

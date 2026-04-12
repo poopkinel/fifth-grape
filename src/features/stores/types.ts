@@ -1,3 +1,5 @@
+export type GeocodeStatus = "ok" | "no_results" | null;
+
 export type Store = {
   storeId: string;
   chainId: string;
@@ -5,8 +7,9 @@ export type Store = {
   branchName: string;
   address: string;
   city: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
+  geocodeStatus?: GeocodeStatus;
 };
 
 export type StoreBasketRow = {

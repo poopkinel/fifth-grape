@@ -23,7 +23,7 @@ export function getHomeScreenModel({
   usualStoreId,
 }: HomeScreenModelInput): HomeScreenModel {
   if (!basket.length || !stores.length) {
-    return { recommendation: null, storeCount: stores.length };
+    return { recommendation: null };
   }
 
   const { rankedStores } = rankStores({
@@ -36,7 +36,7 @@ export function getHomeScreenModel({
 
   const best = rankedStores[0];
   if (!best) {
-    return { recommendation: null, storeCount: stores.length };
+    return { recommendation: null };
   }
 
   const isUsualStore = best.store.storeId === usualStoreId;
@@ -51,6 +51,5 @@ export function getHomeScreenModel({
       reasonText: buildReasonText(best, { isUsualStore }),
       missingCount: best.missingCount,
     },
-    storeCount: stores.length,
   };
 }

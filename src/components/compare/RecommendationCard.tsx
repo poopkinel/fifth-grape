@@ -4,6 +4,8 @@ import { Text, TouchableOpacity, View } from "react-native";
 type RecommendationCardProps = {
   title: string;
   chainName: string;
+  branchName: string;
+  address?: string;
   total: number;
   distanceText: string;
   missingCount: number;
@@ -20,6 +22,8 @@ type RecommendationCardProps = {
 export default function RecommendationCard({
   title,
   chainName,
+  branchName,
+  address,
   total,
   distanceText,
   missingCount,
@@ -66,11 +70,31 @@ export default function RecommendationCard({
             color: textColor,
             fontSize: 22,
             fontWeight: "700",
-            
           }}
         >
           {chainName}
         </Text>
+        <Text
+          style={{
+            color: textColor,
+            fontSize: 14,
+            fontWeight: "500",
+            marginTop: 4,
+            opacity: 0.9,
+          }}
+        >
+          {branchName}
+        </Text>
+        {address ? (
+          <Text
+            style={{
+              color: subTextColor,
+              fontSize: 12,
+            }}
+          >
+            {address}
+          </Text>
+        ) : null}
         {isUsualStore ? (
           <View
             style={{
@@ -108,8 +132,8 @@ export default function RecommendationCard({
         <Text
           style={{
             color: subTextColor,
-            
-            marginTop: showReasonText ? 4 : 8,
+            fontSize: 12,
+            marginTop: showReasonText ? 4 : 12,
           }}
         >
           {trustText}

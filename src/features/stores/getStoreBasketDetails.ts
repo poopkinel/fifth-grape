@@ -11,10 +11,18 @@ export function getStoreBasketDetails(
   const store = stores.find((s) => s.storeId === storeId);
   if (!store) return null;
 
+  const storePricesByProductId = new Map<string, StoreProductPrice>();
+  let latestUpdatedAt = "";
+  for (const price of prices) {
+    if (price.storeId !== storeId) continue;
+    storePricesByProductId.set(price.productId, price);
+    if (price.updatedAt && price.updatedAt > latestUpdatedAt) {
+      latestUpdatedAt = price.updatedAt;
+    }
+  }
+
   const rows: StoreBasketRow[] = basket.map((item) => {
-    const priceRecord = prices.find(
-      (price) => price.storeId === storeId && price.productId === item.productId
-    );
+    const priceRecord = storePricesByProductId.get(item.productId);
 
     const inStock = Boolean(priceRecord?.inStock);
     const unitPrice = inStock && priceRecord ? priceRecord.price : null;
@@ -35,21 +43,14 @@ export function getStoreBasketDetails(
   });
 
   const total = rows.reduce((sum, row) => sum + (row.totalPrice ?? 0), 0);
-
   const missingCount = rows.filter((row) => !row.inStock).length;
-
-  const relevantPriceRecords = prices
-    .filter((p) => p.storeId === storeId && p.updatedAt)
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-
-  const updatedAt = relevantPriceRecords[0]?.updatedAt ?? "";
 
   return {
     storeId: store.storeId,
     chainName: store.chainName,
     branchName: store.branchName,
     address: store.address,
-    updatedAt,
+    updatedAt: latestUpdatedAt,
     total: Number(total.toFixed(2)),
     missingCount,
     rows,

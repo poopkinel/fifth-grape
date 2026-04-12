@@ -1,4 +1,7 @@
+import { DATA_SOURCE } from "@/src/data/config/dataSource";
+import { useProductSearch } from "@/src/data/remote/useProductSearch";
 import { useBasketStore } from "@/src/features/basket/store";
+import { Product } from "@/src/features/products/types";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -15,26 +18,36 @@ export default function ListScreen() {
   const addItem = useBasketStore((state) => state.addItem);
   const increaseQuantity = useBasketStore((state) => state.increaseQuantity);
   const decreaseQuantity = useBasketStore((state) => state.decreaseQuantity);
+  const clearBasket = useBasketStore((state) => state.clearBasket);
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const [query, setQuery] = useState("");
 
-  const results = realProducts.filter((item) => {
-  const q = query.trim().toLowerCase();
-  if (!q) return false;
+  const isRemote = DATA_SOURCE === "remote";
+  const { data: remoteResults, isLoading: isSearching } = useProductSearch(
+    isRemote ? query : "",
+  );
 
-  const searchable = [
-    item.name,
-    item.brand ?? "",
-    item.unit ?? "",
-    item.barcode ?? "",
-  ]
-    .join(" ")
-    .toLowerCase();
+  const localResults: Product[] = isRemote
+    ? []
+    : realProducts.filter((item) => {
+        const q = query.trim().toLowerCase();
+        if (!q) return false;
 
-  return searchable.includes(q);
-});
+        const searchable = [
+          item.name,
+          item.brand ?? "",
+          item.unit ?? "",
+          item.barcode ?? "",
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        return searchable.includes(q);
+      });
+
+  const results: Product[] = isRemote ? (remoteResults ?? []) : localResults;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right"]}>
@@ -100,22 +113,52 @@ export default function ListScreen() {
 
         {query.trim().length > 0 && results.length === 0 ? (
           <Text style={{ textAlign: "right", color: "#6b7280" }}>
-            לא נמצאו מוצרים
+            {isSearching ? "מחפש…" : "לא נמצאו מוצרים"}
           </Text>
         ) : null}
                 
-        <Text
+        <View
           style={{
-            textAlign: "right",
-            fontSize: 14,
-            fontWeight: "700",
-            color: "#111827",
+            flexDirection: "row-reverse",
+            justifyContent: "space-between",
+            alignItems: "center",
             marginTop: 8,
             marginBottom: 4,
           }}
         >
-          ברשימה שלך
-        </Text>
+          <Text
+            style={{
+              textAlign: "right",
+              fontSize: 14,
+              fontWeight: "700",
+              color: "#111827",
+            }}
+          >
+            ברשימה שלך
+          </Text>
+
+          {items.length > 0 ? (
+            <TouchableOpacity
+              onPress={clearBasket}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 999,
+                backgroundColor: "#f3f4f6",
+              }}
+            >
+              <Text
+                style={{
+                  color: "#6b7280",
+                  fontSize: 13,
+                  fontWeight: "700",
+                }}
+              >
+                נקה הכל
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
 
         <View style={{ gap: 10, marginTop: 8 }}>
           {items.map((item) => (

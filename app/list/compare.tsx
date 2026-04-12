@@ -17,7 +17,9 @@ export default function CompareScreen() {
   const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
 
   const { userCoords } = useUserLocation();
-  const { data, isLoading, error } = useMarketData();
+  const { data, isLoading, error } = useMarketData(
+    items.map((item) => item.productId),
+  );
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -128,6 +130,8 @@ export default function CompareScreen() {
             key={card.storeId}
             title={card.title}
             chainName={card.chainName}
+            branchName={card.branchName}
+            address={card.address}
             total={card.total}
             distanceText={card.distanceText}
             missingCount={card.missingCount}

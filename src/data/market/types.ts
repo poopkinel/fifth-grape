@@ -4,7 +4,7 @@ import { Store } from "@/src/features/stores/types";
 
 export type MarketDataSource = "demo" | "real-local" | "remote";
 
-export type MarketDataSnapshot = {
+export type PriceLookup = {
   stores: Store[];
   products: Product[];
   prices: StoreProductPrice[];

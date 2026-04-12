@@ -1,10 +1,14 @@
 // src/features/basket/store.ts
 
 import { demoBasketItems } from "@/src/constants/demoData/basket";
+import { DATA_SOURCE } from "@/src/data/config/dataSource";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { BasketItem, SearchProduct } from "./types";
+
+const initialBasketItems: BasketItem[] =
+  DATA_SOURCE === "demo" ? demoBasketItems : [];
 
 type BasketStore = {
   items: BasketItem[];
@@ -21,7 +25,7 @@ type BasketStore = {
 export const useBasketStore = create<BasketStore>()(
   persist(
     (set) => ({
-      items: demoBasketItems,
+      items: initialBasketItems,
 
       addItem: (product) =>
         set((state) => {

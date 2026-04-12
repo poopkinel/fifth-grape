@@ -17,35 +17,24 @@ type Props = {
 export default function StoreMapScene({ items, onOpenStore }: Props) {
   const { userCoords, hasPermission } = useUserLocation();
   const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
-  const { data, isLoading, error } = useMarketData();
-
-  if (isLoading || !data) {
-    return (
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text>טוען נתוני מחירים…</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text>לא הצלחנו לטעון את נתוני המפה.</Text>
-      </View>
-    );
-  }
-
-  const mapModel = getMapScreenModel({
-    basket: items,
-    userCoords,
-    usualStoreId,
-    stores: data.stores,
-    prices: data.prices,
-  });
+  const { data, isLoading, error } = useMarketData(
+    items.map((item) => item.productId),
+  );
   const mapRef = useRef<MapView>(null);
+  const isFocused = useIsFocused();
+
+  const mapModel = data
+    ? getMapScreenModel({
+        basket: items,
+        userCoords,
+        usualStoreId,
+        stores: data.stores,
+        prices: data.prices,
+      })
+    : { markers: [], bestStoreId: undefined };
 
   const [selectedStoreId, setSelectedStoreId] = useState(
-    mapModel.bestStoreId ?? mapModel.markers[0]?.storeId ?? ""
+    mapModel.bestStoreId ?? mapModel.markers[0]?.storeId ?? "",
   );
 
   useEffect(() => {
@@ -70,11 +59,25 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
         latitudeDelta: 0.04,
         longitudeDelta: 0.04,
       },
-      400
+      400,
     );
   }, [selectedStoreId, selectedStore]);
 
-  const isFocused = useIsFocused();
+  if (isLoading || !data) {
+    return (
+      <View style={{ flex: 1, padding: 16 }}>
+        <Text>טוען נתוני מחירים…</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, padding: 16 }}>
+        <Text>לא הצלחנו לטעון את נתוני המפה.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, padding: 16, gap: 14 }}>

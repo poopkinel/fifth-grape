@@ -11,6 +11,8 @@ import {
   RecommendationResult,
 } from "./types";
 
+const SEARCH_RADIUS_KM = 5;
+
 type Input = {
   basket: BasketItem[];
   stores: Store[];
@@ -19,20 +21,41 @@ type Input = {
   usualStoreId?: string | null;
 };
 
-function getStoreUpdatedAt(
+function buildLatestUpdatedAtByStore(
   prices: StoreProductPrice[],
-  storeId: string
-): string {
-  return (
-    prices
-      .filter((price) => price.storeId === storeId && price.updatedAt)
-      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0]?.updatedAt ?? ""
-  );
+): Map<string, string> {
+  const latest = new Map<string, string>();
+  for (const price of prices) {
+    if (!price.updatedAt) continue;
+    const current = latest.get(price.storeId);
+    if (!current || price.updatedAt > current) {
+      latest.set(price.storeId, price.updatedAt);
+    }
+  }
+  return latest;
 }
 
 function getReasonCode(rank: number, missingCount: number): RecommendationReasonCode {
   if (rank === 0) return "best_overall";
   return missingCount === 0 ? "full_basket" : "missing_items";
+}
+
+function filterStoresByRadius(
+  stores: Store[],
+  userCoords: { latitude: number; longitude: number } | null,
+): Store[] {
+  if (!userCoords) return stores;
+
+  return stores.filter((store) => {
+    if (store.lat == null || store.lng == null) return false;
+    const distance = getDistanceKm(
+      userCoords.latitude,
+      userCoords.longitude,
+      store.lat,
+      store.lng,
+    );
+    return distance <= SEARCH_RADIUS_KM;
+  });
 }
 
 export function rankStores({
@@ -42,17 +65,20 @@ export function rankStores({
   userCoords,
   usualStoreId,
 }: Input): RecommendationResult {
-  const baseResults = compareBasket({ basket, stores, prices });
+  const nearbyStores = filterStoresByRadius(stores, userCoords);
+  const baseResults = compareBasket({ basket, stores: nearbyStores, prices });
+  const latestUpdatedAtByStore = buildLatestUpdatedAtByStore(prices);
 
   const enriched = baseResults.map((result) => {
-    const distanceKm = userCoords
-      ? getDistanceKm(
-          userCoords.latitude,
-          userCoords.longitude,
-          result.store.lat,
-          result.store.lng
-        )
-      : null;
+    const distanceKm =
+      userCoords && result.store.lat != null && result.store.lng != null
+        ? getDistanceKm(
+            userCoords.latitude,
+            userCoords.longitude,
+            result.store.lat,
+            result.store.lng,
+          )
+        : null;
 
     const decisionScore = calculateDecisionScore({
       total: result.total,
@@ -65,7 +91,7 @@ export function rankStores({
       distanceKm,
       decisionScore,
       isFullBasket: result.missingCount === 0,
-      updatedAt: getStoreUpdatedAt(prices, result.store.storeId),
+      updatedAt: latestUpdatedAtByStore.get(result.store.storeId) ?? "",
     };
   });
 

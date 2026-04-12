@@ -41,14 +41,15 @@ export function getStoreScreenModel({
     usualStoreId,
   }).rankedStores.find((item) => item.store.storeId === storeId);
 
-  const distanceKm = userCoords
-    ? getDistanceKm(
-        userCoords.latitude,
-        userCoords.longitude,
-        store.lat,
-        store.lng
-      )
-    : null;
+  const distanceKm =
+    userCoords && store.lat != null && store.lng != null
+      ? getDistanceKm(
+          userCoords.latitude,
+          userCoords.longitude,
+          store.lat,
+          store.lng,
+        )
+      : null;
 
   const matchedCount =
     recommendation?.matchedCount ??

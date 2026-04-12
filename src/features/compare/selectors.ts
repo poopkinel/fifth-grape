@@ -10,6 +10,8 @@ import { BasketItem } from "../basket/types";
 import { Store } from "../stores/types";
 import { CompareCard, CompareScreenModel } from "./types";
 
+const MAX_COMPARE_CARDS = 20;
+
 type CompareScreenModelInput = {
   basket: BasketItem[];
   userCoords: { latitude: number; longitude: number } | null;
@@ -41,7 +43,9 @@ export function getCompareScreenModel({
     usualStoreId
   });
 
-  const cards: CompareCard[] = result.rankedStores.map((store) => {
+  const topStores = result.rankedStores.slice(0, MAX_COMPARE_CARDS);
+
+  const cards: CompareCard[] = topStores.map((store) => {
     const distanceText =
       store.distanceKm !== null
         ? formatDistanceKm(store.distanceKm)

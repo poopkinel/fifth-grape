@@ -46,7 +46,7 @@ export function getDistanceInfo(
   userCoords: UserCoords | null,
   store: Store | null
 ): DistanceInfo {
-  if (!userCoords || !store) {
+  if (!userCoords || !store || store.lat == null || store.lng == null) {
     return {
       distanceKm: null,
       distanceText: "—",

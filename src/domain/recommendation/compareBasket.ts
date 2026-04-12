@@ -9,42 +9,48 @@ type Input = {
   prices: StoreProductPrice[];
 };
 
+function priceKey(storeId: string, productId: string): string {
+  return `${storeId}\u0000${productId}`;
+}
+
 export function compareBasket({
   basket,
   stores,
   prices,
 }: Input): StoreComparisonBase[] {
-  return stores.map((store) => {
-    let total = 0;
-    let missingCount = 0;
-    let matchedCount = 0;
+  const priceIndex = new Map<string, StoreProductPrice>();
+  for (const price of prices) {
+    priceIndex.set(priceKey(price.storeId, price.productId), price);
+  }
 
-    for (const item of basket) {
-      const price = prices.find(
-        (p) =>
-          p.storeId === store.storeId &&
-          p.productId === item.productId
-      );
+  return stores
+    .map((store) => {
+      let total = 0;
+      let missingCount = 0;
+      let matchedCount = 0;
 
-      if (!price || !price.inStock) {
-        missingCount++;
-        continue;
+      for (const item of basket) {
+        const price = priceIndex.get(priceKey(store.storeId, item.productId));
+
+        if (!price || !price.inStock) {
+          missingCount++;
+          continue;
+        }
+
+        matchedCount++;
+        total += price.price * item.quantity;
       }
 
-      matchedCount++;
-      total += price.price * item.quantity;
-    }
+      const coverage =
+        basket.length > 0 ? matchedCount / basket.length : 0;
 
-    const coverage =
-      basket.length > 0 ? matchedCount / basket.length : 0;
-
-    return {
-      store,
-      total: Number(total.toFixed(2)),
-      missingCount,
-      matchedCount,
-      coverage,
-    };
-    
-  }).filter((store) => store.matchedCount > 0);
+      return {
+        store,
+        total: Number(total.toFixed(2)),
+        missingCount,
+        matchedCount,
+        coverage,
+      };
+    })
+    .filter((store) => store.matchedCount > 0);
 }

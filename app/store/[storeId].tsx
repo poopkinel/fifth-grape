@@ -19,9 +19,11 @@ export default function StoreDetailsScreen() {
   const clearUsualStore = usePreferenceStore((state) => state.clearUsualStore);
   const { userCoords } = useUserLocation();
 
-  if (!storeId) return null;
+  const { data, isLoading, error } = useMarketData(
+    basket.map((item) => item.productId),
+  );
 
-  const { data, isLoading, error } = useMarketData();
+  if (!storeId) return null;
 
   if (error) {
       return (
