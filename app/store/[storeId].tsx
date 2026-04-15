@@ -4,6 +4,7 @@ import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { usePreferenceStore } from "@/src/features/preferences/store";
 import { getStoreBasketDetails } from "@/src/features/stores/getStoreBasketDetails";
 import { getStoreScreenModel } from "@/src/features/stores/selectors";
+import { useTheme } from "@/src/theme";
 import { formatCurrency } from "@/src/utils/format";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -13,6 +14,7 @@ import AppHeader from "../../src/components/ui/AppHeader";
 export default function StoreDetailsScreen() {
   const { storeId } = useLocalSearchParams<{ storeId: string }>();
   const router = useRouter();
+  const theme = useTheme();
   const basket = useBasketStore((state) => state.items);
   const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
   const setUsualStore = usePreferenceStore((state) => state.setUsualStore);
@@ -26,48 +28,39 @@ export default function StoreDetailsScreen() {
   if (!storeId) return null;
 
   if (error) {
-      return (
-        
-        <SafeAreaView
-          style={{ flex: 1, backgroundColor: "#f9fafb" }}
-          edges={["top", "left", "right", "bottom"]}
-        >
-          <AppHeader title="סניף לא נמצא" subtitle="לא הצלחנו לטעון את פרטי הסניף" />
-        </SafeAreaView> 
-      );
-    }
-
-  if (isLoading) {
-      return (
-        <SafeAreaView
-          style={{ flex: 1, backgroundColor: "#f9fafb" }}
-          edges={["top", "left", "right", "bottom"]}
-        >
-          <AppHeader
-            title="התוצאה הכי טובה עבורך"
-            subtitle={`תל אביב • רדיוס 5 ק״מ • ${2} מוצרים`}
-          />
-          <View style={{ padding: 16 }}>
-            <Text>טוען נתוני חנויות</Text>
-          </View>
-        </SafeAreaView>
-      );
-    }
-  
-  if (!data) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right", "bottom"]}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: theme.background }}
+        edges={["top", "left", "right", "bottom"]}
+      >
         <AppHeader title="סניף לא נמצא" subtitle="לא הצלחנו לטעון את פרטי הסניף" />
       </SafeAreaView>
     );
   }
 
-  const details = getStoreBasketDetails(
-    basket,
-    storeId,
-    data.stores,
-    data.prices
-  );
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: theme.background }}
+        edges={["top", "left", "right", "bottom"]}
+      >
+        <AppHeader title="טוען..." subtitle="מחפש את פרטי הסניף" />
+        <View style={{ padding: 16 }}>
+          <Text style={{ color: theme.textSecondary }}>טוען נתוני חנויות</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!data) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }} edges={["top", "left", "right", "bottom"]}>
+        <AppHeader title="סניף לא נמצא" subtitle="לא הצלחנו לטעון את פרטי הסניף" />
+      </SafeAreaView>
+    );
+  }
+
+  const details = getStoreBasketDetails(basket, storeId, data.stores, data.prices);
 
   const storeModel = getStoreScreenModel({
     basket,
@@ -81,14 +74,14 @@ export default function StoreDetailsScreen() {
 
   if (!storeModel) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right", "bottom"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }} edges={["top", "left", "right", "bottom"]}>
         <AppHeader title="סניף לא נמצא" subtitle="לא הצלחנו לטעון את פרטי הסניף" />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right", "bottom"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }} edges={["top", "left", "right", "bottom"]}>
       <AppHeader title={storeModel.title} subtitle={storeModel.subtitle} />
 
       <ScrollView
@@ -98,20 +91,15 @@ export default function StoreDetailsScreen() {
           paddingBottom: 32,
         }}
       >
+        {/* Green stats card — stays green in both modes */}
         <View
           style={{
-            backgroundColor: "#10b981",
+            backgroundColor: theme.accent,
             borderRadius: 20,
             padding: 16,
           }}
         >
-          <Text
-            style={{
-              color: "#d1fae5",
-              
-              marginBottom: 4,
-            }}
-          >
+          <Text style={{ color: "#d1fae5", marginBottom: 4 }}>
             פירוט לפי הסל הנוכחי שלך
           </Text>
 
@@ -120,7 +108,6 @@ export default function StoreDetailsScreen() {
               color: "white",
               fontSize: 24,
               fontWeight: "700",
-              
               marginBottom: 14,
             }}
           >
@@ -134,122 +121,67 @@ export default function StoreDetailsScreen() {
               justifyContent: "space-between",
             }}
           >
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: "rgba(255,255,255,0.12)",
-                borderRadius: 14,
-                paddingVertical: 12,
-                paddingHorizontal: 10,
-              }}
-            >
-              <Text
+            {[
+              { label: "סה״כ", value: formatCurrency(storeModel.total) },
+              { label: "מרחק", value: storeModel.distanceText },
+              { label: "חסרים", value: String(storeModel.missingCount) },
+            ].map((stat) => (
+              <View
+                key={stat.label}
                 style={{
-                  color: "#d1fae5",
-                  textAlign: "center",
-                  fontSize: 12,
-                  marginBottom: 4,
+                  flex: 1,
+                  backgroundColor: "rgba(255,255,255,0.12)",
+                  borderRadius: 14,
+                  paddingVertical: 12,
+                  paddingHorizontal: 10,
                 }}
               >
-                סה״כ
-              </Text>
-              <Text
-                style={{
-                  color: "white",
-                  textAlign: "center",
-                  fontSize: 18,
-                  fontWeight: "700",
-                }}
-              >
-                {formatCurrency(storeModel.total)}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: "rgba(255,255,255,0.12)",
-                borderRadius: 14,
-                paddingVertical: 12,
-                paddingHorizontal: 10,
-              }}
-            >
-              <Text
-                style={{
-                  color: "#d1fae5",
-                  textAlign: "center",
-                  fontSize: 12,
-                  marginBottom: 4,
-                }}
-              >
-                מרחק
-              </Text>
-              <Text
-                style={{
-                  color: "white",
-                  textAlign: "center",
-                  fontSize: 18,
-                  fontWeight: "700",
-                }}
-              >
-                {storeModel.distanceText}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: "rgba(255,255,255,0.12)",
-                borderRadius: 14,
-                paddingVertical: 12,
-                paddingHorizontal: 10,
-              }}
-            >
-              <Text
-                style={{
-                  color: "#d1fae5",
-                  textAlign: "center",
-                  fontSize: 12,
-                  marginBottom: 4,
-                }}
-              >
-                חסרים
-              </Text>
-              <Text
-                style={{
-                  color: "white",
-                  textAlign: "center",
-                  fontSize: 18,
-                  fontWeight: "700",
-                }}
-              >
-                {storeModel.missingCount}
-              </Text>
-            </View>
+                <Text
+                  style={{
+                    color: "#d1fae5",
+                    textAlign: "center",
+                    fontSize: 12,
+                    marginBottom: 4,
+                  }}
+                >
+                  {stat.label}
+                </Text>
+                <Text
+                  style={{
+                    color: "white",
+                    textAlign: "center",
+                    fontSize: 18,
+                    fontWeight: "700",
+                  }}
+                >
+                  {stat.value}
+                </Text>
+              </View>
+            ))}
           </View>
         </View>
 
-        <View style={{ backgroundColor: "white", borderRadius: 20, padding: 16 }}>
-          <Text style={{ fontWeight: "700", color: "#111827", marginBottom: 6 }}>
+        {/* Reason card */}
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16 }}>
+          <Text style={{ fontWeight: "700", color: theme.textPrimary, marginBottom: 6 }}>
             למה הסניף הזה
           </Text>
-          <Text style={{ color: "#111827", marginBottom: 6 }}>
+          <Text style={{ color: theme.textPrimary, marginBottom: 6 }}>
             {storeModel.reasonText}
           </Text>
-          <Text style={{ color: "#6b7280", marginBottom: storeModel.baselineText ? 6 : 16 }}>
+          <Text style={{ color: theme.textSecondary, marginBottom: storeModel.baselineText ? 6 : 16 }}>
             {storeModel.trustText}
           </Text>
           {storeModel.baselineText ? (
-            <Text style={{ color: "#6b7280", marginBottom: 16 }}>
+            <Text style={{ color: theme.textSecondary, marginBottom: 16 }}>
               {storeModel.baselineText}
             </Text>
           ) : null}
 
-          {/* Badge + button in one row */}
           <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-between" }}>
             {storeModel.isUsualStore ? (
-              <View style={{ backgroundColor: "#ecfdf5", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 }}>
-                <Text style={{ color: "#047857", fontWeight: "700", fontSize: 12 }}>
+              <View style={{ backgroundColor: theme.accentLight, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 }}>
+                <Text style={{ color: theme.accentText, fontWeight: "700", fontSize: 12 }}>
                   הסופר הרגיל שלך
                 </Text>
               </View>
@@ -257,29 +189,23 @@ export default function StoreDetailsScreen() {
 
             <TouchableOpacity
               onPress={() => storeModel.isUsualStore ? clearUsualStore() : setUsualStore(storeModel.storeId)}
-              style={{ backgroundColor: "#f3f4f6", borderRadius: 999, paddingHorizontal: 14, paddingVertical: 10 }}
+              style={{ backgroundColor: theme.statBg, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 10 }}
             >
-              <Text style={{ color: "#111827", fontWeight: "700" }}>
+              <Text style={{ color: theme.textPrimary, fontWeight: "700" }}>
                 {storeModel.isUsualStore ? "הסר כסופר הרגיל" : "קבע כסופר הרגיל"}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <View
-          style={{
-            backgroundColor: "white",
-            borderRadius: 20,
-            padding: 16,
-          }}
-        >
+        {/* Product breakdown */}
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16 }}>
           <Text
             style={{
-              
               fontSize: 16,
               fontWeight: "700",
               marginBottom: 12,
-              color: "#111827",
+              color: theme.textPrimary,
             }}
           >
             פירוט המוצרים
@@ -293,11 +219,11 @@ export default function StoreDetailsScreen() {
                 <View
                   key={item.productId}
                   style={{
-                    backgroundColor: "#ffffff",
+                    backgroundColor: theme.card,
                     borderRadius: 16,
                     padding: 14,
                     borderWidth: 1,
-                    borderColor: missing ? "#fde68a" : "#e5e7eb",
+                    borderColor: missing ? theme.warningBorder : theme.cardBorder,
                     flexDirection: "row-reverse",
                     justifyContent: "space-between",
                     alignItems: "center",
@@ -310,9 +236,8 @@ export default function StoreDetailsScreen() {
                   <View style={{ alignItems: "flex-end", flex: 1 }}>
                     <Text
                       style={{
-                        
                         fontWeight: "600",
-                        color: "#111827",
+                        color: theme.textPrimary,
                         marginBottom: 4,
                       }}
                     >
@@ -320,8 +245,7 @@ export default function StoreDetailsScreen() {
                     </Text>
                     <Text
                       style={{
-                        
-                        color: "#6b7280",
+                        color: theme.textSecondary,
                         marginBottom: 2,
                       }}
                     >
@@ -329,8 +253,7 @@ export default function StoreDetailsScreen() {
                     </Text>
                     <Text
                       style={{
-                        
-                        color: missing ? "#b45309" : "#6b7280",
+                        color: missing ? theme.warningText : theme.textSecondary,
                       }}
                     >
                       {item.statusText}
@@ -342,7 +265,7 @@ export default function StoreDetailsScreen() {
                       style={{
                         fontWeight: "700",
                         fontSize: 16,
-                        color: missing ? "#b45309" : "#111827",
+                        color: missing ? theme.warningText : theme.textPrimary,
                       }}
                     >
                       {item.totalPrice == null ? "—" : formatCurrency(item.totalPrice)}
@@ -354,72 +277,32 @@ export default function StoreDetailsScreen() {
           </View>
         </View>
 
+        {/* Footer info cards */}
         <View style={{ flexDirection: "row-reverse", gap: 12 }}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "white",
-              borderRadius: 20,
-              padding: 16,
-            }}
-          >
-            <Text
-              style={{
-                
-                fontWeight: "700",
-                marginBottom: 6,
-                color: "#111827",
-              }}
-            >
+          <View style={{ flex: 1, backgroundColor: theme.card, borderRadius: 20, padding: 16 }}>
+            <Text style={{ fontWeight: "700", marginBottom: 6, color: theme.textPrimary }}>
               עדכון אחרון
             </Text>
-            <Text style={{  color: "#6b7280" }}>
+            <Text style={{ color: theme.textSecondary }}>
               {storeModel.updatedAtText}
             </Text>
           </View>
 
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "white",
-              borderRadius: 20,
-              padding: 16,
-            }}
-          >
-            <Text
-              style={{
-                
-                fontWeight: "700",
-              marginBottom: 6,
-              color: "#111827",
-            }}
-          >
+          <View style={{ flex: 1, backgroundColor: theme.card, borderRadius: 20, padding: 16 }}>
+            <Text style={{ fontWeight: "700", marginBottom: 6, color: theme.textPrimary }}>
               נמצאו בסל
             </Text>
-            <Text style={{  color: "#6b7280" }}>
+            <Text style={{ color: theme.textSecondary }}>
               {storeModel.matchedCount} מתוך {storeModel.matchedCount + storeModel.missingCount} מוצרים
             </Text>
           </View>
         </View>
 
-        <View
-          style={{
-            backgroundColor: "white",
-            borderRadius: 20,
-            padding: 16,
-          }}
-        >
-          <Text
-            style={{
-              
-              fontWeight: "700",
-              marginBottom: 6,
-              color: "#111827",
-            }}
-          >
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16 }}>
+          <Text style={{ fontWeight: "700", marginBottom: 6, color: theme.textPrimary }}>
             כדאי לפצל?
           </Text>
-          <Text style={{  color: "#6b7280" }}>
+          <Text style={{ color: theme.textSecondary }}>
             {storeModel.splitTripText}
           </Text>
         </View>
@@ -427,14 +310,14 @@ export default function StoreDetailsScreen() {
         <TouchableOpacity
           onPress={() => router.push("/map/compare")}
           style={{
-            backgroundColor: "#111827",
+            backgroundColor: theme.textPrimary,
             borderRadius: 16,
             paddingVertical: 16,
           }}
         >
           <Text
             style={{
-              color: "white",
+              color: theme.background,
               textAlign: "center",
               fontWeight: "700",
             }}

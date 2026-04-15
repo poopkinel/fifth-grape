@@ -6,7 +6,7 @@ import { formatDistanceKm } from "@/src/utils/distance";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
 import { MapScreenModel } from "./types";
 
-const MAX_MAP_MARKERS = 10;
+const MAX_MAP_MARKERS = 5;
 
 type UserCoords = {
   latitude: number;

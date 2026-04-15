@@ -5,6 +5,7 @@ import { getHomeScreenModel } from "@/src/features/home/selectors";
 import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { usePreferenceStore } from "@/src/features/preferences/store";
 import { realProducts } from "@/src/lib/constants/realProducts";
+import { useTheme } from "@/src/theme";
 import { useRouter } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,6 +25,7 @@ const popularProducts = realProducts.filter((p) =>
 
 export default function HomeScreen() {
   const router = useRouter();
+  const theme = useTheme();
   const items = useBasketStore((state) => state.items);
   const addItem = useBasketStore((state) => state.addItem);
   const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
@@ -57,7 +59,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: "#f9fafb" }}
+      style={{ flex: 1, backgroundColor: theme.background }}
       edges={["top"]}
     >
       <AppHeader
@@ -73,10 +75,10 @@ export default function HomeScreen() {
           alignItems: "stretch",
         }}
       >
-        {/* Location + Basket Summary Card */}
+        {/* Location + Basket Summary Card — stays green in both modes */}
         <View
           style={{
-            backgroundColor: "#10b981",
+            backgroundColor: theme.accent,
             padding: 22,
             borderRadius: 24,
             alignItems: "stretch",
@@ -149,24 +151,24 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Recommendation Card — only when basket has items */}
+        {/* Recommendation Card */}
         {recommendation ? (
           <TouchableOpacity
             onPress={() => router.push(`/store/${recommendation.storeId}`)}
             activeOpacity={0.7}
             style={{
-              backgroundColor: "white",
+              backgroundColor: theme.card,
               borderRadius: 20,
               padding: 16,
               borderWidth: 1,
-              borderColor: "#a7f3d0",
+              borderColor: theme.accentBorder,
               gap: 14,
             }}
           >
             <View>
               <Text
                 style={{
-                  color: "#047857",
+                  color: theme.accentText,
                   fontSize: 13,
                   fontWeight: "700",
                   marginBottom: 4,
@@ -176,14 +178,14 @@ export default function HomeScreen() {
               </Text>
               <Text
                 style={{
-                  color: "#111827",
+                  color: theme.textPrimary,
                   fontSize: 22,
                   fontWeight: "700",
                 }}
               >
                 {recommendation.chainName}
               </Text>
-              <Text style={{ color: "#6b7280", marginTop: 4 }}>
+              <Text style={{ color: theme.textSecondary, marginTop: 4 }}>
                 {recommendation.branchName}
               </Text>
             </View>
@@ -197,7 +199,7 @@ export default function HomeScreen() {
               <View
                 style={{
                   flex: 1,
-                  backgroundColor: "#ecfdf5",
+                  backgroundColor: theme.accentLight,
                   borderRadius: 14,
                   paddingVertical: 12,
                   paddingHorizontal: 10,
@@ -205,7 +207,7 @@ export default function HomeScreen() {
               >
                 <Text
                   style={{
-                    color: "#047857",
+                    color: theme.accentText,
                     fontSize: 12,
                     textAlign: "center",
                     marginBottom: 4,
@@ -215,7 +217,7 @@ export default function HomeScreen() {
                 </Text>
                 <Text
                   style={{
-                    color: "#065f46",
+                    color: theme.accentTextDark,
                     fontSize: 18,
                     fontWeight: "700",
                     textAlign: "center",
@@ -228,7 +230,7 @@ export default function HomeScreen() {
               <View
                 style={{
                   flex: 1,
-                  backgroundColor: "#f3f4f6",
+                  backgroundColor: theme.statBg,
                   borderRadius: 14,
                   paddingVertical: 12,
                   paddingHorizontal: 10,
@@ -236,7 +238,7 @@ export default function HomeScreen() {
               >
                 <Text
                   style={{
-                    color: "#6b7280",
+                    color: theme.textSecondary,
                     fontSize: 12,
                     textAlign: "center",
                     marginBottom: 4,
@@ -246,7 +248,7 @@ export default function HomeScreen() {
                 </Text>
                 <Text
                   style={{
-                    color: "#111827",
+                    color: theme.textPrimary,
                     fontSize: 18,
                     fontWeight: "700",
                     textAlign: "center",
@@ -260,7 +262,7 @@ export default function HomeScreen() {
                 <View
                   style={{
                     flex: 1,
-                    backgroundColor: "#fef3c7",
+                    backgroundColor: theme.warningBg,
                     borderRadius: 14,
                     paddingVertical: 12,
                     paddingHorizontal: 10,
@@ -268,7 +270,7 @@ export default function HomeScreen() {
                 >
                   <Text
                     style={{
-                      color: "#92400e",
+                      color: theme.warningTextDark,
                       fontSize: 12,
                       textAlign: "center",
                       marginBottom: 4,
@@ -278,7 +280,7 @@ export default function HomeScreen() {
                   </Text>
                   <Text
                     style={{
-                      color: "#b45309",
+                      color: theme.warningText,
                       fontSize: 18,
                       fontWeight: "700",
                       textAlign: "center",
@@ -292,7 +294,7 @@ export default function HomeScreen() {
 
             <Text
               style={{
-                color: "#047857",
+                color: theme.accentText,
                 fontWeight: "600",
               }}
             >
@@ -305,18 +307,18 @@ export default function HomeScreen() {
         {!hasBasket ? (
           <View
             style={{
-              backgroundColor: "white",
+              backgroundColor: theme.card,
               borderRadius: 20,
               padding: 16,
               borderWidth: 1,
-              borderColor: "#e5e7eb",
+              borderColor: theme.cardBorder,
             }}
           >
             <Text
               style={{
                 fontWeight: "700",
                 fontSize: 18,
-                color: "#111827",
+                color: theme.textPrimary,
                 marginBottom: 4,
               }}
             >
@@ -324,7 +326,7 @@ export default function HomeScreen() {
             </Text>
             <Text
               style={{
-                color: "#6b7280",
+                color: theme.textSecondary,
                 marginBottom: 14,
               }}
             >
@@ -354,7 +356,7 @@ export default function HomeScreen() {
                   style={{
                     flexDirection: "row-reverse",
                     alignItems: "center",
-                    backgroundColor: "#f3f4f6",
+                    backgroundColor: theme.statBg,
                     borderRadius: 14,
                     paddingHorizontal: 12,
                     paddingVertical: 10,
@@ -366,7 +368,7 @@ export default function HomeScreen() {
                       width: 36,
                       height: 36,
                       borderRadius: 12,
-                      backgroundColor: "white",
+                      backgroundColor: theme.card,
                       alignItems: "center",
                       justifyContent: "center",
                     }}
@@ -375,7 +377,7 @@ export default function HomeScreen() {
                   </View>
                   <Text
                     style={{
-                      color: "#111827",
+                      color: theme.textPrimary,
                       fontWeight: "600",
                       fontSize: 14,
                     }}
@@ -391,7 +393,7 @@ export default function HomeScreen() {
         {/* CTA Buttons */}
         <View
           style={{
-            backgroundColor: "white",
+            backgroundColor: theme.card,
             borderRadius: 24,
             padding: 20,
             shadowColor: "#000",
@@ -406,7 +408,7 @@ export default function HomeScreen() {
             style={{
               fontWeight: "700",
               fontSize: 18,
-              color: "#111827",
+              color: theme.textPrimary,
               marginBottom: 6,
             }}
           >
@@ -415,7 +417,7 @@ export default function HomeScreen() {
 
           <Text
             style={{
-              color: "#6b7280",
+              color: theme.textSecondary,
               marginBottom: 18,
               lineHeight: 20,
             }}
@@ -431,14 +433,14 @@ export default function HomeScreen() {
               onPress={() => router.push(compareRoute as any)}
               style={{
                 flex: 1,
-                backgroundColor: hasBasket ? "#111827" : "#d1d5db",
+                backgroundColor: hasBasket ? theme.textPrimary : theme.statBg,
                 paddingVertical: 16,
                 borderRadius: 16,
               }}
             >
               <Text
                 style={{
-                  color: hasBasket ? "white" : "#6b7280",
+                  color: hasBasket ? theme.background : theme.textMuted,
                   textAlign: "center",
                   fontWeight: "700",
                 }}
@@ -451,14 +453,14 @@ export default function HomeScreen() {
               onPress={() => router.push(basketEditorRoute as any)}
               style={{
                 flex: 1,
-                backgroundColor: "#f3f4f6",
+                backgroundColor: theme.statBg,
                 paddingVertical: 14,
                 borderRadius: 14,
               }}
             >
               <Text
                 style={{
-                  color: "#111827",
+                  color: theme.textPrimary,
                   textAlign: "center",
                   fontWeight: "700",
                 }}

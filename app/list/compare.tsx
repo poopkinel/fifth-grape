@@ -5,12 +5,14 @@ import { useBasketStore } from "@/src/features/basket/store";
 import { getCompareScreenModel } from "@/src/features/compare/selectors";
 import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { usePreferenceStore } from "@/src/features/preferences/store";
+import { useTheme } from "@/src/theme";
 import { useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CompareScreen() {
   const router = useRouter();
+  const theme = useTheme();
   const items = useBasketStore((state) => state.items);
   const setUsualStore = usePreferenceStore((state) => state.setUsualStore);
   const clearUsualStore = usePreferenceStore((state) => state.clearUsualStore);
@@ -26,7 +28,7 @@ export default function CompareScreen() {
   if (!items.length) {
     return (
       <SafeAreaView
-        style={{ flex: 1, backgroundColor: "#f9fafb" }}
+        style={{ flex: 1, backgroundColor: theme.background }}
         edges={["top", "left", "right", "bottom"]}
       >
         <AppHeader
@@ -40,7 +42,7 @@ export default function CompareScreen() {
   if (isLoading || !data) {
     return (
       <SafeAreaView
-        style={{ flex: 1, backgroundColor: "#f9fafb" }}
+        style={{ flex: 1, backgroundColor: theme.background }}
         edges={["top", "left", "right", "bottom"]}
       >
         <AppHeader
@@ -48,7 +50,7 @@ export default function CompareScreen() {
           subtitle={`תל אביב • רדיוס 5 ק״מ • ${totalCount} מוצרים`}
         />
         <View style={{ padding: 16 }}>
-          <Text>טוען נתוני מחירים…</Text>
+          <Text style={{ color: theme.textSecondary }}>טוען נתוני מחירים…</Text>
         </View>
       </SafeAreaView>
     );
@@ -57,7 +59,7 @@ export default function CompareScreen() {
   if (error) {
     return (
       <SafeAreaView
-        style={{ flex: 1, backgroundColor: "#f9fafb" }}
+        style={{ flex: 1, backgroundColor: theme.background }}
         edges={["top", "left", "right", "bottom"]}
       >
         <AppHeader
@@ -65,7 +67,9 @@ export default function CompareScreen() {
           subtitle={`תל אביב • רדיוס 5 ק״מ • ${totalCount} מוצרים`}
         />
         <View style={{ padding: 16 }}>
-          <Text>לא הצלחנו לטעון את נתוני המחירים.</Text>
+          <Text style={{ color: theme.textSecondary }}>
+            לא הצלחנו לטעון את נתוני המחירים.
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -81,7 +85,7 @@ export default function CompareScreen() {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: "#f9fafb" }}
+      style={{ flex: 1, backgroundColor: theme.background }}
       edges={["top", "left", "right", "bottom"]}
     >
       <AppHeader
@@ -98,16 +102,16 @@ export default function CompareScreen() {
       >
         <View
           style={{
-            backgroundColor: "#ecfdf5",
+            backgroundColor: theme.accentLight,
             borderRadius: 16,
             padding: 14,
             borderWidth: 1,
-            borderColor: "#a7f3d0",
+            borderColor: theme.accentBorder,
           }}
         >
           <Text
             style={{
-              color: "#065f46",
+              color: theme.accentTextDark,
               fontWeight: "700",
               marginBottom: 4,
             }}
@@ -117,7 +121,7 @@ export default function CompareScreen() {
 
           <Text
             style={{
-              color: "#047857",
+              color: theme.accentText,
               lineHeight: 22,
             }}
           >

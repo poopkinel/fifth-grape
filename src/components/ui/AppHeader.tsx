@@ -1,3 +1,4 @@
+import { useTheme } from "@/src/theme";
 import { Text, View } from "react-native";
 
 type Props = {
@@ -6,20 +7,22 @@ type Props = {
 };
 
 export default function AppHeader({ title, subtitle }: Props) {
+  const theme = useTheme();
+
   return (
     <View
       style={{
         padding: 16,
-        backgroundColor: "white",
+        backgroundColor: theme.card,
         borderBottomWidth: 1,
-        borderBottomColor: "#e5e7eb",
+        borderBottomColor: theme.cardBorder,
       }}
     >
       <Text
         style={{
           fontSize: 18,
           fontWeight: "bold",
-          color: "#111827",
+          color: theme.textPrimary,
         }}
       >
         {title}
@@ -28,7 +31,7 @@ export default function AppHeader({ title, subtitle }: Props) {
       {subtitle ? (
         <Text
           style={{
-            color: "#6b7280",
+            color: theme.textSecondary,
             marginTop: 4,
           }}
         >

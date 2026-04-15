@@ -16,8 +16,6 @@ type LocationState = {
   fetchLocation: () => Promise<void>;
 };
 
-const RETRY_DELAY_MS = 3000;
-
 function coordsFromLocation(
   location: Location.LocationObject,
 ): UserCoords {
@@ -48,6 +46,7 @@ const useLocationStore = create<LocationState>((set, get) => ({
         return;
       }
 
+      // Use lastKnownPosition as an immediate fallback
       const lastKnown = await Location.getLastKnownPositionAsync();
       if (lastKnown) {
         set({
@@ -57,18 +56,22 @@ const useLocationStore = create<LocationState>((set, get) => ({
         });
       }
 
-      const location = await Location.getCurrentPositionAsync({});
-      set({
-        userLocation: location,
-        userCoords: coordsFromLocation(location),
-        isLoading: false,
-      });
+      // Subscribe to location updates — more reliable than getCurrentPositionAsync
+      // on Android emulators where the GPS provider may not be active yet
+      const subscription = await Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.Balanced },
+        (location) => {
+          set({
+            userLocation: location,
+            userCoords: coordsFromLocation(location),
+            isLoading: false,
+          });
+          subscription.remove();
+        },
+      );
     } catch {
-      console.warn("Location unavailable — retrying shortly");
-      set({ isLoading: false, hasFetched: false });
-      setTimeout(() => {
-        void get().fetchLocation();
-      }, RETRY_DELAY_MS);
+      console.warn("Location unavailable — distance features will be disabled");
+      set({ isLoading: false });
     }
   },
 }));

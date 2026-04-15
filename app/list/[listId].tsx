@@ -2,6 +2,7 @@ import { DATA_SOURCE } from "@/src/data/config/dataSource";
 import { useProductSearch } from "@/src/data/remote/useProductSearch";
 import { useBasketStore } from "@/src/features/basket/store";
 import { Product } from "@/src/features/products/types";
+import { useTheme } from "@/src/theme";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -13,6 +14,7 @@ import { realProducts } from "../../src/lib/constants/realProducts";
 
 export default function ListScreen() {
   const router = useRouter();
+  const theme = useTheme();
 
   const items = useBasketStore((state) => state.items);
   const addItem = useBasketStore((state) => state.addItem);
@@ -50,7 +52,7 @@ export default function ListScreen() {
   const results: Product[] = isRemote ? (remoteResults ?? []) : localResults;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={["top", "left", "right"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }} edges={["top", "left", "right"]}>
       <AppHeader title="קניות שבועיות" subtitle={`${totalCount} מוצרים`} />
 
       <ScrollView
@@ -64,14 +66,15 @@ export default function ListScreen() {
           value={query}
           onChangeText={setQuery}
           placeholder="הוסף מוצר..."
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={theme.textMuted}
           style={{
-            backgroundColor: "white",
+            backgroundColor: theme.inputBg,
+            color: theme.textPrimary,
             padding: 14,
             borderRadius: 16,
             textAlign: "right",
             borderWidth: 1,
-            borderColor: "#e5e7eb",
+            borderColor: theme.cardBorder,
           }}
         />
         {results.length > 0 && (
@@ -80,7 +83,7 @@ export default function ListScreen() {
               textAlign: "right",
               fontSize: 14,
               fontWeight: "700",
-              color: "#6b7280",
+              color: theme.textSecondary,
               marginBottom: 4,
             }}
           >
@@ -112,11 +115,11 @@ export default function ListScreen() {
         ) : null}
 
         {query.trim().length > 0 && results.length === 0 ? (
-          <Text style={{ textAlign: "right", color: "#6b7280" }}>
+          <Text style={{ textAlign: "right", color: theme.textSecondary }}>
             {isSearching ? "מחפש…" : "לא נמצאו מוצרים"}
           </Text>
         ) : null}
-                
+
         <View
           style={{
             flexDirection: "row-reverse",
@@ -131,7 +134,7 @@ export default function ListScreen() {
               textAlign: "right",
               fontSize: 14,
               fontWeight: "700",
-              color: "#111827",
+              color: theme.textPrimary,
             }}
           >
             ברשימה שלך
@@ -144,12 +147,12 @@ export default function ListScreen() {
                 paddingHorizontal: 12,
                 paddingVertical: 6,
                 borderRadius: 999,
-                backgroundColor: "#f3f4f6",
+                backgroundColor: theme.statBg,
               }}
             >
               <Text
                 style={{
-                  color: "#6b7280",
+                  color: theme.textSecondary,
                   fontSize: 13,
                   fontWeight: "700",
                 }}
@@ -182,15 +185,15 @@ export default function ListScreen() {
           left: 0,
           right: 0,
           padding: 16,
-          backgroundColor: "white",
+          backgroundColor: theme.card,
           borderTopWidth: 1,
-          borderTopColor: "#e5e7eb",
+          borderTopColor: theme.cardBorder,
         }}
       >
         <TouchableOpacity
           onPress={() => router.push("/list/compare")}
           style={{
-            backgroundColor: "#10b981",
+            backgroundColor: theme.accent,
             padding: 16,
             borderRadius: 16,
           }}

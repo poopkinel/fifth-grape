@@ -1,3 +1,4 @@
+import { useTheme } from "@/src/theme";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type ListItemRowProps = {
@@ -19,16 +20,18 @@ export default function ListItemRow({
   onDecrease,
   onPress,
 }: ListItemRowProps) {
+  const theme = useTheme();
+
   return (
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={onPress}
       style={{
-        backgroundColor: "white",
+        backgroundColor: theme.card,
         borderRadius: 18,
         padding: 14,
         borderWidth: 1,
-        borderColor: "#e5e7eb",
+        borderColor: theme.cardBorder,
       }}
     >
       <View
@@ -45,7 +48,7 @@ export default function ListItemRow({
               width: 44,
               height: 44,
               borderRadius: 14,
-              backgroundColor: "#f3f4f6",
+              backgroundColor: theme.statBg,
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -58,8 +61,7 @@ export default function ListItemRow({
               style={{
                 fontSize: 16,
                 fontWeight: "600",
-                color: "#111827",
-                
+                color: theme.textPrimary,
               }}
             >
               {name}
@@ -70,8 +72,7 @@ export default function ListItemRow({
                 style={{
                   marginTop: 4,
                   fontSize: 13,
-                  color: "#6b7280",
-                  
+                  color: theme.textSecondary,
                 }}
               >
                 {subtitle}
@@ -93,12 +94,12 @@ export default function ListItemRow({
               width: 34,
               height: 34,
               borderRadius: 12,
-              backgroundColor: "#111827",
+              backgroundColor: theme.textPrimary,
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <Text style={{ color: "white", fontSize: 18, fontWeight: "700" }}>+</Text>
+            <Text style={{ color: theme.background, fontSize: 18, fontWeight: "700" }}>+</Text>
           </TouchableOpacity>
 
           <View
@@ -111,7 +112,7 @@ export default function ListItemRow({
               style={{
                 fontSize: 16,
                 fontWeight: "700",
-                color: "#111827",
+                color: theme.textPrimary,
               }}
             >
               {quantity}
@@ -124,12 +125,12 @@ export default function ListItemRow({
               width: 34,
               height: 34,
               borderRadius: 12,
-              backgroundColor: "#f3f4f6",
+              backgroundColor: theme.statBg,
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <Text style={{ color: "#111827", fontSize: 18, fontWeight: "700" }}>−</Text>
+            <Text style={{ color: theme.textPrimary, fontSize: 18, fontWeight: "700" }}>−</Text>
           </TouchableOpacity>
         </View>
       </View>

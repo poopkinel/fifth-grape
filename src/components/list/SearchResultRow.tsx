@@ -1,3 +1,4 @@
+import { useTheme } from "@/src/theme";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type SearchResultRowProps = {
@@ -15,14 +16,16 @@ export default function SearchResultRow({
   badge,
   onAdd,
 }: SearchResultRowProps) {
+  const theme = useTheme();
+
   return (
     <View
       style={{
-        backgroundColor: "white",
+        backgroundColor: theme.card,
         borderRadius: 18,
         padding: 14,
         borderWidth: 1,
-        borderColor: "#e5e7eb",
+        borderColor: theme.cardBorder,
       }}
     >
       <View
@@ -39,7 +42,7 @@ export default function SearchResultRow({
               width: 44,
               height: 44,
               borderRadius: 14,
-              backgroundColor: "#f3f4f6",
+              backgroundColor: theme.statBg,
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -52,7 +55,7 @@ export default function SearchResultRow({
               style={{
                 fontSize: 15,
                 fontWeight: "600",
-                color: "#111827",
+                color: theme.textPrimary,
                 textAlign: "right",
               }}
             >
@@ -64,7 +67,7 @@ export default function SearchResultRow({
                 style={{
                   marginTop: 4,
                   fontSize: 13,
-                  color: "#6b7280",
+                  color: theme.textSecondary,
                   textAlign: "right",
                 }}
               >
@@ -77,7 +80,7 @@ export default function SearchResultRow({
                 style={{
                   marginTop: 8,
                   alignSelf: "flex-start",
-                  backgroundColor: "#ecfdf5",
+                  backgroundColor: theme.accentLight,
                   paddingHorizontal: 10,
                   paddingVertical: 6,
                   borderRadius: 999,
@@ -85,7 +88,7 @@ export default function SearchResultRow({
               >
                 <Text
                   style={{
-                    color: "#047857",
+                    color: theme.accentText,
                     fontSize: 12,
                     fontWeight: "700",
                     textAlign: "right",
@@ -101,7 +104,7 @@ export default function SearchResultRow({
         <TouchableOpacity
           onPress={onAdd}
           style={{
-            backgroundColor: "#111827",
+            backgroundColor: theme.textPrimary,
             paddingHorizontal: 16,
             paddingVertical: 12,
             borderRadius: 14,
@@ -109,7 +112,7 @@ export default function SearchResultRow({
         >
           <Text
             style={{
-              color: "white",
+              color: theme.background,
               fontWeight: "700",
               textAlign: "center",
             }}

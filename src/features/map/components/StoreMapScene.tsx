@@ -1,8 +1,9 @@
 import { useMarketData } from "@/src/data/market/useMarketData";
+import { useTheme } from "@/src/theme";
 import { formatCurrency } from "@/src/utils/format";
 import { useIsFocused } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BasketItem } from "../../basket/types";
 import { useUserLocation } from "../../location/useUserLocation";
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export default function StoreMapScene({ items, onOpenStore }: Props) {
+  const theme = useTheme();
   const { userCoords, hasPermission } = useUserLocation();
   const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
   const { data, isLoading, error } = useMarketData(
@@ -66,7 +68,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
   if (isLoading || !data) {
     return (
       <View style={{ flex: 1, padding: 16 }}>
-        <Text>טוען נתוני מחירים…</Text>
+        <Text style={{ color: theme.textSecondary }}>טוען נתוני מחירים…</Text>
       </View>
     );
   }
@@ -74,16 +76,19 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
   if (error) {
     return (
       <View style={{ flex: 1, padding: 16 }}>
-        <Text>לא הצלחנו לטעון את נתוני המפה.</Text>
+        <Text style={{ color: theme.textSecondary }}>לא הצלחנו לטעון את נתוני המפה.</Text>
       </View>
     );
   }
 
   return (
     <View style={{ flex: 1, padding: 16, gap: 14 }}>
-
-      <View style={{ backgroundColor: "white", borderRadius: 22, padding: 12 }}>
-        <View style={{ flexDirection: "row", gap: 8 }}>
+      <View style={{ backgroundColor: theme.card, borderRadius: 22, padding: 12 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8 }}
+        >
           {mapModel.markers.map((store) => {
             const isActive = selectedStoreId === store.storeId;
             return (
@@ -91,21 +96,22 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                 key={store.storeId}
                 onPress={() => setSelectedStoreId(store.storeId)}
                 style={{
-                  flex: 1,
-                  backgroundColor: isActive ? "#111827" : "#ffffff",
+                  minWidth: 100,
+                  backgroundColor: isActive ? theme.textPrimary : theme.card,
                   borderRadius: 16,
-                  paddingVertical: 12,
-                  paddingHorizontal: 10,
+                  paddingVertical: 10,
+                  paddingHorizontal: 14,
                   borderWidth: isActive ? 0 : 1,
-                  borderColor: "#e5e7eb",
+                  borderColor: theme.cardBorder,
                   alignItems: "center",
                 }}
               >
                 <Text
                   style={{
                     fontWeight: isActive ? "700" : "500",
-                    color: isActive ? "white" : "#111827",
-                    marginBottom: 4,
+                    color: isActive ? theme.background : theme.textPrimary,
+                    fontSize: 13,
+                    marginBottom: 2,
                     textAlign: "center",
                   }}
                   numberOfLines={1}
@@ -114,23 +120,24 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                 </Text>
                 <Text
                   style={{
-                    color: isActive ? "#cbd5e1" : "#6b7280",
-                    fontSize: 13,
+                    color: isActive ? theme.textMuted : theme.textSecondary,
+                    fontSize: 12,
                     textAlign: "center",
                   }}
+                  numberOfLines={1}
                 >
                   {store.distanceText}
                 </Text>
               </TouchableOpacity>
             );
           })}
-        </View>
+        </ScrollView>
       </View>
 
       <View
         style={{
           flex: 1,
-          backgroundColor: "white",
+          backgroundColor: theme.card,
           borderRadius: 24,
           overflow: "hidden",
         }}
@@ -160,39 +167,28 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                     onPress={() => setSelectedStoreId(store.storeId)}
                     style={{
                       backgroundColor: store.color,
-                      paddingHorizontal: 12,
-                      paddingVertical: 8,
-                      borderRadius: 16,
+                      paddingHorizontal: 8,
+                      paddingVertical: 5,
+                      borderRadius: 12,
                       alignItems: "center",
                       shadowColor: "#000",
                       shadowOpacity: 0.15,
-                      shadowRadius: 8,
-                      shadowOffset: { width: 0, height: 4 },
+                      shadowRadius: 6,
+                      shadowOffset: { width: 0, height: 2 },
                       elevation: 3,
-                      borderWidth: isSelected ? 3 : 0,
-                      borderColor: isSelected ? "#111827" : "transparent",
+                      borderWidth: isSelected ? 2 : 0,
+                      borderColor: isSelected ? "white" : "transparent",
                     }}
                   >
                     <Text
                       style={{
                         color: "white",
                         fontWeight: "700",
-                        fontSize: 14,
+                        fontSize: 11,
                         textAlign: "center",
                       }}
                     >
                       {formatCurrency(store.total)}
-                    </Text>
-                    <Text
-                      style={{
-                        color: "rgba(255,255,255,0.85)",
-                        fontSize: 11,
-                        fontWeight: "500",
-                        textAlign: "center",
-                        marginTop: 2,
-                      }}
-                    >
-                      {store.chainName}
                     </Text>
                   </TouchableOpacity>
                 </Marker>
@@ -202,169 +198,76 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
         ) : null}
 
         {selectedStore ? (
-          <View
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => onOpenStore(selectedStore.storeId)}
             style={{
               position: "absolute",
               left: 12,
               right: 12,
               bottom: 12,
-              backgroundColor: "white",
-              borderRadius: 22,
-              paddingTop: 10,
-              paddingHorizontal: 18,
-              paddingBottom: 18,
+              backgroundColor: theme.card,
+              borderRadius: 18,
+              paddingVertical: 12,
+              paddingHorizontal: 16,
               shadowColor: "#000",
               shadowOpacity: 0.08,
               shadowRadius: 10,
               shadowOffset: { width: 0, height: 4 },
               elevation: 3,
+              flexDirection: "row-reverse",
+              alignItems: "center",
+              gap: 12,
             }}
           >
-            <View
-              style={{
-                width: 36,
-                height: 4,
-                backgroundColor: "#e5e7eb",
-                borderRadius: 999,
-                alignSelf: "center",
-                marginBottom: 14,
-              }}
-            />
-
-            <View
-              style={{
-                flexDirection: "row-reverse",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                marginBottom: 14,
-                gap: 12,
-              }}
-            >
+            <View style={{ flex: 1, alignItems: "flex-end" }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: theme.textPrimary,
+                }}
+                numberOfLines={1}
+              >
+                {selectedStore.chainName}
+              </Text>
               <View
                 style={{
-                  backgroundColor: selectedStoreId === mapModel.bestStoreId ? "#d1fae5" : "#fef3c7",
-                  paddingHorizontal: 10,
-                  paddingVertical: 6,
-                  borderRadius: 999,
-                  alignSelf: "flex-start",
+                  flexDirection: "row-reverse",
+                  gap: 8,
+                  marginTop: 4,
                 }}
               >
-                <Text
-                  style={{
-                    color: selectedStore.missingCount === 0 ? "#065f46" : "#92400e",
-                    fontWeight: "700",
-                    fontSize: 12,
-                  }}
-                >
-                  {selectedStoreId === mapModel.bestStoreId
-                    ? "הבחירה הטובה ביותר"
-                    : `${selectedStore.missingCount} חסרים`}
+                <Text style={{ color: theme.accentText, fontWeight: "700", fontSize: 14 }}>
+                  {formatCurrency(selectedStore.total)}
                 </Text>
-              </View>
-
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={{
-                    fontSize: 20,
-                    fontWeight: "700",
-                    color: "#111827",
-                    marginBottom: 8
-                  }}
-                >
-                  {selectedStore.chainName}
+                <Text style={{ color: theme.textSecondary, fontSize: 13 }}>
+                  {selectedStore.distanceText}
                 </Text>
-
-                <View style={{ 
-                  flexDirection: "row-reverse", 
-                  gap: 6, 
-                  flexWrap: "wrap", 
-                  justifyContent: "flex-end",
-                  width: "100%",
-                }}
-                  >
-                  <ScoreChip
-                    icon=""
-                    label={formatCurrency(selectedStore.total)}
-                  />
-                  <ScoreChip icon="📍" label={selectedStore.distanceText} />
-                  <ScoreChip icon="" label={selectedStore.missingCount === 0
-                    ? "✓ הכל נמצא"
-                    : `${selectedStore.missingCount} חסרים`} />
-                  <ScoreChip icon="🕐" label={selectedStore.trustText} />
-                </View>
+                {selectedStore.missingCount > 0 && (
+                  <Text style={{ color: theme.warningText, fontSize: 13 }}>
+                    {selectedStore.missingCount} חסרים
+                  </Text>
+                )}
               </View>
             </View>
 
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <TouchableOpacity
-                onPress={() => onOpenStore(selectedStore.storeId)}
-                style={{
-                  flex: 1,
-                  backgroundColor: "#111827",
-                  paddingVertical: 14,
-                  borderRadius: 14,
-                }}
-              >
-                <Text style={{ color: "white", textAlign: "center", fontWeight: "700" }}>
-                  פרטים
-                </Text>
-              </TouchableOpacity>
-
-              {/* <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: "#f3f4f6",
-                  paddingVertical: 14,
-                  borderRadius: 14,
-                }}
-              >
-                <Text style={{ color: "#111827", textAlign: "center", fontWeight: "700" }}>
-                  נווט לשם
-                </Text>
-              </TouchableOpacity> */}
+            <View
+              style={{
+                backgroundColor: theme.textPrimary,
+                borderRadius: 12,
+                paddingVertical: 8,
+                paddingHorizontal: 14,
+              }}
+            >
+              <Text style={{ color: theme.background, fontWeight: "700", fontSize: 13 }}>
+                פרטים
+              </Text>
             </View>
-          </View>
+          </TouchableOpacity>
         ) : null}
       </View>
-
     </View>
   );
 }
 
-// Chip showing a single scoring signal, optionally highlighted
-function ScoreChip({
-  icon,
-  label,
-  highlight,
-  highlightLabel,
-}: {
-  icon: string;
-  label: string;
-  highlight?: boolean;
-  highlightLabel?: string;
-}) {
-  return (
-    <View
-      style={{
-        flexDirection: "row-reverse",
-        alignItems: "center",
-        gap: 4,
-        backgroundColor: highlight ? "#d1fae5" : "#f3f4f6",
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 999,
-      }}
-    >
-      <Text style={{ fontSize: 12 }}>{icon}</Text>
-      <Text
-        style={{
-          fontSize: 12,
-          fontWeight: highlight ? "700" : "500",
-          color: highlight ? "#065f46" : "#374151",
-        }}
-      >
-        {highlightLabel ? `${label} · ${highlightLabel}` : label}
-      </Text>
-    </View>
-  );
-}

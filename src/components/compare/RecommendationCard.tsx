@@ -1,3 +1,4 @@
+import { useTheme } from "@/src/theme";
 import { formatCurrency } from "@/src/utils/format";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -36,12 +37,15 @@ export default function RecommendationCard({
   onPressMap,
   onPressSetUsualStore,
 }: RecommendationCardProps) {
-  const bgColor = isBest ? "#10b981" : "#ffffff";
-  const textColor = isBest ? "#ffffff" : "#111827";
-  const subTextColor = isBest ? "#d1fae5" : "#6b7280";
-  const statBg = isBest ? "rgba(255,255,255,0.12)" : "#f3f4f6";
+  const theme = useTheme();
+
+  // Best card stays green in both modes; non-best adapts to theme
+  const bgColor = isBest ? theme.accent : theme.card;
+  const textColor = isBest ? "#ffffff" : theme.textPrimary;
+  const subTextColor = isBest ? "#d1fae5" : theme.textSecondary;
+  const statBg = isBest ? "rgba(255,255,255,0.12)" : theme.statBg;
   const borderWidth = isBest ? 0 : 1;
-  const borderColor = "#e5e7eb";
+  const borderColor = theme.cardBorder;
   const showReasonText = reasonText !== title;
 
   return (
@@ -99,7 +103,7 @@ export default function RecommendationCard({
           <View
             style={{
               marginTop: 8,
-              backgroundColor: isBest ? "rgba(255,255,255,0.14)" : "#ecfdf5",
+              backgroundColor: isBest ? "rgba(255,255,255,0.14)" : theme.accentLight,
               borderRadius: 999,
               paddingHorizontal: 10,
               paddingVertical: 6,
@@ -107,9 +111,8 @@ export default function RecommendationCard({
           >
             <Text
               style={{
-                color: isBest ? "#ffffff" : "#047857",
+                color: isBest ? "#ffffff" : theme.accentText,
                 fontWeight: "700",
-                
                 fontSize: 12,
               }}
             >
@@ -121,7 +124,6 @@ export default function RecommendationCard({
           <Text
             style={{
               color: textColor,
-              
               marginTop: 8,
               fontWeight: "600",
             }}
@@ -142,7 +144,6 @@ export default function RecommendationCard({
           <Text
             style={{
               color: subTextColor,
-              
               marginTop: 4,
             }}
           >
@@ -154,7 +155,7 @@ export default function RecommendationCard({
           style={{
             alignSelf: "flex-end",
             marginTop: 10,
-            backgroundColor: isUsualStore ? "transparent" : isBest ? "rgba(255,255,255,0.14)" : "#f3f4f6",
+            backgroundColor: isUsualStore ? "transparent" : isBest ? "rgba(255,255,255,0.14)" : theme.statBg,
             borderRadius: isUsualStore ? 0 : 999,
             paddingHorizontal: isUsualStore ? 0 : 12,
             paddingVertical: isUsualStore ? 0 : 8,
@@ -164,7 +165,6 @@ export default function RecommendationCard({
             style={{
               color: isUsualStore ? subTextColor : textColor,
               fontWeight: "700",
-              
             }}
           >
             {isUsualStore ? "הסר מהרגיל" : "קבע כסופר הרגיל"}
@@ -278,14 +278,14 @@ export default function RecommendationCard({
           onPress={onPressDetails}
           style={{
             flex: 1,
-            backgroundColor: isBest ? "#ffffff" : "#111827",
+            backgroundColor: isBest ? "#ffffff" : theme.textPrimary,
             paddingVertical: 14,
             borderRadius: 14,
           }}
         >
           <Text
             style={{
-              color: isBest ? "#111827" : "#ffffff",
+              color: isBest ? "#111827" : theme.background,
               textAlign: "center",
               fontWeight: "700",
             }}
@@ -302,7 +302,7 @@ export default function RecommendationCard({
             paddingVertical: 14,
             borderRadius: 14,
             borderWidth: 1,
-            borderColor: isBest ? "rgba(255,255,255,0.35)" : "#d1d5db",
+            borderColor: isBest ? "rgba(255,255,255,0.35)" : theme.cardBorder,
           }}
         >
           <Text
