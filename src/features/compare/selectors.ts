@@ -32,6 +32,7 @@ export function getCompareScreenModel({
     return {
       cards: [],
       summaryText: "אין מוצרים להשוואה",
+      radiusKm: 5,
     };
   }
 
@@ -108,5 +109,6 @@ export function getCompareScreenModel({
     cards,
     summaryText,
     bestStoreId: result.bestStoreId,
+    radiusKm: result.radiusKm,
   };
 }

@@ -11,7 +11,7 @@ import {
   RecommendationResult,
 } from "./types";
 
-const SEARCH_RADIUS_KM = 5;
+const SEARCH_RADIUS_TIERS_KM = [5, 10, 25, 50];
 
 type Input = {
   basket: BasketItem[];
@@ -43,6 +43,7 @@ function getReasonCode(rank: number, missingCount: number): RecommendationReason
 function filterStoresByRadius(
   stores: Store[],
   userCoords: { latitude: number; longitude: number } | null,
+  radiusKm: number,
 ): Store[] {
   if (!userCoords) return stores;
 
@@ -54,7 +55,7 @@ function filterStoresByRadius(
       store.lat,
       store.lng,
     );
-    return distance <= SEARCH_RADIUS_KM;
+    return distance <= radiusKm;
   });
 }
 
@@ -65,8 +66,18 @@ export function rankStores({
   userCoords,
   usualStoreId,
 }: Input): RecommendationResult {
-  const nearbyStores = filterStoresByRadius(stores, userCoords);
-  const baseResults = compareBasket({ basket, stores: nearbyStores, prices });
+  let radiusKm = SEARCH_RADIUS_TIERS_KM[SEARCH_RADIUS_TIERS_KM.length - 1];
+  let baseResults: ReturnType<typeof compareBasket> = [];
+
+  for (const tier of SEARCH_RADIUS_TIERS_KM) {
+    const nearbyStores = filterStoresByRadius(stores, userCoords, tier);
+    const tierResults = compareBasket({ basket, stores: nearbyStores, prices });
+    if (tierResults.length > 0) {
+      radiusKm = tier;
+      baseResults = tierResults;
+      break;
+    }
+  }
   const latestUpdatedAtByStore = buildLatestUpdatedAtByStore(prices);
 
   const enriched = baseResults.map((result) => {
@@ -120,5 +131,6 @@ export function rankStores({
   return {
     rankedStores: ranked,
     bestStoreId: ranked[0]?.store.storeId,
+    radiusKm,
   };
 }

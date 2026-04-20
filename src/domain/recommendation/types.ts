@@ -30,4 +30,5 @@ export type RankedStore = StoreComparison & {
 export type RecommendationResult = {
   rankedStores: RankedStore[];
   bestStoreId?: string;
+  radiusKm: number;
 };

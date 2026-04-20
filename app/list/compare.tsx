@@ -90,7 +90,7 @@ export default function CompareScreen() {
     >
       <AppHeader
         title="התוצאה הכי טובה עבורך"
-        subtitle={`תל אביב • רדיוס 5 ק״מ • ${totalCount} מוצרים`}
+        subtitle={`תל אביב • רדיוס ${compareModel.radiusKm} ק״מ • ${totalCount} מוצרים`}
       />
 
       <ScrollView

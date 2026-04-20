@@ -22,4 +22,5 @@ export type CompareScreenModel = {
   cards: CompareCard[];
   summaryText: string;
   bestStoreId?: string;
+  radiusKm: number;
 };
