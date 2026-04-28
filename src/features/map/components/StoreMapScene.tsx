@@ -192,15 +192,20 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                     onPress={() => setSelectedStoreId(store.storeId)}
                     style={{
                       backgroundColor: store.color,
-                      paddingHorizontal: 8,
-                      paddingVertical: 5,
+                      // Best pin gets ~1.3x footprint so it reads as the
+                      // primary call-to-action; non-best pins read as
+                      // alternatives. Selected non-best pin returns to full
+                      // opacity so the user gets clear feedback on tap.
+                      paddingHorizontal: store.isBest ? 11 : 8,
+                      paddingVertical: store.isBest ? 7 : 5,
                       borderRadius: 12,
                       alignItems: "center",
                       shadowColor: "#000",
-                      shadowOpacity: 0.15,
-                      shadowRadius: 6,
+                      shadowOpacity: store.isBest ? 0.25 : 0.15,
+                      shadowRadius: store.isBest ? 8 : 6,
                       shadowOffset: { width: 0, height: 2 },
-                      elevation: 3,
+                      elevation: store.isBest ? 5 : 3,
+                      opacity: store.isBest || isSelected ? 1 : 0.7,
                       borderWidth: isSelected ? 2 : 0,
                       borderColor: isSelected ? "white" : "transparent",
                     }}
@@ -209,7 +214,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                       style={{
                         color: "white",
                         fontWeight: "700",
-                        fontSize: 11,
+                        fontSize: store.isBest ? 14 : 11,
                         textAlign: "center",
                       }}
                     >
