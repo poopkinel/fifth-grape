@@ -10,9 +10,47 @@ import { getChainColor } from "@/src/features/stores/chainColors";
 import { Store } from "@/src/features/stores/types";
 import { formatDistanceKm } from "@/src/utils/distance";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
-import { MapScreenModel } from "./types";
+import { MapScreenModel, MapStoreMarker } from "./types";
 
 const MAX_MAP_MARKERS = 5;
+
+// Approx 25m at Israel's latitude — small enough that the offset doesn't
+// misrepresent the store's location, large enough to make stacked pins
+// individually tappable at typical zoom levels. The clusterer still merges
+// these at lower zoom (correctly).
+const OVERLAP_OFFSET_DEG = 0.00025;
+
+// Two markers count as "stacked" if their lat/lng round to the same 4-decimal
+// bucket (~11m). That's tight enough to catch the dual-banner / mall case
+// (real distinct stores at the same address) without flagging genuinely-near
+// neighbors that the user can already see as separate pins.
+function offsetOverlappingMarkers(markers: MapStoreMarker[]): MapStoreMarker[] {
+  const groups = new Map<string, MapStoreMarker[]>();
+  for (const m of markers) {
+    const key = `${m.lat.toFixed(4)},${m.lng.toFixed(4)}`;
+    const bucket = groups.get(key);
+    if (bucket) bucket.push(m);
+    else groups.set(key, [m]);
+  }
+
+  const out: MapStoreMarker[] = [];
+  for (const bucket of groups.values()) {
+    if (bucket.length === 1) {
+      out.push(bucket[0]);
+      continue;
+    }
+    // Fan the stack into a circle around the original point.
+    bucket.forEach((m, i) => {
+      const angle = (2 * Math.PI * i) / bucket.length;
+      out.push({
+        ...m,
+        lat: m.lat + OVERLAP_OFFSET_DEG * Math.cos(angle),
+        lng: m.lng + OVERLAP_OFFSET_DEG * Math.sin(angle),
+      });
+    });
+  }
+  return out;
+}
 
 type UserCoords = {
   latitude: number;
@@ -88,7 +126,7 @@ export function getMapScreenModel({
     });
 
   return {
-    markers,
+    markers: offsetOverlappingMarkers(markers),
     bestStoreId: result.bestStoreId,
   };
 }
