@@ -171,12 +171,25 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
             provider={PROVIDER_GOOGLE}
             showsUserLocation={hasPermission}
             style={{ flex: 1 }}
-            initialRegion={{
-              latitude: 32.0853,
-              longitude: 34.7818,
-              latitudeDelta: 0.08,
-              longitudeDelta: 0.08,
-            }}
+            // Center the initial render on the recommended store when we
+            // already have one — animateToRegion fires below for subsequent
+            // selection changes, but the first paint should land where the
+            // user's eye should be, not on a generic Tel Aviv center.
+            initialRegion={
+              selectedStore
+                ? {
+                    latitude: selectedStore.lat,
+                    longitude: selectedStore.lng,
+                    latitudeDelta: 0.04,
+                    longitudeDelta: 0.04,
+                  }
+                : {
+                    latitude: 32.0853,
+                    longitude: 34.7818,
+                    latitudeDelta: 0.08,
+                    longitudeDelta: 0.08,
+                  }
+            }
             clusterColor={theme.accentText}
             radius={60}
           >
@@ -188,39 +201,59 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                   coordinate={{ latitude: store.lat, longitude: store.lng }}
                   onPress={() => setSelectedStoreId(store.storeId)}
                 >
-                  <TouchableOpacity
-                    onPress={() => setSelectedStoreId(store.storeId)}
-                    style={{
-                      backgroundColor: store.color,
-                      // Best pin gets ~1.3x footprint so it reads as the
-                      // primary call-to-action; non-best pins read as
-                      // alternatives. Selected non-best pin returns to full
-                      // opacity so the user gets clear feedback on tap.
-                      paddingHorizontal: store.isBest ? 11 : 8,
-                      paddingVertical: store.isBest ? 7 : 5,
-                      borderRadius: 12,
-                      alignItems: "center",
-                      shadowColor: "#000",
-                      shadowOpacity: store.isBest ? 0.25 : 0.15,
-                      shadowRadius: store.isBest ? 8 : 6,
-                      shadowOffset: { width: 0, height: 2 },
-                      elevation: store.isBest ? 5 : 3,
-                      opacity: store.isBest || isSelected ? 1 : 0.7,
-                      borderWidth: isSelected ? 2 : 0,
-                      borderColor: isSelected ? "white" : "transparent",
-                    }}
+                  <View
+                    // Halo wrapper — only renders for BEST. White ring on the
+                    // dark map gives the pin a strong "this is the answer"
+                    // glow without depending on color saturation alone.
+                    style={
+                      store.isBest
+                        ? {
+                            padding: 3,
+                            borderRadius: 16,
+                            backgroundColor: "rgba(255,255,255,0.95)",
+                            shadowColor: "#22c55e",
+                            shadowOpacity: 0.5,
+                            shadowRadius: 10,
+                            shadowOffset: { width: 0, height: 0 },
+                            elevation: 8,
+                          }
+                        : null
+                    }
                   >
-                    <Text
+                    <TouchableOpacity
+                      onPress={() => setSelectedStoreId(store.storeId)}
                       style={{
-                        color: "white",
-                        fontWeight: "700",
-                        fontSize: store.isBest ? 14 : 11,
-                        textAlign: "center",
+                        backgroundColor: store.color,
+                        // Best pin gets ~1.3x footprint so it reads as the
+                        // primary call-to-action; non-best pins read as
+                        // alternatives. Selected non-best pin returns to full
+                        // opacity so the user gets clear feedback on tap.
+                        paddingHorizontal: store.isBest ? 11 : 8,
+                        paddingVertical: store.isBest ? 7 : 5,
+                        borderRadius: 12,
+                        alignItems: "center",
+                        shadowColor: "#000",
+                        shadowOpacity: store.isBest ? 0 : 0.15,
+                        shadowRadius: 6,
+                        shadowOffset: { width: 0, height: 2 },
+                        elevation: store.isBest ? 0 : 3,
+                        opacity: store.isBest || isSelected ? 1 : 0.7,
+                        borderWidth: isSelected ? 2 : 0,
+                        borderColor: isSelected ? "white" : "transparent",
                       }}
                     >
-                      {formatCurrency(store.total)}
-                    </Text>
-                  </TouchableOpacity>
+                      <Text
+                        style={{
+                          color: "white",
+                          fontWeight: "700",
+                          fontSize: store.isBest ? 14 : 11,
+                          textAlign: "center",
+                        }}
+                      >
+                        {formatCurrency(store.total)}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </Marker>
               );
             })}
