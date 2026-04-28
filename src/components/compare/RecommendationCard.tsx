@@ -1,5 +1,6 @@
 import { useTheme } from "@/src/theme";
 import { formatCurrency } from "@/src/utils/format";
+import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type RecommendationCardProps = {
@@ -15,6 +16,7 @@ type RecommendationCardProps = {
   baselineText?: string;
   isBest?: boolean;
   isUsualStore?: boolean;
+  isWalkable?: boolean;
   onPressDetails?: () => void;
   onPressMap?: () => void;
   onPressSetUsualStore?: () => void;
@@ -33,11 +35,13 @@ export default function RecommendationCard({
   baselineText,
   isBest = false,
   isUsualStore = false,
+  isWalkable = false,
   onPressDetails,
   onPressMap,
   onPressSetUsualStore,
 }: RecommendationCardProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   // Best card stays green in both modes; non-best adapts to theme
   const bgColor = isBest ? theme.accent : theme.card;
@@ -116,7 +120,7 @@ export default function RecommendationCard({
                 fontSize: 12,
               }}
             >
-              הסופר הרגיל שלך
+              {t("card.usualBadge")}
             </Text>
           </View>
         ) : null}
@@ -167,14 +171,14 @@ export default function RecommendationCard({
               fontWeight: "700",
             }}
           >
-            {isUsualStore ? "הסר מהרגיל" : "קבע כסופר הרגיל"}
+            {isUsualStore ? t("card.removeUsual") : t("card.setUsual")}
           </Text>
         </TouchableOpacity>
       </View>
 
       <View
         style={{
-          flexDirection: "row-reverse",
+          flexDirection: "row",
           gap: 8,
           justifyContent: "space-between",
         }}
@@ -196,7 +200,7 @@ export default function RecommendationCard({
               marginBottom: 4,
             }}
           >
-            סה״כ
+            {t("card.totalLabel")}
           </Text>
           <Text
             style={{
@@ -227,7 +231,7 @@ export default function RecommendationCard({
               marginBottom: 4,
             }}
           >
-            מרחק
+            {t("card.distanceLabel")}
           </Text>
           <Text
             style={{
@@ -237,7 +241,7 @@ export default function RecommendationCard({
               textAlign: "center",
             }}
           >
-            {distanceText}
+            {isWalkable ? `🚶 ${distanceText}` : distanceText}
           </Text>
         </View>
 
@@ -258,7 +262,7 @@ export default function RecommendationCard({
               marginBottom: 4,
             }}
           >
-            חסרים
+            {t("card.missingLabel")}
           </Text>
           <Text
             style={{
@@ -273,7 +277,7 @@ export default function RecommendationCard({
         </View>
       </View>
 
-      <View style={{ flexDirection: "row-reverse", gap: 10 }}>
+      <View style={{ flexDirection: "row", gap: 10 }}>
         <TouchableOpacity
           onPress={onPressDetails}
           style={{
@@ -290,7 +294,7 @@ export default function RecommendationCard({
               fontWeight: "700",
             }}
           >
-            ראה פירוט
+            {t("card.details")}
           </Text>
         </TouchableOpacity>
 
@@ -312,7 +316,7 @@ export default function RecommendationCard({
               fontWeight: "700",
             }}
           >
-            למפה
+            {t("card.openMap")}
           </Text>
         </TouchableOpacity>
       </View>

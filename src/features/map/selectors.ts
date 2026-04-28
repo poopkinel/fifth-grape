@@ -1,6 +1,11 @@
 import { StoreProductPrice } from "@/src/domain/pricing/types";
 import { rankStores } from "@/src/domain/recommendation/rankStores";
 import { BasketItem } from "@/src/features/basket/types";
+import {
+  ScoreWeights,
+  TransportMode,
+} from "@/src/features/preferences/types";
+import i18n from "@/src/i18n";
 import { Store } from "@/src/features/stores/types";
 import { formatDistanceKm } from "@/src/utils/distance";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
@@ -19,6 +24,8 @@ type MapScreenModelInput = {
   usualStoreId?: string;
   stores: Store[];
   prices: StoreProductPrice[];
+  transportMode?: TransportMode;
+  weights?: ScoreWeights;
 };
 
 export function getMapScreenModel({
@@ -27,6 +34,8 @@ export function getMapScreenModel({
   usualStoreId,
   stores,
   prices,
+  transportMode,
+  weights,
 }: MapScreenModelInput): MapScreenModel {
   const result = rankStores({
     basket,
@@ -34,6 +43,8 @@ export function getMapScreenModel({
     prices,
     userCoords,
     usualStoreId,
+    transportMode,
+    weights,
   });
 
   const markers = result.rankedStores
@@ -53,12 +64,17 @@ export function getMapScreenModel({
         matchedCount: store.matchedCount,
         distanceKm: store.distanceKm,
         distanceText:
-          store.distanceKm !== null ? formatDistanceKm(store.distanceKm) : "—",
-        title: isBest ? "הבחירה הטובה ביותר" : "השוואה מהירה",
+          store.distanceKm !== null
+            ? formatDistanceKm(store.distanceKm)
+            : i18n.t("distance.unknown"),
+        title: isBest ? i18n.t("map.bestChoice") : i18n.t("map.quickCompare"),
         trustText:
           store.missingCount === 0
             ? formatRelativeUpdateTime(store.updatedAt)
-            : `נמצאו ${store.matchedCount} מתוך ${basket.length} מוצרים`,
+            : i18n.t("store.foundCount", {
+                matched: store.matchedCount,
+                total: basket.length,
+              }),
         badge: isBest
           ? "BEST"
           : store.missingCount === 0

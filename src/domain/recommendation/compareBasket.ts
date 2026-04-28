@@ -26,14 +26,14 @@ export function compareBasket({
   return stores
     .map((store) => {
       let total = 0;
-      let missingCount = 0;
       let matchedCount = 0;
+      const missingProducts: string[] = [];
 
       for (const item of basket) {
         const price = priceIndex.get(priceKey(store.storeId, item.productId));
 
         if (!price || !price.inStock) {
-          missingCount++;
+          missingProducts.push(item.name);
           continue;
         }
 
@@ -47,9 +47,10 @@ export function compareBasket({
       return {
         store,
         total: Number(total.toFixed(2)),
-        missingCount,
+        missingCount: missingProducts.length,
         matchedCount,
         coverage,
+        missingProducts,
       };
     })
     .filter((store) => store.matchedCount > 0);

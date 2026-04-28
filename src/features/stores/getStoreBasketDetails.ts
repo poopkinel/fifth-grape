@@ -36,6 +36,7 @@ export function getStoreBasketDetails(
       brand: item.brand,
       unit: item.unit,
       emoji: item.emoji,
+      imageUrl: item.imageUrl,
       inStock,
       unitPrice,
       totalPrice,

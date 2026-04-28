@@ -3,8 +3,10 @@ import { useTheme } from "@/src/theme";
 import { formatCurrency } from "@/src/utils/format";
 import { useIsFocused } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import ClusteredMapView from "react-native-map-clustering";
+import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BasketItem } from "../../basket/types";
 import { useUserLocation } from "../../location/useUserLocation";
 import { usePreferenceStore } from "../../preferences/store";
@@ -17,12 +19,15 @@ type Props = {
 
 export default function StoreMapScene({ items, onOpenStore }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { userCoords, hasPermission } = useUserLocation();
   const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
+  const transportMode = usePreferenceStore((state) => state.transportMode);
+  const weights = usePreferenceStore((state) => state.weights[transportMode]);
   const { data, isLoading, error } = useMarketData(
     items.map((item) => item.productId),
   );
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<any>(null);
   const isFocused = useIsFocused();
 
   const mapModel = data
@@ -32,6 +37,8 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
         usualStoreId,
         stores: data.stores,
         prices: data.prices,
+        transportMode,
+        weights,
       })
     : { markers: [], bestStoreId: undefined };
 
@@ -68,7 +75,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
   if (isLoading || !data) {
     return (
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ color: theme.textSecondary }}>טוען נתוני מחירים…</Text>
+        <Text style={{ color: theme.textSecondary }}>{t("map.loading")}</Text>
       </View>
     );
   }
@@ -76,7 +83,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
   if (error) {
     return (
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ color: theme.textSecondary }}>לא הצלחנו לטעון את נתוני המפה.</Text>
+        <Text style={{ color: theme.textSecondary }}>{t("map.loadError")}</Text>
       </View>
     );
   }
@@ -116,7 +123,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                   }}
                   numberOfLines={1}
                 >
-                  {store.chainName}
+                  {store.branchName || store.chainName}
                 </Text>
                 <Text
                   style={{
@@ -143,7 +150,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
         }}
       >
         {isFocused ? (
-          <MapView
+          <ClusteredMapView
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
             showsUserLocation={hasPermission}
@@ -154,6 +161,8 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
               latitudeDelta: 0.08,
               longitudeDelta: 0.08,
             }}
+            clusterColor={theme.accentText}
+            radius={60}
           >
             {mapModel.markers.map((store) => {
               const isSelected = selectedStore?.storeId === store.storeId;
@@ -194,7 +203,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                 </Marker>
               );
             })}
-          </MapView>
+          </ClusteredMapView>
         ) : null}
 
         {selectedStore ? (
@@ -215,7 +224,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
               shadowRadius: 10,
               shadowOffset: { width: 0, height: 4 },
               elevation: 3,
-              flexDirection: "row-reverse",
+              flexDirection: "row",
               alignItems: "center",
               gap: 12,
             }}
@@ -229,11 +238,11 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                 }}
                 numberOfLines={1}
               >
-                {selectedStore.chainName}
+                {selectedStore.branchName || selectedStore.chainName}
               </Text>
               <View
                 style={{
-                  flexDirection: "row-reverse",
+                  flexDirection: "row",
                   gap: 8,
                   marginTop: 4,
                 }}
@@ -246,7 +255,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                 </Text>
                 {selectedStore.missingCount > 0 && (
                   <Text style={{ color: theme.warningText, fontSize: 13 }}>
-                    {selectedStore.missingCount} חסרים
+                    {t("map.missingShort", { count: selectedStore.missingCount })}
                   </Text>
                 )}
               </View>
@@ -261,7 +270,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
               }}
             >
               <Text style={{ color: theme.background, fontWeight: "700", fontSize: 13 }}>
-                פרטים
+                {t("map.details")}
               </Text>
             </View>
           </TouchableOpacity>

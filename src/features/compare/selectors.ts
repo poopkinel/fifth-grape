@@ -4,13 +4,23 @@ import {
   buildReasonText,
 } from "@/src/domain/recommendation/explain";
 import { rankStores } from "@/src/domain/recommendation/rankStores";
+import {
+  ScoreWeights,
+  TransportMode,
+} from "@/src/features/preferences/types";
+import i18n from "@/src/i18n";
 import { formatDistanceKm } from "@/src/utils/distance";
-import { formatCurrency, formatRelativeUpdateTime } from "@/src/utils/format";
+import {
+  formatCurrency,
+  formatRelativeUpdateTime,
+  isUnknownRelativeTime,
+} from "@/src/utils/format";
 import { BasketItem } from "../basket/types";
 import { Store } from "../stores/types";
 import { CompareCard, CompareScreenModel } from "./types";
 
 const MAX_COMPARE_CARDS = 20;
+const DEFAULT_WALKING_DISTANCE_KM = 1.2;
 
 type CompareScreenModelInput = {
   basket: BasketItem[];
@@ -18,6 +28,9 @@ type CompareScreenModelInput = {
   usualStoreId?: string | null;
   stores: Store[];
   prices: StoreProductPrice[];
+  transportMode?: TransportMode;
+  weights?: ScoreWeights;
+  maxWalkingDistanceKm?: number;
 };
 
 export function getCompareScreenModel({
@@ -26,13 +39,17 @@ export function getCompareScreenModel({
   usualStoreId,
   stores,
   prices,
+  transportMode,
+  weights,
+  maxWalkingDistanceKm = DEFAULT_WALKING_DISTANCE_KM,
 }: CompareScreenModelInput): CompareScreenModel {
 
   if (!basket.length) {
     return {
       cards: [],
-      summaryText: "אין מוצרים להשוואה",
+      summaryText: i18n.t("compare.empty"),
       radiusKm: 5,
+      rankedStores: [],
     };
   }
 
@@ -41,7 +58,9 @@ export function getCompareScreenModel({
     stores,
     prices,
     userCoords,
-    usualStoreId
+    usualStoreId,
+    transportMode,
+    weights,
   });
 
   const topStores = result.rankedStores.slice(0, MAX_COMPARE_CARDS);
@@ -50,15 +69,14 @@ export function getCompareScreenModel({
     const distanceText =
       store.distanceKm !== null
         ? formatDistanceKm(store.distanceKm)
-        : "—";
+        : i18n.t("distance.unknown");
 
     const isBest = store.rank === 0;
     const isUsualStore = store.store.storeId === usualStoreId;
     const relativeUpdateText = formatRelativeUpdateTime(store.updatedAt);
-    const trustText =
-      relativeUpdateText === "לא ידוע"
-        ? "מידע לא זמין"
-        : `מידע ${relativeUpdateText}`;
+    const trustText = isUnknownRelativeTime(relativeUpdateText)
+      ? i18n.t("trust.noInfo")
+      : i18n.t("trust.withRelative", { relative: relativeUpdateText });
     const baselineText =
       usualStoreId && isBest && !isUsualStore
         ? buildBaselineText(store.savingsVsUsualStore)
@@ -75,10 +93,10 @@ export function getCompareScreenModel({
       missingCount: store.missingCount,
       coverage: store.coverage,
       title: isBest
-        ? "הבחירה הכי טובה עבורך"
+        ? i18n.t("card.bestForYou")
         : store.missingCount === 0
-        ? "אפשרות מלאה"
-        : "אפשרות חלקית",
+        ? i18n.t("card.fullOption")
+        : i18n.t("card.partialOption"),
       badge: isBest
         ? "BEST"
         : store.missingCount === 0
@@ -90,6 +108,8 @@ export function getCompareScreenModel({
       isBest,
       color: isBest ? "#22c55e" : "#e5e7eb",
       isUsualStore,
+      isWalkable:
+        store.distanceKm !== null && store.distanceKm <= maxWalkingDistanceKm,
     };
   });
 
@@ -100,15 +120,19 @@ export function getCompareScreenModel({
     : bestStore.savingsVsUsualStore !== null &&
       bestStore.savingsVsUsualStore > 0 &&
       bestStore.store.storeId !== usualStoreId
-    ? `${best.chainName} חוסכת ${formatCurrency(bestStore.savingsVsUsualStore)} לעומת הסופר הרגיל שלך`
+    ? i18n.t("compare.summarySaves", {
+        chain: best.chainName,
+        amount: formatCurrency(bestStore.savingsVsUsualStore),
+      })
     : bestStore.store.storeId === usualStoreId
-    ? `${best.chainName} נשארת הבחירה הטובה ביותר לסל הנוכחי`
-    : `${best.chainName} היא ההמלצה המובילה לסל הנוכחי`;
+    ? i18n.t("compare.summaryStillUsual", { chain: best.chainName })
+    : i18n.t("compare.summaryTopRecommendation", { chain: best.chainName });
 
   return {
     cards,
     summaryText,
     bestStoreId: result.bestStoreId,
     radiusKm: result.radiusKm,
+    rankedStores: result.rankedStores,
   };
 }

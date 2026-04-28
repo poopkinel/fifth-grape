@@ -7,6 +7,7 @@ export type BasketItem = {
   unit?: string;
   barcode?: string;
   emoji?: string;
+  imageUrl?: string;
   subtitle?: string;
 };
 
@@ -17,6 +18,7 @@ export type SearchProduct = {
   brand?: string;
   unit?: string;
   barcode?: string;
+  imageUrl?: string;
 };
 
 export type BasketStore = {

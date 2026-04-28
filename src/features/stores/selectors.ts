@@ -4,6 +4,11 @@ import {
   buildReasonText,
 } from "@/src/domain/recommendation/explain";
 import { rankStores } from "@/src/domain/recommendation/rankStores";
+import {
+  ScoreWeights,
+  TransportMode,
+} from "@/src/features/preferences/types";
+import i18n from "@/src/i18n";
 import { formatDistanceKm, getDistanceKm } from "@/src/utils/distance";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
 import { BasketItem } from "../basket/types";
@@ -18,6 +23,8 @@ type StoreScreenModelInput = {
   stores: Store[];
   prices: StoreProductPrice[];
   details: StoreBasketDetails | null;
+  transportMode?: TransportMode;
+  weights?: ScoreWeights;
 };
 
 export function getStoreScreenModel({
@@ -27,7 +34,9 @@ export function getStoreScreenModel({
   usualStoreId,
   stores,
   prices,
-  details
+  details,
+  transportMode,
+  weights,
 }: StoreScreenModelInput): StoreScreenModel | null {
   const store = stores.find((s) => s.storeId === storeId);
 
@@ -39,6 +48,8 @@ export function getStoreScreenModel({
     prices,
     userCoords,
     usualStoreId,
+    transportMode,
+    weights,
   }).rankedStores.find((item) => item.store.storeId === storeId);
 
   const distanceKm =
@@ -64,8 +75,8 @@ export function getStoreScreenModel({
   const reasonText = recommendation
     ? buildReasonText(recommendation, { isUsualStore })
     : details.missingCount === 0
-      ? "כל המוצרים נמצאים כאן"
-      : `חסרים ${details.missingCount} מוצרים`;
+      ? i18n.t("store.allItemsHere")
+      : i18n.t("store.missingItemsCount", { count: details.missingCount });
 
   const baselineText =
     usualStoreId && recommendation?.rank === 0 && !isUsualStore
@@ -81,22 +92,28 @@ export function getStoreScreenModel({
     matchedCount,
     distanceText: formatDistanceKm(distanceKm),
     reasonText,
-    trustText: `נמצאו ${matchedCount} מתוך ${basket.length} מוצרים`,
+    trustText: i18n.t("store.foundCount", {
+      matched: matchedCount,
+      total: basket.length,
+    }),
     updatedAtText,
     baselineText,
     isUsualStore,
     splitTripText:
       details.missingCount === 0
-        ? "הכול זמין כאן, אין צורך לפצל."
-        : `חסרים ${details.missingCount} מוצרים בסניף הזה.`,
+        ? i18n.t("store.noSplitNeeded")
+        : i18n.t("store.missingHere", { count: details.missingCount }),
     rows: details.rows.map((row) => ({
       productId: row.productId,
       name: row.name,
       subtitle: [row.brand, row.unit].filter(Boolean).join(" • "),
       emoji: row.emoji,
+      imageUrl: row.imageUrl,
       inStock: row.inStock,
       totalPrice: row.totalPrice,
-      statusText: row.inStock ? "זמין בסל הנוכחי" : "לא זמין בסניף הזה",
+      statusText: row.inStock
+        ? i18n.t("store.available")
+        : i18n.t("store.notAvailable"),
     })),
   };
 }

@@ -1,0 +1,166 @@
+{
+  "common": {
+    "skip": "דלג",
+    "loading": "טוען…",
+    "error": "אירעה שגיאה",
+    "close": "סגור"
+  },
+  "language": {
+    "self": "עברית",
+    "title": "שפה",
+    "he": "עברית",
+    "en": "English"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "languageSection": "שפה",
+    "walkingSection": "מרחק הליכה",
+    "walkingHint": "כמה זמן אתה מוכן ללכת ברגל לקניות?"
+  },
+  "onboarding": {
+    "walkingTitle": "כמה זמן אתה מוכן ללכת ברגל לקניות?",
+    "walkingSubtitle": "נשתמש בזה כדי לסמן אילו סניפים נחשבים מרחק הליכה עבורך.",
+    "minutes_one": "דקה",
+    "minutes_two": "דקתיים",
+    "minutes_other": "{{count}} דקות",
+    "footnote": "אפשר תמיד לשנות בהגדרות"
+  },
+  "compare": {
+    "title": "התוצאה הכי טובה עבורך",
+    "subtitleAddBasket": "הוסף מוצרים לסל כדי להתחיל להשוות",
+    "loading": "טוען נתוני מחירים…",
+    "loadError": "לא הצלחנו לטעון את נתוני המחירים.",
+    "empty": "אין מוצרים להשוואה",
+    "subtitle": "{{city}} • רדיוס {{radius}} ק״מ • {{count}} מוצרים",
+    "refinePill": "שפר את ההעדפות שלך",
+    "summarySaves": "{{chain}} חוסכת {{amount}} לעומת הסופר הרגיל שלך",
+    "summaryStillUsual": "{{chain}} נשארת הבחירה הטובה ביותר לסל הנוכחי",
+    "summaryTopRecommendation": "{{chain}} היא ההמלצה המובילה לסל הנוכחי"
+  },
+  "city": {
+    "telAviv": "תל אביב"
+  },
+  "dilemma": {
+    "title": "איזה היית מעדיף?",
+    "priceLabel": "מחיר",
+    "walkingDistance": "מרחק הליכה",
+    "byCar": "ברכב",
+    "availabilityLabel": "זמינות",
+    "allAvailable": "כל המוצרים זמינים",
+    "missingPrefix": "חסר: {{names}}"
+  },
+  "card": {
+    "bestForYou": "הבחירה הכי טובה עבורך",
+    "fullOption": "אפשרות מלאה",
+    "partialOption": "אפשרות חלקית",
+    "totalLabel": "סה״כ",
+    "distanceLabel": "מרחק",
+    "missingLabel": "חסרים",
+    "details": "ראה פירוט",
+    "openMap": "למפה",
+    "usualBadge": "הסופר הרגיל שלך",
+    "setUsual": "קבע כסופר הרגיל",
+    "removeUsual": "הסר מהרגיל"
+  },
+  "reason": {
+    "savesVsUsual": "חוסך {{amount}} לעומת הסופר הרגיל שלך",
+    "stillBestUsual": "נשארת הבחירה הטובה ביותר לסל הנוכחי",
+    "everythingHereNoSplit": "הכול נמצא כאן, בלי לפצל קנייה",
+    "closerWithFewerMissing": "קרוב יותר עם פחות חוסרים",
+    "savesVsNext": "חוסך {{amount}} לעומת האפשרות הבאה",
+    "bestForYou": "הבחירה הכי טובה עבורך",
+    "allItemsHere": "כל המוצרים נמצאים כאן",
+    "missingCount": "חסרים {{count}} מוצרים"
+  },
+  "baseline": {
+    "saves": "חוסך {{amount}} לעומת הסופר הרגיל שלך",
+    "costsMore": "עולה {{amount}} יותר מהסופר הרגיל שלך",
+    "sameCost": "זו אותה עלות כמו הסופר הרגיל שלך"
+  },
+  "home": {
+    "title": "איפה הכי זול לקנות את הסל שלך?",
+    "subtitle": "מה הכי משתלם לידך",
+    "useMyLocation": "השתמש במיקום שלי",
+    "locationHeader": "{{city}} • רדיוס {{radius}} ק״מ",
+    "uniqueProducts": "{{count}} מוצרים",
+    "totalItems": "{{count}} פריטים בסך הכול",
+    "emptyBasket": "אין עדיין סל",
+    "emptyBasketSubtitle": "התחל להוסיף מוצרים כדי להשוות סניפים",
+    "ourRecommendation": "ההמלצה שלנו",
+    "totalLabel": "סה״כ",
+    "distanceLabel": "מרחק",
+    "missingLabel": "חסרים",
+    "popularProducts": "מוצרים פופולריים",
+    "popularSubtitle": "הוסף מוצרים בלחיצה כדי להתחיל",
+    "basketReady": "הסל שלך מוכן להשוואה",
+    "basketReadyHint": "אפשר לערוך את הסל או להשוות סניפים קרובים לפי מחיר, מרחק וזמינות",
+    "basketEmptyHint": "התחל להוסיף מוצרים כדי להשוות סניפים קרובים",
+    "compareNow": "השווה עכשיו",
+    "editBasket": "ערוך סל",
+    "startBasket": "התחל סל"
+  },
+  "list": {
+    "headerTitle": "קניות שבועיות",
+    "headerSubtitle": "{{count}} מוצרים",
+    "searchPlaceholder": "הוסף מוצר...",
+    "searchResults": "תוצאות חיפוש",
+    "searching": "מחפש…",
+    "noResults": "לא נמצאו מוצרים",
+    "yourList": "ברשימה שלך",
+    "clearAll": "נקה הכל",
+    "add": "הוסף",
+    "compareNearby": "השווה סניפים קרובים"
+  },
+  "store": {
+    "notFound": "סניף לא נמצא",
+    "loadError": "לא הצלחנו לטעון את פרטי הסניף",
+    "loading": "טוען...",
+    "loadingSubtitle": "מחפש את פרטי הסניף",
+    "loadingStores": "טוען נתוני חנויות",
+    "basketBreakdown": "פירוט לפי הסל הנוכחי שלך",
+    "totalLabel": "סה״כ",
+    "distanceLabel": "מרחק",
+    "missingLabel": "חסרים",
+    "whyHere": "למה הסניף הזה",
+    "productBreakdown": "פירוט המוצרים",
+    "lastUpdated": "עדכון אחרון",
+    "foundInBasket": "נמצאו בסל",
+    "foundCount": "{{matched}} מתוך {{total}} מוצרים",
+    "splitTripQuestion": "כדאי לפצל?",
+    "noSplitNeeded": "הכול זמין כאן, אין צורך לפצל.",
+    "missingHere": "חסרים {{count}} מוצרים בסניף הזה.",
+    "openMap": "פתח במפה",
+    "available": "זמין בסל הנוכחי",
+    "notAvailable": "לא זמין בסניף הזה",
+    "allItemsHere": "כל המוצרים נמצאים כאן",
+    "missingItemsCount": "חסרים {{count}} מוצרים"
+  },
+  "map": {
+    "headerTitle": "מפה",
+    "headerSubtitle": "השוואה סביבך • {{count}} מוצרים",
+    "loading": "טוען נתוני מחירים…",
+    "loadError": "לא הצלחנו לטעון את נתוני המפה.",
+    "bestChoice": "הבחירה הטובה ביותר",
+    "quickCompare": "השוואה מהירה",
+    "missingShort": "{{count}} חסרים",
+    "details": "פרטים"
+  },
+  "distance": {
+    "meters": "{{value}} מ׳",
+    "kilometers": "{{value}} ק״מ",
+    "unknown": "—"
+  },
+  "format": {
+    "today": "היום",
+    "yesterday": "אתמול",
+    "daysAgo": "לפני {{count}} ימים",
+    "unknown": "לא ידוע",
+    "minutesAgo": "עודכן לפני {{count}} דק׳",
+    "hoursAgo": "עודכן לפני {{count}} שעות",
+    "updateDaysAgo": "עודכן לפני {{count}} ימים"
+  },
+  "trust": {
+    "noInfo": "מידע לא זמין",
+    "withRelative": "מידע {{relative}}"
+  }
+}

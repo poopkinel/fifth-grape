@@ -1,5 +1,14 @@
 import { StoreProductPrice } from "@/src/domain/pricing/types";
 import { BasketItem } from "@/src/features/basket/types";
+import {
+  bucketValue,
+  getModeGranularity,
+} from "@/src/features/preferences/granularity";
+import {
+  ScoreWeights,
+  TransportMode,
+} from "@/src/features/preferences/types";
+import { getDefaultWeights } from "@/src/features/preferences/weights";
 import { Store } from "@/src/features/stores/types";
 import { getDistanceKm } from "@/src/utils/distance";
 
@@ -11,7 +20,8 @@ import {
   RecommendationResult,
 } from "./types";
 
-const SEARCH_RADIUS_TIERS_KM = [5, 10, 25, 50];
+const FOOT_RADIUS_TIERS_KM = [1, 1.5, 3, 10];
+const CAR_RADIUS_TIERS_KM = [5, 10, 25, 50];
 
 type Input = {
   basket: BasketItem[];
@@ -19,6 +29,8 @@ type Input = {
   prices: StoreProductPrice[];
   userCoords: { latitude: number; longitude: number } | null;
   usualStoreId?: string | null;
+  transportMode?: TransportMode;
+  weights?: ScoreWeights;
 };
 
 function buildLatestUpdatedAtByStore(
@@ -65,11 +77,18 @@ export function rankStores({
   prices,
   userCoords,
   usualStoreId,
+  transportMode = "car",
+  weights,
 }: Input): RecommendationResult {
-  let radiusKm = SEARCH_RADIUS_TIERS_KM[SEARCH_RADIUS_TIERS_KM.length - 1];
+  const granularity = getModeGranularity(transportMode);
+  const effectiveWeights = weights ?? getDefaultWeights(transportMode);
+  const radiusTiers =
+    transportMode === "foot" ? FOOT_RADIUS_TIERS_KM : CAR_RADIUS_TIERS_KM;
+
+  let radiusKm = radiusTiers[radiusTiers.length - 1];
   let baseResults: ReturnType<typeof compareBasket> = [];
 
-  for (const tier of SEARCH_RADIUS_TIERS_KM) {
+  for (const tier of radiusTiers) {
     const nearbyStores = filterStoresByRadius(stores, userCoords, tier);
     const tierResults = compareBasket({ basket, stores: nearbyStores, prices });
     if (tierResults.length > 0) {
@@ -91,10 +110,17 @@ export function rankStores({
           )
         : null;
 
+    const bucketedDistanceKm =
+      distanceKm != null
+        ? bucketValue(distanceKm, granularity.distanceBucketKm)
+        : null;
+    const bucketedTotal = bucketValue(result.total, granularity.priceBucketNis);
+
     const decisionScore = calculateDecisionScore({
-      total: result.total,
+      total: bucketedTotal,
       missingCount: result.missingCount,
-      distanceKm,
+      distanceKm: bucketedDistanceKm,
+      weights: effectiveWeights,
     });
 
     return {
@@ -106,9 +132,16 @@ export function rankStores({
     };
   });
 
-  const sorted = [...enriched].sort(
-    (a, b) => a.decisionScore - b.decisionScore
-  );
+  const sorted = [...enriched].sort((a, b) => {
+    if (a.decisionScore !== b.decisionScore) {
+      return a.decisionScore - b.decisionScore;
+    }
+    const aDist = a.distanceKm ?? Infinity;
+    const bDist = b.distanceKm ?? Infinity;
+    if (aDist !== bDist) return aDist - bDist;
+    if (a.total !== b.total) return a.total - b.total;
+    return a.missingCount - b.missingCount;
+  });
   const usualStore = usualStoreId
     ? sorted.find((store) => store.store.storeId === usualStoreId)
     : null;

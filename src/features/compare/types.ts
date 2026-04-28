@@ -16,11 +16,15 @@ export type CompareCard = {
   isBest: boolean;
   color: string;
   isUsualStore: boolean;
+  isWalkable: boolean;
 };
+
+import { RankedStore } from "@/src/domain/recommendation/types";
 
 export type CompareScreenModel = {
   cards: CompareCard[];
   summaryText: string;
   bestStoreId?: string;
   radiusKm: number;
+  rankedStores: RankedStore[];
 };

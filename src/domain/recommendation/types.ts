@@ -11,6 +11,7 @@ export type StoreComparisonBase = {
   missingCount: number;
   matchedCount: number;
   coverage: number;
+  missingProducts: string[];
 };
 
 export type StoreComparison = StoreComparisonBase & {

@@ -1,0 +1,173 @@
+{
+  "common": {
+    "skip": "Skip",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "close": "Close"
+  },
+  "language": {
+    "self": "English",
+    "title": "Language",
+    "he": "עברית",
+    "en": "English"
+  },
+  "settings": {
+    "title": "Settings",
+    "languageSection": "Language",
+    "walkingSection": "Walking distance",
+    "walkingHint": "How long are you willing to walk for groceries?"
+  },
+  "onboarding": {
+    "walkingTitle": "How long are you willing to walk for groceries?",
+    "walkingSubtitle": "We'll use this to mark which stores count as walking distance for you.",
+    "minutes_one": "1 minute",
+    "minutes_other": "{{count}} minutes",
+    "footnote": "You can change this in settings later"
+  },
+  "compare": {
+    "title": "Best for your basket",
+    "subtitleAddBasket": "Add items to start comparing",
+    "loading": "Loading prices…",
+    "loadError": "Couldn't load prices.",
+    "empty": "Nothing to compare",
+    "subtitle": "{{city}} • {{radius}} km radius • {{count}} items",
+    "refinePill": "Tune your preferences",
+    "summarySaves": "{{chain}} saves {{amount}} vs your usual store",
+    "summaryStillUsual": "{{chain}} is still the best choice for this basket",
+    "summaryTopRecommendation": "{{chain}} is the top recommendation for this basket"
+  },
+  "city": {
+    "telAviv": "Tel Aviv"
+  },
+  "dilemma": {
+    "title": "Which would you prefer?",
+    "priceLabel": "Price",
+    "walkingDistance": "Walking distance",
+    "byCar": "By car",
+    "availabilityLabel": "Availability",
+    "allAvailable": "Everything in stock",
+    "missingPrefix": "Missing: {{names}}"
+  },
+  "card": {
+    "bestForYou": "Best for you",
+    "fullOption": "Has everything",
+    "partialOption": "Partial match",
+    "totalLabel": "Total",
+    "distanceLabel": "Distance",
+    "missingLabel": "Missing",
+    "details": "View details",
+    "openMap": "Map",
+    "usualBadge": "Your usual store",
+    "setUsual": "Set as usual",
+    "removeUsual": "Remove as usual"
+  },
+  "reason": {
+    "savesVsUsual": "Saves {{amount}} vs your usual store",
+    "stillBestUsual": "Still the best choice for this basket",
+    "everythingHereNoSplit": "Everything is here, no need to split",
+    "closerWithFewerMissing": "Closer with fewer missing items",
+    "savesVsNext": "Saves {{amount}} vs the next option",
+    "bestForYou": "Best for you",
+    "allItemsHere": "All items are available here",
+    "missingCount_one": "1 item missing",
+    "missingCount_other": "{{count}} items missing"
+  },
+  "baseline": {
+    "saves": "Saves {{amount}} vs your usual store",
+    "costsMore": "Costs {{amount}} more than your usual store",
+    "sameCost": "Same cost as your usual store"
+  },
+  "home": {
+    "title": "Where's the cheapest place for your basket?",
+    "subtitle": "What's best near you",
+    "useMyLocation": "Use my location",
+    "locationHeader": "{{city}} • {{radius}} km radius",
+    "uniqueProducts_one": "1 product",
+    "uniqueProducts_other": "{{count}} products",
+    "totalItems_one": "1 item total",
+    "totalItems_other": "{{count}} items total",
+    "emptyBasket": "Basket is empty",
+    "emptyBasketSubtitle": "Add items to start comparing stores",
+    "ourRecommendation": "Our pick",
+    "totalLabel": "Total",
+    "distanceLabel": "Distance",
+    "missingLabel": "Missing",
+    "popularProducts": "Popular products",
+    "popularSubtitle": "Tap to add and start comparing",
+    "basketReady": "Your basket is ready to compare",
+    "basketReadyHint": "Edit your basket or compare nearby stores by price, distance, and availability",
+    "basketEmptyHint": "Add items to start comparing nearby stores",
+    "compareNow": "Compare now",
+    "editBasket": "Edit basket",
+    "startBasket": "Start basket"
+  },
+  "list": {
+    "headerTitle": "Weekly groceries",
+    "headerSubtitle_one": "1 item",
+    "headerSubtitle_other": "{{count}} items",
+    "searchPlaceholder": "Add an item...",
+    "searchResults": "Search results",
+    "searching": "Searching…",
+    "noResults": "No products found",
+    "yourList": "Your list",
+    "clearAll": "Clear all",
+    "add": "Add",
+    "compareNearby": "Compare nearby stores"
+  },
+  "store": {
+    "notFound": "Store not found",
+    "loadError": "Couldn't load store details",
+    "loading": "Loading...",
+    "loadingSubtitle": "Looking up the store",
+    "loadingStores": "Loading store data",
+    "basketBreakdown": "Breakdown for your current basket",
+    "totalLabel": "Total",
+    "distanceLabel": "Distance",
+    "missingLabel": "Missing",
+    "whyHere": "Why this store",
+    "productBreakdown": "Item breakdown",
+    "lastUpdated": "Last updated",
+    "foundInBasket": "Found in basket",
+    "foundCount": "{{matched}} of {{total}} items",
+    "splitTripQuestion": "Worth splitting the trip?",
+    "noSplitNeeded": "Everything is here, no need to split.",
+    "missingHere": "{{count}} items missing here.",
+    "openMap": "Open in map",
+    "available": "Available in this basket",
+    "notAvailable": "Not available at this store",
+    "allItemsHere": "All items are here",
+    "missingItemsCount": "{{count}} items missing"
+  },
+  "map": {
+    "headerTitle": "Map",
+    "headerSubtitle_one": "Around you • 1 item",
+    "headerSubtitle_other": "Around you • {{count}} items",
+    "loading": "Loading prices…",
+    "loadError": "Couldn't load map data.",
+    "bestChoice": "Best choice",
+    "quickCompare": "Quick compare",
+    "missingShort": "{{count}} missing",
+    "details": "Details"
+  },
+  "distance": {
+    "meters": "{{value}} m",
+    "kilometers": "{{value}} km",
+    "unknown": "—"
+  },
+  "format": {
+    "today": "today",
+    "yesterday": "yesterday",
+    "daysAgo": "{{count}} days ago",
+    "unknown": "unknown",
+    "minutesAgo_one": "updated 1m ago",
+    "minutesAgo_other": "updated {{count}}m ago",
+    "hoursAgo_one": "updated 1h ago",
+    "hoursAgo_other": "updated {{count}}h ago",
+    "updateDaysAgo_one": "updated 1d ago",
+    "updateDaysAgo_other": "updated {{count}}d ago"
+  },
+  "trust": {
+    "noInfo": "No info",
+    "withRelative": "Info {{relative}}"
+  }
+}

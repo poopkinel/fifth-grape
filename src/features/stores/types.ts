@@ -19,6 +19,7 @@ export type StoreBasketRow = {
   brand?: string;
   unit?: string;
   emoji?: string;
+  imageUrl?: string;
   inStock: boolean;
   unitPrice: number | null;
   totalPrice: number | null;
@@ -40,6 +41,7 @@ export type StoreScreenRow = {
   name: string;
   subtitle: string;
   emoji?: string;
+  imageUrl?: string;
   inStock: boolean;
   totalPrice: number | null;
   statusText: string;

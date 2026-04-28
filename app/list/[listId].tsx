@@ -5,6 +5,7 @@ import { Product } from "@/src/features/products/types";
 import { useTheme } from "@/src/theme";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ListItemRow from "../../src/components/list/ListItemRow";
@@ -15,6 +16,7 @@ import { realProducts } from "../../src/lib/constants/realProducts";
 export default function ListScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const items = useBasketStore((state) => state.items);
   const addItem = useBasketStore((state) => state.addItem);
@@ -53,7 +55,10 @@ export default function ListScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }} edges={["top", "left", "right"]}>
-      <AppHeader title="קניות שבועיות" subtitle={`${totalCount} מוצרים`} />
+      <AppHeader
+        title={t("list.headerTitle")}
+        subtitle={t("list.headerSubtitle", { count: totalCount })}
+      />
 
       <ScrollView
         contentContainerStyle={{
@@ -65,14 +70,14 @@ export default function ListScreen() {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="הוסף מוצר..."
+          placeholder={t("list.searchPlaceholder")}
           placeholderTextColor={theme.textMuted}
           style={{
             backgroundColor: theme.inputBg,
             color: theme.textPrimary,
             padding: 14,
             borderRadius: 16,
-            textAlign: "right",
+            textAlign: "auto",
             borderWidth: 1,
             borderColor: theme.cardBorder,
           }}
@@ -80,14 +85,14 @@ export default function ListScreen() {
         {results.length > 0 && (
           <Text
             style={{
-              textAlign: "right",
+              textAlign: "auto",
               fontSize: 14,
               fontWeight: "700",
               color: theme.textSecondary,
               marginBottom: 4,
             }}
           >
-            תוצאות חיפוש
+            {t("list.searchResults")}
           </Text>
         )}
         {query.trim().length > 0 ? (
@@ -98,6 +103,7 @@ export default function ListScreen() {
                 name={item.name}
                 subtitle={[item.brand, item.unit].filter(Boolean).join(" • ")}
                 emoji={item.emoji}
+                imageUrl={item.imageUrl}
                 badge={item.brand ?? item.category}
                 onAdd={() =>
                   addItem({
@@ -107,6 +113,7 @@ export default function ListScreen() {
                     unit: item.unit,
                     barcode: item.barcode,
                     emoji: item.emoji,
+                    imageUrl: item.imageUrl,
                   })
                 }
               />
@@ -115,14 +122,14 @@ export default function ListScreen() {
         ) : null}
 
         {query.trim().length > 0 && results.length === 0 ? (
-          <Text style={{ textAlign: "right", color: theme.textSecondary }}>
-            {isSearching ? "מחפש…" : "לא נמצאו מוצרים"}
+          <Text style={{ textAlign: "auto", color: theme.textSecondary }}>
+            {isSearching ? t("list.searching") : t("list.noResults")}
           </Text>
         ) : null}
 
         <View
           style={{
-            flexDirection: "row-reverse",
+            flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
             marginTop: 8,
@@ -131,13 +138,13 @@ export default function ListScreen() {
         >
           <Text
             style={{
-              textAlign: "right",
+              textAlign: "auto",
               fontSize: 14,
               fontWeight: "700",
               color: theme.textPrimary,
             }}
           >
-            ברשימה שלך
+            {t("list.yourList")}
           </Text>
 
           {items.length > 0 ? (
@@ -157,7 +164,7 @@ export default function ListScreen() {
                   fontWeight: "700",
                 }}
               >
-                נקה הכל
+                {t("list.clearAll")}
               </Text>
             </TouchableOpacity>
           ) : null}
@@ -170,6 +177,7 @@ export default function ListScreen() {
               name={item.name}
               quantity={item.quantity}
               emoji={item.emoji}
+              imageUrl={item.imageUrl}
               subtitle={item.subtitle}
               onIncrease={() => increaseQuantity(item.id)}
               onDecrease={() => decreaseQuantity(item.id)}
@@ -206,7 +214,7 @@ export default function ListScreen() {
               fontSize: 16,
             }}
           >
-            השווה סניפים קרובים
+            {t("list.compareNearby")}
           </Text>
         </TouchableOpacity>
       </View>

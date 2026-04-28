@@ -1,16 +1,21 @@
+import { ScoreWeights } from "@/src/features/preferences/types";
+
 type Input = {
   total: number;
   missingCount: number;
   distanceKm: number | null;
+  weights: ScoreWeights;
 };
 
 export function calculateDecisionScore({
   total,
   missingCount,
   distanceKm,
+  weights,
 }: Input): number {
-  const missingPenalty = missingCount * 100;
-  const distancePenalty = distanceKm ? distanceKm * 2 : 0;
+  const priceTerm = total * weights.price;
+  const missingTerm = missingCount * weights.availability;
+  const distanceTerm = distanceKm != null ? distanceKm * weights.distance : 0;
 
-  return total + missingPenalty + distancePenalty;
+  return priceTerm + missingTerm + distanceTerm;
 }

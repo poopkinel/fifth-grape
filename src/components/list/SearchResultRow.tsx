@@ -1,10 +1,13 @@
+import ProductImage from "@/src/components/products/ProductImage";
 import { useTheme } from "@/src/theme";
+import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type SearchResultRowProps = {
   name: string;
   subtitle?: string;
   emoji?: string;
+  imageUrl?: string;
   badge?: string;
   onAdd?: () => void;
 };
@@ -13,10 +16,12 @@ export default function SearchResultRow({
   name,
   subtitle,
   emoji = "🥛",
+  imageUrl,
   badge,
   onAdd,
 }: SearchResultRowProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -37,18 +42,13 @@ export default function SearchResultRow({
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12, flex: 1 }}>
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 14,
-              backgroundColor: theme.statBg,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ fontSize: 22 }}>{emoji}</Text>
-          </View>
+          <ProductImage
+            imageUrl={imageUrl}
+            emoji={emoji}
+            size={44}
+            backgroundColor={theme.statBg}
+            borderRadius={14}
+          />
 
           <View style={{ flex: 1, alignItems: "flex-start" }}>
             <Text
@@ -56,7 +56,7 @@ export default function SearchResultRow({
                 fontSize: 15,
                 fontWeight: "600",
                 color: theme.textPrimary,
-                textAlign: "right",
+                textAlign: "auto",
               }}
             >
               {name}
@@ -68,7 +68,7 @@ export default function SearchResultRow({
                   marginTop: 4,
                   fontSize: 13,
                   color: theme.textSecondary,
-                  textAlign: "right",
+                  textAlign: "auto",
                 }}
               >
                 {subtitle}
@@ -91,7 +91,7 @@ export default function SearchResultRow({
                     color: theme.accentText,
                     fontSize: 12,
                     fontWeight: "700",
-                    textAlign: "right",
+                    textAlign: "auto",
                   }}
                 >
                   {badge}
@@ -117,7 +117,7 @@ export default function SearchResultRow({
               textAlign: "center",
             }}
           >
-            הוסף
+            {t("list.add")}
           </Text>
         </TouchableOpacity>
       </View>

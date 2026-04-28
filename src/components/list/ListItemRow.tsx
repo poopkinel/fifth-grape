@@ -1,3 +1,4 @@
+import ProductImage from "@/src/components/products/ProductImage";
 import { useTheme } from "@/src/theme";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -6,6 +7,7 @@ type ListItemRowProps = {
   quantity: number;
   subtitle?: string;
   emoji?: string;
+  imageUrl?: string;
   onIncrease?: () => void;
   onDecrease?: () => void;
   onPress?: () => void;
@@ -16,6 +18,7 @@ export default function ListItemRow({
   quantity,
   subtitle,
   emoji = "🛒",
+  imageUrl,
   onIncrease,
   onDecrease,
   onPress,
@@ -43,18 +46,13 @@ export default function ListItemRow({
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12, flex: 1 }}>
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 14,
-              backgroundColor: theme.statBg,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ fontSize: 22 }}>{emoji}</Text>
-          </View>
+          <ProductImage
+            imageUrl={imageUrl}
+            emoji={emoji}
+            size={44}
+            backgroundColor={theme.statBg}
+            borderRadius={14}
+          />
 
           <View style={{ flex: 1, alignItems: "flex-start" }}>
             <Text
@@ -83,7 +81,7 @@ export default function ListItemRow({
 
         <View
           style={{
-            flexDirection: "row-reverse",
+            flexDirection: "row",
             alignItems: "center",
             gap: 8,
           }}

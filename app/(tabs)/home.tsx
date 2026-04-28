@@ -7,6 +7,8 @@ import { usePreferenceStore } from "@/src/features/preferences/store";
 import { realProducts } from "@/src/lib/constants/realProducts";
 import { useTheme } from "@/src/theme";
 import { useRouter } from "expo-router";
+import { Settings as SettingsIcon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -26,9 +28,12 @@ const popularProducts = realProducts.filter((p) =>
 export default function HomeScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useTranslation();
   const items = useBasketStore((state) => state.items);
   const addItem = useBasketStore((state) => state.addItem);
   const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
+  const transportMode = usePreferenceStore((state) => state.transportMode);
+  const weights = usePreferenceStore((state) => state.weights[transportMode]);
   const { userCoords } = useUserLocation();
   const { data } = useMarketData(items.map((item) => item.productId));
 
@@ -47,6 +52,8 @@ export default function HomeScreen() {
           prices: data.prices,
           userCoords,
           usualStoreId,
+          transportMode,
+          weights,
         })
       : null;
 
@@ -63,8 +70,17 @@ export default function HomeScreen() {
       edges={["top"]}
     >
       <AppHeader
-        title="איפה הכי זול לקנות את הסל שלך?"
-        subtitle="מה הכי משתלם לידך"
+        title={t("home.title")}
+        subtitle={t("home.subtitle")}
+        trailing={
+          <TouchableOpacity
+            onPress={() => router.push("/settings")}
+            hitSlop={12}
+            accessibilityLabel={t("settings.title")}
+          >
+            <SettingsIcon size={22} color={theme.textSecondary} />
+          </TouchableOpacity>
+        }
       />
 
       <ScrollView
@@ -92,7 +108,7 @@ export default function HomeScreen() {
               marginBottom: 4,
             }}
           >
-            השתמש במיקום שלי
+            {t("home.useMyLocation")}
           </Text>
 
           <Text
@@ -101,7 +117,7 @@ export default function HomeScreen() {
               marginBottom: hasBasket ? 14 : 0,
             }}
           >
-            תל אביב • רדיוס 5 ק״מ
+            {t("home.locationHeader", { city: t("city.telAviv"), radius: 5 })}
           </Text>
 
           <View
@@ -125,10 +141,10 @@ export default function HomeScreen() {
                     marginBottom: 4,
                   }}
                 >
-                  {uniqueCount} מוצרים
+                  {t("home.uniqueProducts", { count: uniqueCount })}
                 </Text>
                 <Text style={{ color: "#ecfdf5" }}>
-                  {totalCount} פריטים בסך הכול
+                  {t("home.totalItems", { count: totalCount })}
                 </Text>
               </>
             ) : (
@@ -141,10 +157,10 @@ export default function HomeScreen() {
                     marginBottom: 4,
                   }}
                 >
-                  אין עדיין סל
+                  {t("home.emptyBasket")}
                 </Text>
                 <Text style={{ color: "#ecfdf5" }}>
-                  התחל להוסיף מוצרים כדי להשוות סניפים
+                  {t("home.emptyBasketSubtitle")}
                 </Text>
               </>
             )}
@@ -174,7 +190,7 @@ export default function HomeScreen() {
                   marginBottom: 4,
                 }}
               >
-                ההמלצה שלנו
+                {t("home.ourRecommendation")}
               </Text>
               <Text
                 style={{
@@ -192,7 +208,7 @@ export default function HomeScreen() {
 
             <View
               style={{
-                flexDirection: "row-reverse",
+                flexDirection: "row",
                 gap: 8,
               }}
             >
@@ -213,7 +229,7 @@ export default function HomeScreen() {
                     marginBottom: 4,
                   }}
                 >
-                  סה״כ
+                  {t("home.totalLabel")}
                 </Text>
                 <Text
                   style={{
@@ -244,7 +260,7 @@ export default function HomeScreen() {
                     marginBottom: 4,
                   }}
                 >
-                  מרחק
+                  {t("home.distanceLabel")}
                 </Text>
                 <Text
                   style={{
@@ -276,7 +292,7 @@ export default function HomeScreen() {
                       marginBottom: 4,
                     }}
                   >
-                    חסרים
+                    {t("home.missingLabel")}
                   </Text>
                   <Text
                     style={{
@@ -322,7 +338,7 @@ export default function HomeScreen() {
                 marginBottom: 4,
               }}
             >
-              מוצרים פופולריים
+              {t("home.popularProducts")}
             </Text>
             <Text
               style={{
@@ -330,12 +346,12 @@ export default function HomeScreen() {
                 marginBottom: 14,
               }}
             >
-              הוסף מוצרים בלחיצה כדי להתחיל
+              {t("home.popularSubtitle")}
             </Text>
 
             <View
               style={{
-                flexDirection: "row-reverse",
+                flexDirection: "row",
                 flexWrap: "wrap",
                 gap: 10,
               }}
@@ -354,7 +370,7 @@ export default function HomeScreen() {
                     })
                   }
                   style={{
-                    flexDirection: "row-reverse",
+                    flexDirection: "row",
                     alignItems: "center",
                     backgroundColor: theme.statBg,
                     borderRadius: 14,
@@ -412,7 +428,7 @@ export default function HomeScreen() {
               marginBottom: 6,
             }}
           >
-            {hasBasket ? "הסל שלך מוכן להשוואה" : "אין עדיין סל"}
+            {hasBasket ? t("home.basketReady") : t("home.emptyBasket")}
           </Text>
 
           <Text
@@ -423,11 +439,11 @@ export default function HomeScreen() {
             }}
           >
             {hasBasket
-              ? "אפשר לערוך את הסל או להשוות סניפים קרובים לפי מחיר, מרחק וזמינות"
-              : "התחל להוסיף מוצרים כדי להשוות סניפים קרובים"}
+              ? t("home.basketReadyHint")
+              : t("home.basketEmptyHint")}
           </Text>
 
-          <View style={{ flexDirection: "row-reverse", gap: 10 }}>
+          <View style={{ flexDirection: "row", gap: 10 }}>
             <TouchableOpacity
               disabled={!hasBasket}
               onPress={() => router.push(compareRoute as any)}
@@ -445,7 +461,7 @@ export default function HomeScreen() {
                   fontWeight: "700",
                 }}
               >
-                השווה עכשיו
+                {t("home.compareNow")}
               </Text>
             </TouchableOpacity>
 
@@ -465,7 +481,7 @@ export default function HomeScreen() {
                   fontWeight: "700",
                 }}
               >
-                {hasBasket ? "ערוך סל" : "התחל סל"}
+                {hasBasket ? t("home.editBasket") : t("home.startBasket")}
               </Text>
             </TouchableOpacity>
           </View>

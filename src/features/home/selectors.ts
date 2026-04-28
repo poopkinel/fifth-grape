@@ -1,6 +1,10 @@
 import { StoreProductPrice } from "@/src/domain/pricing/types";
 import { buildReasonText } from "@/src/domain/recommendation/explain";
 import { rankStores } from "@/src/domain/recommendation/rankStores";
+import {
+  ScoreWeights,
+  TransportMode,
+} from "@/src/features/preferences/types";
 import { formatCurrency } from "@/src/utils/format";
 import { formatDistanceKm } from "@/src/utils/distance";
 import { BasketItem } from "../basket/types";
@@ -13,6 +17,8 @@ type HomeScreenModelInput = {
   prices: StoreProductPrice[];
   userCoords: { latitude: number; longitude: number } | null;
   usualStoreId?: string | null;
+  transportMode?: TransportMode;
+  weights?: ScoreWeights;
 };
 
 export function getHomeScreenModel({
@@ -21,6 +27,8 @@ export function getHomeScreenModel({
   prices,
   userCoords,
   usualStoreId,
+  transportMode,
+  weights,
 }: HomeScreenModelInput): HomeScreenModel {
   if (!basket.length || !stores.length) {
     return { recommendation: null };
@@ -32,6 +40,8 @@ export function getHomeScreenModel({
     prices,
     userCoords,
     usualStoreId,
+    transportMode,
+    weights,
   });
 
   const best = rankedStores[0];

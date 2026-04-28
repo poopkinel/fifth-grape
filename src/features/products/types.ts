@@ -6,4 +6,5 @@ export type Product = {
   barcode?: string;
   emoji?: string;
   category?: string;
+  imageUrl?: string;
 };

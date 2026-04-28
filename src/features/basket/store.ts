@@ -52,6 +52,7 @@ export const useBasketStore = create<BasketStore>()(
             unit: product.unit,
             barcode: product.barcode,
             emoji: product.emoji,
+            imageUrl: product.imageUrl,
           };
 
           return { items: [...state.items, newItem] };

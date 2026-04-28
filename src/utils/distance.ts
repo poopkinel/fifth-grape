@@ -1,3 +1,5 @@
+import i18n from "@/src/i18n";
+
 import { UserCoords } from "../features/location/useUserLocation";
 import { Store } from "../features/stores/types";
 
@@ -10,7 +12,7 @@ export function getDistanceKm(
   fromLat: number,
   fromLng: number,
   toLat: number,
-  toLng: number
+  toLng: number,
 ): number {
   const R = 6371;
 
@@ -29,27 +31,26 @@ export function getDistanceKm(
 }
 
 export function formatDistanceKm(distanceKm: number | null): string {
-  if (distanceKm === null) return "—";
+  if (distanceKm === null) return i18n.t("distance.unknown");
 
   if (distanceKm < 1) {
-    return `${Math.round(distanceKm * 1000)} מ׳`;
+    return i18n.t("distance.meters", { value: Math.round(distanceKm * 1000) });
   }
 
-  if (Number.isInteger(distanceKm)) {
-    return `${distanceKm} ק״מ`;
-  }
-
-  return `${distanceKm.toFixed(1)} ק״מ`;
+  const value = Number.isInteger(distanceKm)
+    ? `${distanceKm}`
+    : distanceKm.toFixed(1);
+  return i18n.t("distance.kilometers", { value });
 }
 
 export function getDistanceInfo(
   userCoords: UserCoords | null,
-  store: Store | null
+  store: Store | null,
 ): DistanceInfo {
   if (!userCoords || !store || store.lat == null || store.lng == null) {
     return {
       distanceKm: null,
-      distanceText: "—",
+      distanceText: i18n.t("distance.unknown"),
     };
   }
 
@@ -57,7 +58,7 @@ export function getDistanceInfo(
     userCoords.latitude,
     userCoords.longitude,
     store.lat,
-    store.lng
+    store.lng,
   );
 
   return {
