@@ -201,8 +201,8 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                       shadowRadius: 6,
                       shadowOffset: { width: 0, height: 2 },
                       elevation: 3,
-                      borderWidth: isSelected ? 2 : store.isBest ? 2 : 0,
-                      borderColor: isSelected ? "white" : store.isBest ? "#22c55e" : "transparent",
+                      borderWidth: isSelected ? 2 : 0,
+                      borderColor: isSelected ? "white" : "transparent",
                     }}
                   >
                     <Text
@@ -213,7 +213,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                         textAlign: "center",
                       }}
                     >
-                      {store.isBest ? "★ " : ""}{formatCurrency(store.total)}
+                      {formatCurrency(store.total)}
                     </Text>
                   </TouchableOpacity>
                 </Marker>

@@ -120,7 +120,11 @@ export function getMapScreenModel({
           : store.missingCount === 0
             ? "FULL"
             : "MISSING",
-        color: getChainColor(store.store.chainId),
+        // Best wears the recommended-green so the user's eye lands on it
+        // immediately. Non-best pins use chain color — that's exactly the
+        // signal that matters when distinguishing close-but-not-best
+        // alternatives (e.g. two non-best stores stacked at the same mall).
+        color: isBest ? "#22c55e" : getChainColor(store.store.chainId),
         isBest,
       };
     });
