@@ -187,6 +187,7 @@ export default function CompareScreen() {
             key={card.storeId}
             title={card.title}
             chainName={card.chainName}
+            chainColor={card.color}
             branchName={card.branchName}
             address={card.address}
             total={card.total}

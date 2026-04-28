@@ -6,6 +6,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 type RecommendationCardProps = {
   title: string;
   chainName: string;
+  chainColor: string;
   branchName: string;
   address?: string;
   total: number;
@@ -25,6 +26,7 @@ type RecommendationCardProps = {
 export default function RecommendationCard({
   title,
   chainName,
+  chainColor,
   branchName,
   address,
   total,
@@ -63,6 +65,21 @@ export default function RecommendationCard({
         gap: 14,
       }}
     >
+      {/* Chain identity stripe — only on non-BEST cards; BEST already wears
+          its full-green background as the dominant signal. Helps the user
+          tell two stacked-same-address chains apart at a glance. */}
+      {!isBest ? (
+        <View
+          style={{
+            height: 4,
+            borderRadius: 999,
+            backgroundColor: chainColor,
+            alignSelf: "stretch",
+            marginTop: -4,
+            marginBottom: -8,
+          }}
+        />
+      ) : null}
       <View style={{ alignItems: "flex-start" }}>
         <Text
           style={{

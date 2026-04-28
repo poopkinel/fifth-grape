@@ -113,18 +113,34 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                   alignItems: "center",
                 }}
               >
-                <Text
+                <View
                   style={{
-                    fontWeight: isActive ? "700" : "500",
-                    color: isActive ? theme.background : theme.textPrimary,
-                    fontSize: 13,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
                     marginBottom: 2,
-                    textAlign: "center",
                   }}
-                  numberOfLines={1}
                 >
-                  {store.branchName || store.chainName}
-                </Text>
+                  <View
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: store.color,
+                    }}
+                  />
+                  <Text
+                    style={{
+                      fontWeight: isActive ? "700" : "500",
+                      color: isActive ? theme.background : theme.textPrimary,
+                      fontSize: 13,
+                      textAlign: "center",
+                    }}
+                    numberOfLines={1}
+                  >
+                    {store.branchName || store.chainName}
+                  </Text>
+                </View>
                 <Text
                   style={{
                     color: isActive ? theme.textMuted : theme.textSecondary,
@@ -185,8 +201,8 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                       shadowRadius: 6,
                       shadowOffset: { width: 0, height: 2 },
                       elevation: 3,
-                      borderWidth: isSelected ? 2 : 0,
-                      borderColor: isSelected ? "white" : "transparent",
+                      borderWidth: isSelected ? 2 : store.isBest ? 2 : 0,
+                      borderColor: isSelected ? "white" : store.isBest ? "#22c55e" : "transparent",
                     }}
                   >
                     <Text
@@ -197,7 +213,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
                         textAlign: "center",
                       }}
                     >
-                      {formatCurrency(store.total)}
+                      {store.isBest ? "★ " : ""}{formatCurrency(store.total)}
                     </Text>
                   </TouchableOpacity>
                 </Marker>

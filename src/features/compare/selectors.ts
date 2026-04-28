@@ -16,6 +16,7 @@ import {
   isUnknownRelativeTime,
 } from "@/src/utils/format";
 import { BasketItem } from "../basket/types";
+import { getChainColor } from "../stores/chainColors";
 import { Store } from "../stores/types";
 import { CompareCard, CompareScreenModel } from "./types";
 
@@ -106,7 +107,7 @@ export function getCompareScreenModel({
       trustText,
       baselineText,
       isBest,
-      color: isBest ? "#22c55e" : "#e5e7eb",
+      color: getChainColor(store.store.chainId),
       isUsualStore,
       isWalkable:
         store.distanceKm !== null && store.distanceKm <= maxWalkingDistanceKm,

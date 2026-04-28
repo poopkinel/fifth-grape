@@ -6,6 +6,7 @@ import {
   TransportMode,
 } from "@/src/features/preferences/types";
 import i18n from "@/src/i18n";
+import { getChainColor } from "@/src/features/stores/chainColors";
 import { Store } from "@/src/features/stores/types";
 import { formatDistanceKm } from "@/src/utils/distance";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
@@ -55,6 +56,7 @@ export function getMapScreenModel({
 
       return {
         storeId: store.store.storeId,
+        chainId: store.store.chainId,
         chainName: store.store.chainName,
         branchName: store.store.branchName,
         lat: store.store.lat as number,
@@ -80,7 +82,7 @@ export function getMapScreenModel({
           : store.missingCount === 0
             ? "FULL"
             : "MISSING",
-        color: isBest ? "#22c55e" : "#ef4444",
+        color: getChainColor(store.store.chainId),
         isBest,
       };
     });

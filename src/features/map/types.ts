@@ -1,5 +1,6 @@
 export type MapStoreMarker = {
   storeId: string;
+  chainId: string;
   chainName: string;
   branchName: string;
   total: number;
