@@ -5,6 +5,12 @@ export type Store = {
   chainId: string;
   chainName: string;
   branchName: string;
+  // Brand-level: chainId is the corporate parent; subChain* carries the
+  // consumer brand (e.g. yeinot_bitan publishes Sheli + Carrefour + Be'er
+  // under one chainId — distinguishable only here). Optional because not
+  // every chain populates these in the source XML.
+  subChainId?: string | null;
+  subChainName?: string | null;
   address: string;
   city: string;
   lat: number | null;

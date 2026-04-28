@@ -6,7 +6,7 @@ import {
   TransportMode,
 } from "@/src/features/preferences/types";
 import i18n from "@/src/i18n";
-import { getChainColor } from "@/src/features/stores/chainColors";
+import { getStoreColor } from "@/src/features/stores/chainColors";
 import { Store } from "@/src/features/stores/types";
 import { formatDistanceKm } from "@/src/utils/distance";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
@@ -121,10 +121,16 @@ export function getMapScreenModel({
             ? "FULL"
             : "MISSING",
         // Best wears the recommended-green so the user's eye lands on it
-        // immediately. Non-best pins use chain color — that's exactly the
-        // signal that matters when distinguishing close-but-not-best
-        // alternatives (e.g. two non-best stores stacked at the same mall).
-        color: isBest ? "#22c55e" : getChainColor(store.store.chainId),
+        // immediately. Non-best pins use store color (per chain + sub-brand)
+        // — that's exactly the signal that matters when distinguishing
+        // close-but-not-best alternatives that share an address (mall) or
+        // a corporate parent (Sheli vs Carrefour, both yeinot_bitan).
+        color: isBest
+          ? "#22c55e"
+          : getStoreColor({
+              chainId: store.store.chainId,
+              subChainName: store.store.subChainName,
+            }),
         isBest,
       };
     });
