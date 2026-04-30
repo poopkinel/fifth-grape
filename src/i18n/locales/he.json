@@ -111,7 +111,19 @@
     "coverageNoneNearby": "לא נמכר בקרבת מקום",
     "coverageNoneAnywhere": "לא נמצא ברשת שלנו",
     "freshnessFooter": "מחירים מצילום יומי · עודכן {{relative}}",
-    "freshnessFooterUnknown": "מחירים מצילום יומי"
+    "freshnessFooterUnknown": "מחירים מצילום יומי",
+    "scanBarcode": "סרוק ברקוד"
+  },
+  "scan": {
+    "done": "סיום",
+    "cancel": "ביטול",
+    "hint": "כוון את המצלמה לברקוד",
+    "notFound": "לא בקטלוג",
+    "basketEmpty": "הסל ריק — התחל לסרוק כדי להוסיף מוצרים",
+    "permissionTitle": "נדרש גישה למצלמה",
+    "permissionBody": "אנחנו משתמשים במצלמה רק לקריאת ברקודים. שום דבר לא יוצא מהמכשיר שלך.",
+    "permissionGrant": "אפשר גישה למצלמה",
+    "permissionOpenSettings": "פתח הגדרות"
   },
   "store": {
     "notFound": "סניף לא נמצא",

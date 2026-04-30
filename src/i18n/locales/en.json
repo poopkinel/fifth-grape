@@ -114,7 +114,19 @@
     "coverageNoneNearby": "Not stocked nearby",
     "coverageNoneAnywhere": "Not found in our network",
     "freshnessFooter": "Prices from the daily snapshot · updated {{relative}}",
-    "freshnessFooterUnknown": "Prices from the daily snapshot"
+    "freshnessFooterUnknown": "Prices from the daily snapshot",
+    "scanBarcode": "Scan a barcode"
+  },
+  "scan": {
+    "done": "Done",
+    "cancel": "Cancel",
+    "hint": "Point the camera at a barcode",
+    "notFound": "Not in catalog",
+    "basketEmpty": "Basket is empty — start scanning to add items",
+    "permissionTitle": "Camera access needed",
+    "permissionBody": "We use the camera only to read product barcodes. Nothing leaves your device.",
+    "permissionGrant": "Allow camera",
+    "permissionOpenSettings": "Open settings"
   },
   "store": {
     "notFound": "Store not found",

@@ -7,6 +7,7 @@ import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { Product } from "@/src/features/products/types";
 import { useTheme } from "@/src/theme";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -106,21 +107,43 @@ export default function ListScreen() {
           paddingBottom: 120,
         }}
       >
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder={t("list.searchPlaceholder")}
-          placeholderTextColor={theme.textMuted}
+        <View
           style={{
+            flexDirection: "row",
+            alignItems: "center",
             backgroundColor: theme.inputBg,
-            color: theme.textPrimary,
-            padding: 14,
             borderRadius: 16,
-            textAlign: "auto",
             borderWidth: 1,
             borderColor: theme.cardBorder,
+            paddingEnd: 6,
           }}
-        />
+        >
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t("list.searchPlaceholder")}
+            placeholderTextColor={theme.textMuted}
+            style={{
+              flex: 1,
+              color: theme.textPrimary,
+              padding: 14,
+              textAlign: "auto",
+            }}
+          />
+          <TouchableOpacity
+            onPress={() => router.push("/list/scan")}
+            accessibilityLabel={t("list.scanBarcode")}
+            hitSlop={8}
+            style={{
+              padding: 8,
+              borderRadius: 12,
+              backgroundColor: theme.statBg,
+              marginEnd: 4,
+            }}
+          >
+            <Ionicons name="barcode-outline" size={22} color={theme.textPrimary} />
+          </TouchableOpacity>
+        </View>
         {results.length > 0 && (
           <Text
             style={{
