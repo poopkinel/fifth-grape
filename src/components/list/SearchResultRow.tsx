@@ -1,4 +1,5 @@
 import ProductImage from "@/src/components/products/ProductImage";
+import { ItemCoverageStatus } from "@/src/domain/coverage/perItemCoverage";
 import { useTheme } from "@/src/theme";
 import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -6,22 +7,51 @@ import { Text, TouchableOpacity, View } from "react-native";
 type SearchResultRowProps = {
   name: string;
   subtitle?: string;
+  brand?: string;
   emoji?: string;
   imageUrl?: string;
-  badge?: string;
+  coverage?: ItemCoverageStatus;
+  quantity?: number;
   onAdd?: () => void;
+  onIncrease?: () => void;
+  onDecrease?: () => void;
 };
 
 export default function SearchResultRow({
   name,
   subtitle,
-  emoji = "🥛",
+  brand,
+  emoji,
   imageUrl,
-  badge,
+  coverage,
+  quantity = 0,
   onAdd,
+  onIncrease,
+  onDecrease,
 }: SearchResultRowProps) {
   const theme = useTheme();
   const { t } = useTranslation();
+
+  const coverageLabel =
+    coverage?.kind === "nearby"
+      ? {
+          text: t("list.coverageNearby", { count: coverage.nearbyCount }),
+          color: theme.accentText,
+          bg: theme.accentLight,
+        }
+      : coverage?.kind === "none_nearby"
+        ? {
+            text: t("list.coverageNoneNearby"),
+            color: theme.warningTextDark,
+            bg: theme.warningBg,
+          }
+        : coverage?.kind === "none_anywhere"
+          ? {
+              text: t("list.coverageNoneAnywhere"),
+              color: theme.warningTextDark,
+              bg: theme.warningBg,
+            }
+          : null;
 
   return (
     <View
@@ -45,6 +75,8 @@ export default function SearchResultRow({
           <ProductImage
             imageUrl={imageUrl}
             emoji={emoji}
+            name={name}
+            brand={brand}
             size={44}
             backgroundColor={theme.statBg}
             borderRadius={14}
@@ -75,12 +107,12 @@ export default function SearchResultRow({
               </Text>
             ) : null}
 
-            {badge ? (
+            {coverageLabel ? (
               <View
                 style={{
                   marginTop: 8,
                   alignSelf: "flex-start",
-                  backgroundColor: theme.accentLight,
+                  backgroundColor: coverageLabel.bg,
                   paddingHorizontal: 10,
                   paddingVertical: 6,
                   borderRadius: 999,
@@ -88,38 +120,94 @@ export default function SearchResultRow({
               >
                 <Text
                   style={{
-                    color: theme.accentText,
+                    color: coverageLabel.color,
                     fontSize: 12,
                     fontWeight: "700",
                     textAlign: "auto",
                   }}
                 >
-                  {badge}
+                  {coverageLabel.text}
                 </Text>
               </View>
             ) : null}
           </View>
         </View>
 
-        <TouchableOpacity
-          onPress={onAdd}
-          style={{
-            backgroundColor: theme.textPrimary,
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderRadius: 14,
-          }}
-        >
-          <Text
+        {quantity > 0 ? (
+          <View
             style={{
-              color: theme.background,
-              fontWeight: "700",
-              textAlign: "center",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
             }}
           >
-            {t("list.add")}
-          </Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onIncrease}
+              hitSlop={10}
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 9,
+                backgroundColor: theme.textPrimary,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{ color: theme.background, fontSize: 14, fontWeight: "700" }}
+              >
+                +
+              </Text>
+            </TouchableOpacity>
+
+            <View style={{ minWidth: 16, alignItems: "center" }}>
+              <Text
+                style={{ fontSize: 14, fontWeight: "700", color: theme.textPrimary }}
+              >
+                {quantity}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              onPress={onDecrease}
+              hitSlop={10}
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 9,
+                backgroundColor: theme.statBg,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{ color: theme.textPrimary, fontSize: 14, fontWeight: "700" }}
+              >
+                −
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            onPress={onAdd}
+            style={{
+              backgroundColor: theme.textPrimary,
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              borderRadius: 14,
+            }}
+          >
+            <Text
+              style={{
+                color: theme.background,
+                fontWeight: "700",
+                textAlign: "center",
+              }}
+            >
+              {t("list.add")}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

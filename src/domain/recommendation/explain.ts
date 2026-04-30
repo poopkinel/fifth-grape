@@ -43,7 +43,10 @@ export function buildReasonText(
   }
 
   if (store.rank === 0) {
-    return i18n.t("reason.bestForYou");
+    // Generic "best for you" line was removed from the UX — when none of
+    // the more informative reasons above apply, return empty so callers
+    // can skip rendering rather than showing dead-weight text.
+    return "";
   }
 
   if (store.missingCount === 0) {

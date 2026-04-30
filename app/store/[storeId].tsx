@@ -254,6 +254,7 @@ export default function StoreDetailsScreen() {
                     <ProductImage
                       imageUrl={item.imageUrl}
                       emoji={item.emoji}
+                      name={item.name}
                       size={48}
                       backgroundColor={theme.statBg}
                       borderRadius={12}

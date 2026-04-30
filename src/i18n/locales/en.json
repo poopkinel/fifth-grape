@@ -67,7 +67,6 @@
     "everythingHereNoSplit": "Everything is here, no need to split",
     "closerWithFewerMissing": "Closer with fewer missing items",
     "savesVsNext": "Saves {{amount}} vs the next option",
-    "bestForYou": "Best for you",
     "allItemsHere": "All items are available here",
     "missingCount_one": "1 item missing",
     "missingCount_other": "{{count}} items missing"
@@ -94,10 +93,7 @@
     "missingLabel": "Missing",
     "popularProducts": "Popular products",
     "popularSubtitle": "Tap to add and start comparing",
-    "basketReady": "Your basket is ready to compare",
-    "basketReadyHint": "Edit your basket or compare nearby stores by price, distance, and availability",
-    "basketEmptyHint": "Add items to start comparing nearby stores",
-    "compareNow": "Compare now",
+    "compareAlternatives": "Compare alternatives",
     "editBasket": "Edit basket",
     "startBasket": "Start basket"
   },
@@ -112,7 +108,13 @@
     "yourList": "Your list",
     "clearAll": "Clear all",
     "add": "Add",
-    "compareNearby": "Compare nearby stores"
+    "compareNearby": "Compare nearby stores",
+    "coverageNearby_one": "1 store nearby",
+    "coverageNearby_other": "{{count}} stores nearby",
+    "coverageNoneNearby": "Not stocked nearby",
+    "coverageNoneAnywhere": "Not found in our network",
+    "freshnessFooter": "Prices from the daily snapshot · updated {{relative}}",
+    "freshnessFooterUnknown": "Prices from the daily snapshot"
   },
   "store": {
     "notFound": "Store not found",

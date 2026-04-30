@@ -44,8 +44,8 @@ The DB stores product names only in Hebrew, so even with English UI an English-s
 
 **Open design question:** transliterate brand names ("תנובה" → "Tnuva") or keep them in Hebrew even in the English UI? Newcomers seeing physical packaging want Latin brand names; auto-transliteration is fragile, so this usually means a manual brands map for top chains.
 
-### Image proxy through backend (privacy)
-Product images currently load directly from Open Food Facts CDN URLs. That leaks each tester's product views to OFF servers via Referer + access logs. For production, proxy through `fifth-api` (download once on backend, serve from `/v1/products/{id}/image` with caching). For testing it's acceptable.
+### ~~Image proxy through backend (privacy)~~ — DONE 2026-04-28
+Backend `GET /v1/products/{id}/image` proxies + disk-caches OFF bytes; API responses now hand the frontend a relative proxy path (`/v1/products/{id}/image`) instead of the upstream OFF URL, so testers' product views no longer leak to OFF servers. Cache directory: `data/image_cache/`. Atomic write on first hit, served with `Cache-Control: public, max-age=2592000`. **Still TODO**: optional resize to ~144px on ingest (Pillow) — current images are ~16 KB each at OFF's default size, payload not yet a problem; defer until scale demands it.
 
 ## Earlier deferrals (from chat)
 

@@ -1,4 +1,5 @@
 import AppHeader from "@/src/components/ui/AppHeader";
+import ProductImage from "@/src/components/products/ProductImage";
 import { useMarketData } from "@/src/data/market/useMarketData";
 import { useBasketStore } from "@/src/features/basket/store";
 import { getHomeScreenModel } from "@/src/features/home/selectors";
@@ -59,10 +60,23 @@ export default function HomeScreen() {
 
   const recommendation = homeModel?.recommendation ?? null;
 
-  const basketEmojis = items
-    .slice(0, 5)
-    .map((item) => item.emoji ?? "🛒")
-    .join("  ");
+  // Persisted basket items snapshot emoji/imageUrl at add-time, so a
+  // server-side re-tagging wouldn't show until the user re-adds. Prefer
+  // fresh values from market data when available, fall back to persisted
+  // ones offline / pre-load.
+  const freshProductByProductId = new Map(
+    data?.products.map((p) => [p.productId, p]) ?? [],
+  );
+  const basketThumbnails = items.slice(0, 5).map((item) => {
+    const fresh = freshProductByProductId.get(item.productId);
+    return {
+      productId: item.productId,
+      imageUrl: fresh?.imageUrl ?? item.imageUrl,
+      emoji: fresh?.emoji ?? item.emoji,
+      name: item.name,
+      brand: item.brand,
+    };
+  });
 
   return (
     <SafeAreaView
@@ -130,9 +144,25 @@ export default function HomeScreen() {
           >
             {hasBasket ? (
               <>
-                <Text style={{ fontSize: 22, marginBottom: 8 }}>
-                  {basketEmojis}
-                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 6,
+                    marginBottom: 10,
+                  }}
+                >
+                  {basketThumbnails.map((thumb) => (
+                    <ProductImage
+                      key={thumb.productId}
+                      imageUrl={thumb.imageUrl}
+                      emoji={thumb.emoji}
+                      name={thumb.name}
+                      brand={thumb.brand}
+                      size={36}
+                      backgroundColor="rgba(255,255,255,0.18)"
+                    />
+                  ))}
+                </View>
                 <Text
                   style={{
                     color: "white",
@@ -143,7 +173,7 @@ export default function HomeScreen() {
                 >
                   {t("home.uniqueProducts", { count: uniqueCount })}
                 </Text>
-                <Text style={{ color: "#ecfdf5" }}>
+                <Text style={{ color: "#ecfdf5", marginBottom: 14 }}>
                   {t("home.totalItems", { count: totalCount })}
                 </Text>
               </>
@@ -159,19 +189,36 @@ export default function HomeScreen() {
                 >
                   {t("home.emptyBasket")}
                 </Text>
-                <Text style={{ color: "#ecfdf5" }}>
+                <Text style={{ color: "#ecfdf5", marginBottom: 14 }}>
                   {t("home.emptyBasketSubtitle")}
                 </Text>
               </>
             )}
+
+            <TouchableOpacity
+              onPress={() => router.push(basketEditorRoute as any)}
+              style={{
+                backgroundColor: "white",
+                paddingVertical: 12,
+                borderRadius: 14,
+              }}
+            >
+              <Text
+                style={{
+                  color: theme.accentTextDark,
+                  textAlign: "center",
+                  fontWeight: "700",
+                }}
+              >
+                {hasBasket ? t("home.editBasket") : t("home.startBasket")}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
         {/* Recommendation Card */}
         {recommendation ? (
-          <TouchableOpacity
-            onPress={() => router.push(`/store/${recommendation.storeId}`)}
-            activeOpacity={0.7}
+          <View
             style={{
               backgroundColor: theme.card,
               borderRadius: 20,
@@ -181,104 +228,46 @@ export default function HomeScreen() {
               gap: 14,
             }}
           >
-            <View>
-              <Text
-                style={{
-                  color: theme.accentText,
-                  fontSize: 13,
-                  fontWeight: "700",
-                  marginBottom: 4,
-                }}
-              >
-                {t("home.ourRecommendation")}
-              </Text>
-              <Text
-                style={{
-                  color: theme.textPrimary,
-                  fontSize: 22,
-                  fontWeight: "700",
-                }}
-              >
-                {recommendation.chainName}
-              </Text>
-              <Text style={{ color: theme.textSecondary, marginTop: 4 }}>
-                {recommendation.branchName}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 8,
-              }}
+            <TouchableOpacity
+              onPress={() => router.push(`/store/${recommendation.storeId}`)}
+              activeOpacity={0.7}
+              style={{ gap: 14 }}
             >
-              <View
-                style={{
-                  flex: 1,
-                  backgroundColor: theme.accentLight,
-                  borderRadius: 14,
-                  paddingVertical: 12,
-                  paddingHorizontal: 10,
-                }}
-              >
+              <View>
                 <Text
                   style={{
                     color: theme.accentText,
-                    fontSize: 12,
-                    textAlign: "center",
-                    marginBottom: 4,
-                  }}
-                >
-                  {t("home.totalLabel")}
-                </Text>
-                <Text
-                  style={{
-                    color: theme.accentTextDark,
-                    fontSize: 18,
+                    fontSize: 13,
                     fontWeight: "700",
-                    textAlign: "center",
-                  }}
-                >
-                  {recommendation.totalText}
-                </Text>
-              </View>
-
-              <View
-                style={{
-                  flex: 1,
-                  backgroundColor: theme.statBg,
-                  borderRadius: 14,
-                  paddingVertical: 12,
-                  paddingHorizontal: 10,
-                }}
-              >
-                <Text
-                  style={{
-                    color: theme.textSecondary,
-                    fontSize: 12,
-                    textAlign: "center",
                     marginBottom: 4,
                   }}
                 >
-                  {t("home.distanceLabel")}
+                  {t("home.ourRecommendation")}
                 </Text>
                 <Text
                   style={{
                     color: theme.textPrimary,
-                    fontSize: 18,
+                    fontSize: 22,
                     fontWeight: "700",
-                    textAlign: "center",
                   }}
                 >
-                  {recommendation.distanceText}
+                  {recommendation.chainName}
+                </Text>
+                <Text style={{ color: theme.textSecondary, marginTop: 4 }}>
+                  {recommendation.branchName}
                 </Text>
               </View>
 
-              {recommendation.missingCount > 0 && (
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 8,
+                }}
+              >
                 <View
                   style={{
                     flex: 1,
-                    backgroundColor: theme.warningBg,
+                    backgroundColor: theme.accentLight,
                     borderRadius: 14,
                     paddingVertical: 12,
                     paddingHorizontal: 10,
@@ -286,37 +275,122 @@ export default function HomeScreen() {
                 >
                   <Text
                     style={{
-                      color: theme.warningTextDark,
+                      color: theme.accentText,
                       fontSize: 12,
                       textAlign: "center",
                       marginBottom: 4,
                     }}
                   >
-                    {t("home.missingLabel")}
+                    {t("home.totalLabel")}
                   </Text>
                   <Text
                     style={{
-                      color: theme.warningText,
+                      color: theme.accentTextDark,
                       fontSize: 18,
                       fontWeight: "700",
                       textAlign: "center",
                     }}
                   >
-                    {recommendation.missingCount}
+                    {recommendation.totalText}
                   </Text>
                 </View>
-              )}
-            </View>
 
-            <Text
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: theme.statBg,
+                    borderRadius: 14,
+                    paddingVertical: 12,
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: theme.textSecondary,
+                      fontSize: 12,
+                      textAlign: "center",
+                      marginBottom: 4,
+                    }}
+                  >
+                    {t("home.distanceLabel")}
+                  </Text>
+                  <Text
+                    style={{
+                      color: theme.textPrimary,
+                      fontSize: 18,
+                      fontWeight: "700",
+                      textAlign: "center",
+                    }}
+                  >
+                    {recommendation.distanceText}
+                  </Text>
+                </View>
+
+                {recommendation.missingCount > 0 && (
+                  <View
+                    style={{
+                      flex: 1,
+                      backgroundColor: theme.warningBg,
+                      borderRadius: 14,
+                      paddingVertical: 12,
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: theme.warningTextDark,
+                        fontSize: 12,
+                        textAlign: "center",
+                        marginBottom: 4,
+                      }}
+                    >
+                      {t("home.missingLabel")}
+                    </Text>
+                    <Text
+                      style={{
+                        color: theme.warningText,
+                        fontSize: 18,
+                        fontWeight: "700",
+                        textAlign: "center",
+                      }}
+                    >
+                      {recommendation.missingCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {recommendation.reasonText ? (
+                <Text
+                  style={{
+                    color: theme.accentText,
+                    fontWeight: "600",
+                  }}
+                >
+                  {recommendation.reasonText}
+                </Text>
+              ) : null}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.push(compareRoute as any)}
               style={{
-                color: theme.accentText,
-                fontWeight: "600",
+                backgroundColor: theme.textPrimary,
+                paddingVertical: 14,
+                borderRadius: 14,
               }}
             >
-              {recommendation.reasonText}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={{
+                  color: theme.background,
+                  textAlign: "center",
+                  fontWeight: "700",
+                }}
+              >
+                {t("home.compareAlternatives")}
+              </Text>
+            </TouchableOpacity>
+          </View>
         ) : null}
 
         {/* Quick Add Products — only when basket is empty */}
@@ -406,86 +480,6 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
-        {/* CTA Buttons */}
-        <View
-          style={{
-            backgroundColor: theme.card,
-            borderRadius: 24,
-            padding: 20,
-            shadowColor: "#000",
-            shadowOpacity: 0.04,
-            shadowRadius: 12,
-            shadowOffset: { width: 0, height: 4 },
-            elevation: 1,
-            alignItems: "stretch",
-          }}
-        >
-          <Text
-            style={{
-              fontWeight: "700",
-              fontSize: 18,
-              color: theme.textPrimary,
-              marginBottom: 6,
-            }}
-          >
-            {hasBasket ? t("home.basketReady") : t("home.emptyBasket")}
-          </Text>
-
-          <Text
-            style={{
-              color: theme.textSecondary,
-              marginBottom: 18,
-              lineHeight: 20,
-            }}
-          >
-            {hasBasket
-              ? t("home.basketReadyHint")
-              : t("home.basketEmptyHint")}
-          </Text>
-
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            <TouchableOpacity
-              disabled={!hasBasket}
-              onPress={() => router.push(compareRoute as any)}
-              style={{
-                flex: 1,
-                backgroundColor: hasBasket ? theme.textPrimary : theme.statBg,
-                paddingVertical: 16,
-                borderRadius: 16,
-              }}
-            >
-              <Text
-                style={{
-                  color: hasBasket ? theme.background : theme.textMuted,
-                  textAlign: "center",
-                  fontWeight: "700",
-                }}
-              >
-                {t("home.compareNow")}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => router.push(basketEditorRoute as any)}
-              style={{
-                flex: 1,
-                backgroundColor: theme.statBg,
-                paddingVertical: 14,
-                borderRadius: 14,
-              }}
-            >
-              <Text
-                style={{
-                  color: theme.textPrimary,
-                  textAlign: "center",
-                  fontWeight: "700",
-                }}
-              >
-                {hasBasket ? t("home.editBasket") : t("home.startBasket")}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );

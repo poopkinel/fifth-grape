@@ -68,7 +68,6 @@
     "everythingHereNoSplit": "הכול נמצא כאן, בלי לפצל קנייה",
     "closerWithFewerMissing": "קרוב יותר עם פחות חוסרים",
     "savesVsNext": "חוסך {{amount}} לעומת האפשרות הבאה",
-    "bestForYou": "הבחירה הכי טובה עבורך",
     "allItemsHere": "כל המוצרים נמצאים כאן",
     "missingCount": "חסרים {{count}} מוצרים"
   },
@@ -92,10 +91,7 @@
     "missingLabel": "חסרים",
     "popularProducts": "מוצרים פופולריים",
     "popularSubtitle": "הוסף מוצרים בלחיצה כדי להתחיל",
-    "basketReady": "הסל שלך מוכן להשוואה",
-    "basketReadyHint": "אפשר לערוך את הסל או להשוות סניפים קרובים לפי מחיר, מרחק וזמינות",
-    "basketEmptyHint": "התחל להוסיף מוצרים כדי להשוות סניפים קרובים",
-    "compareNow": "השווה עכשיו",
+    "compareAlternatives": "השווה אפשרויות נוספות",
     "editBasket": "ערוך סל",
     "startBasket": "התחל סל"
   },
@@ -109,7 +105,13 @@
     "yourList": "ברשימה שלך",
     "clearAll": "נקה הכל",
     "add": "הוסף",
-    "compareNearby": "השווה סניפים קרובים"
+    "compareNearby": "השווה סניפים קרובים",
+    "coverageNearby_one": "סניף 1 בקרבת מקום",
+    "coverageNearby_other": "{{count}} סניפים בקרבת מקום",
+    "coverageNoneNearby": "לא נמכר בקרבת מקום",
+    "coverageNoneAnywhere": "לא נמצא ברשת שלנו",
+    "freshnessFooter": "מחירים מצילום יומי · עודכן {{relative}}",
+    "freshnessFooterUnknown": "מחירים מצילום יומי"
   },
   "store": {
     "notFound": "סניף לא נמצא",

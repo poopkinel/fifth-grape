@@ -1,13 +1,17 @@
 import ProductImage from "@/src/components/products/ProductImage";
+import { ItemCoverageStatus } from "@/src/domain/coverage/perItemCoverage";
 import { useTheme } from "@/src/theme";
+import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type ListItemRowProps = {
   name: string;
   quantity: number;
   subtitle?: string;
+  brand?: string;
   emoji?: string;
   imageUrl?: string;
+  coverage?: ItemCoverageStatus;
   onIncrease?: () => void;
   onDecrease?: () => void;
   onPress?: () => void;
@@ -17,13 +21,37 @@ export default function ListItemRow({
   name,
   quantity,
   subtitle,
-  emoji = "🛒",
+  brand,
+  emoji,
   imageUrl,
+  coverage,
   onIncrease,
   onDecrease,
   onPress,
 }: ListItemRowProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
+
+  const coverageLabel =
+    coverage?.kind === "nearby"
+      ? {
+          text: t("list.coverageNearby", { count: coverage.nearbyCount }),
+          color: theme.accentText,
+          bg: theme.accentLight,
+        }
+      : coverage?.kind === "none_nearby"
+        ? {
+            text: t("list.coverageNoneNearby"),
+            color: theme.warningTextDark,
+            bg: theme.warningBg,
+          }
+        : coverage?.kind === "none_anywhere"
+          ? {
+              text: t("list.coverageNoneAnywhere"),
+              color: theme.warningTextDark,
+              bg: theme.warningBg,
+            }
+          : null;
 
   return (
     <TouchableOpacity
@@ -49,6 +77,8 @@ export default function ListItemRow({
           <ProductImage
             imageUrl={imageUrl}
             emoji={emoji}
+            name={name}
+            brand={brand}
             size={44}
             backgroundColor={theme.statBg}
             borderRadius={14}
@@ -75,6 +105,29 @@ export default function ListItemRow({
               >
                 {subtitle}
               </Text>
+            ) : null}
+
+            {coverageLabel ? (
+              <View
+                style={{
+                  marginTop: 6,
+                  alignSelf: "flex-start",
+                  paddingHorizontal: 8,
+                  paddingVertical: 3,
+                  borderRadius: 999,
+                  backgroundColor: coverageLabel.bg,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 11,
+                    fontWeight: "600",
+                    color: coverageLabel.color,
+                  }}
+                >
+                  {coverageLabel.text}
+                </Text>
+              </View>
             ) : null}
           </View>
         </View>

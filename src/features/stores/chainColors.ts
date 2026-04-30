@@ -55,3 +55,12 @@ export function getStoreColor(args: {
   // different brands within one chainId pick different slots.
   return pickFromPalette(sub ? `${args.chainId}:${sub.toLowerCase()}` : args.chainId);
 }
+
+// Tile background for product-initial fallbacks. Same palette so a basket
+// with no images still feels visually consistent with the store ranking; we
+// hash the brand (or name) so the same product always gets the same color.
+export function getInitialTileColor(key: string | undefined | null): string {
+  const k = (key ?? "").trim();
+  if (!k) return FALLBACK_COLOR;
+  return pickFromPalette(k.toLowerCase());
+}

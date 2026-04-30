@@ -1,10 +1,14 @@
 import { DATA_SOURCE } from "@/src/data/config/dataSource";
+import { useMarketData } from "@/src/data/market/useMarketData";
 import { useProductSearch } from "@/src/data/remote/useProductSearch";
+import { computePerItemCoverage } from "@/src/domain/coverage/perItemCoverage";
 import { useBasketStore } from "@/src/features/basket/store";
+import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { Product } from "@/src/features/products/types";
 import { useTheme } from "@/src/theme";
+import { formatRelativeUpdateTime } from "@/src/utils/format";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -33,6 +37,8 @@ export default function ListScreen() {
     isRemote ? query : "",
   );
 
+  const { userCoords } = useUserLocation();
+
   const localResults: Product[] = isRemote
     ? []
     : realProducts.filter((item) => {
@@ -52,6 +58,39 @@ export default function ListScreen() {
       });
 
   const results: Product[] = isRemote ? (remoteResults ?? []) : localResults;
+
+  // Single lookup covering both the basket and current search results. The
+  // selector then bins each productId into a coverage status used by both
+  // ListItemRow and SearchResultRow.
+  const productIdsToLookup = useMemo(() => {
+    const set = new Set<string>();
+    items.forEach((i) => set.add(i.productId));
+    results.forEach((r) => set.add(r.productId));
+    return Array.from(set);
+  }, [items, results]);
+
+  const { data: marketData } = useMarketData(productIdsToLookup);
+
+  const basketByProductId = useMemo(
+    () => new Map(items.map((i) => [i.productId, i])),
+    [items],
+  );
+
+  const coverageByProductId = useMemo(() => {
+    if (!marketData) return null;
+    const pseudoBasket = productIdsToLookup.map((productId) => ({
+      id: productId,
+      productId,
+      name: "",
+      quantity: 1,
+    }));
+    return computePerItemCoverage({
+      basket: pseudoBasket,
+      stores: marketData.stores,
+      prices: marketData.prices,
+      userCoords,
+    });
+  }, [productIdsToLookup, marketData, userCoords]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }} edges={["top", "left", "right"]}>
@@ -97,27 +136,42 @@ export default function ListScreen() {
         )}
         {query.trim().length > 0 ? (
           <View style={{ gap: 10 }}>
-            {results.map((item) => (
-              <SearchResultRow
-                key={item.productId}
-                name={item.name}
-                subtitle={[item.brand, item.unit].filter(Boolean).join(" • ")}
-                emoji={item.emoji}
-                imageUrl={item.imageUrl}
-                badge={item.brand ?? item.category}
-                onAdd={() =>
-                  addItem({
-                    productId: item.productId,
-                    name: item.name,
-                    brand: item.brand,
-                    unit: item.unit,
-                    barcode: item.barcode,
-                    emoji: item.emoji,
-                    imageUrl: item.imageUrl,
-                  })
-                }
-              />
-            ))}
+            {results.map((item) => {
+              const basketItem = basketByProductId.get(item.productId);
+              return (
+                <SearchResultRow
+                  key={item.productId}
+                  name={item.name}
+                  subtitle={[item.brand, item.unit].filter(Boolean).join(" • ")}
+                  brand={item.brand}
+                  emoji={item.emoji}
+                  imageUrl={item.imageUrl}
+                  coverage={coverageByProductId?.get(item.productId)?.status}
+                  quantity={basketItem?.quantity ?? 0}
+                  onAdd={() =>
+                    addItem({
+                      productId: item.productId,
+                      name: item.name,
+                      brand: item.brand,
+                      unit: item.unit,
+                      barcode: item.barcode,
+                      emoji: item.emoji,
+                      imageUrl: item.imageUrl,
+                    })
+                  }
+                  onIncrease={
+                    basketItem
+                      ? () => increaseQuantity(basketItem.id)
+                      : undefined
+                  }
+                  onDecrease={
+                    basketItem
+                      ? () => decreaseQuantity(basketItem.id)
+                      : undefined
+                  }
+                />
+              );
+            })}
           </View>
         ) : null}
 
@@ -176,14 +230,33 @@ export default function ListScreen() {
               key={item.id}
               name={item.name}
               quantity={item.quantity}
+              brand={item.brand}
               emoji={item.emoji}
               imageUrl={item.imageUrl}
               subtitle={item.subtitle}
+              coverage={coverageByProductId?.get(item.productId)?.status}
               onIncrease={() => increaseQuantity(item.id)}
               onDecrease={() => decreaseQuantity(item.id)}
             />
           ))}
         </View>
+
+        {items.length > 0 ? (
+          <Text
+            style={{
+              marginTop: 16,
+              textAlign: "auto",
+              fontSize: 12,
+              color: theme.textMuted,
+            }}
+          >
+            {marketData?.fetchedAt
+              ? t("list.freshnessFooter", {
+                  relative: formatRelativeUpdateTime(marketData.fetchedAt),
+                })
+              : t("list.freshnessFooterUnknown")}
+          </Text>
+        ) : null}
       </ScrollView>
 
       <View
