@@ -123,7 +123,10 @@
     "permissionTitle": "נדרש גישה למצלמה",
     "permissionBody": "אנחנו משתמשים במצלמה רק לקריאת ברקודים. שום דבר לא יוצא מהמכשיר שלך.",
     "permissionGrant": "אפשר גישה למצלמה",
-    "permissionOpenSettings": "פתח הגדרות"
+    "permissionOpenSettings": "פתח הגדרות",
+    "devFallbackBanner": "סורק מצלמה לא זמין בבנייה הזו. הקלד ברקוד למטה כדי לבדוק את זרימת החיפוש וההוספה. (התקן בנייה חדשה עם expo-camera כדי לקבל סורק אמיתי.)",
+    "devFallbackPlaceholder": "למשל 7290000000000",
+    "devFallbackSubmit": "חפש והוסף לסל"
   },
   "store": {
     "notFound": "סניף לא נמצא",

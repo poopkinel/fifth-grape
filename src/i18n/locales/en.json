@@ -126,7 +126,10 @@
     "permissionTitle": "Camera access needed",
     "permissionBody": "We use the camera only to read product barcodes. Nothing leaves your device.",
     "permissionGrant": "Allow camera",
-    "permissionOpenSettings": "Open settings"
+    "permissionOpenSettings": "Open settings",
+    "devFallbackBanner": "Camera scanner not available in this dev build. Type a barcode below to test the search and add flow. (Install a dev client built with expo-camera for the real scanner.)",
+    "devFallbackPlaceholder": "e.g. 7290000000000",
+    "devFallbackSubmit": "Look up and add to basket"
   },
   "store": {
     "notFound": "Store not found",

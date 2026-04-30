@@ -2,7 +2,6 @@ import { fetchRemoteProductSearch } from "@/src/data/remote/marketApi";
 import { useBasketStore } from "@/src/features/basket/store";
 import { Colors, useTheme } from "@/src/theme";
 import { Ionicons } from "@expo/vector-icons";
-import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,11 +12,39 @@ import {
   ScrollView,
   StyleProp,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
   ViewStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+// Dynamic-require expo-camera so this module loads even on dev clients
+// built before the package was added. When the native module is absent
+// we render DevTypedBarcodeFallback below — type a barcode by hand to
+// exercise the rest of the scan flow. Becomes inert once a dev client
+// with expo-camera baked in is installed.
+type CameraViewProps = {
+  style?: StyleProp<ViewStyle>;
+  facing?: "back" | "front";
+  barcodeScannerSettings?: { barcodeTypes?: string[] };
+  onBarcodeScanned?: (event: { data: string }) => void;
+};
+type CamPerms = { granted: boolean; canAskAgain: boolean };
+type UseCamPerms = () => readonly [
+  CamPerms | null,
+  () => Promise<CamPerms | null>,
+];
+let CameraView: React.ComponentType<CameraViewProps> | null = null;
+let useCameraPermissions: UseCamPerms | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const mod = require("expo-camera");
+  CameraView = mod.CameraView;
+  useCameraPermissions = mod.useCameraPermissions;
+} catch {
+  // native module missing — fallback path renders below
+}
 
 const SCAN_DEBOUNCE_MS = 1500;
 const RECENT_SCANS_MAX = 5;
@@ -31,10 +58,19 @@ type RecentScan = {
 };
 
 export default function ScanScreen() {
+  if (!CameraView || !useCameraPermissions) {
+    return <DevTypedBarcodeFallback />;
+  }
+  return <CameraScanScreen />;
+}
+
+function CameraScanScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
-  const [permission, requestPermission] = useCameraPermissions();
+  // Non-null asserted: the parent ScanScreen guards against the missing-
+  // module case before rendering this component.
+  const [permission, requestPermission] = useCameraPermissions!();
   const [recentScans, setRecentScans] = useState<RecentScan[]>([]);
   const [showBasket, setShowBasket] = useState(false);
   const lastScanAt = useRef<number>(0);
@@ -174,9 +210,10 @@ export default function ScanScreen() {
     );
   }
 
+  const CamView = CameraView!;
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      <CameraView
+      <CamView
         style={{ flex: 1 }}
         facing="back"
         barcodeScannerSettings={{
@@ -483,6 +520,167 @@ export default function ScanScreen() {
         </Pressable>
       </Modal>
     </View>
+  );
+}
+
+function DevTypedBarcodeFallback() {
+  const router = useRouter();
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const items = useBasketStore((s) => s.items);
+  const addItem = useBasketStore((s) => s.addItem);
+  const totalCount = items.reduce((sum, i) => sum + i.quantity, 0);
+  const [input, setInput] = useState("");
+  const [log, setLog] = useState<{ kind: "ok" | "err"; line: string }[]>([]);
+  const submitting = useRef(false);
+
+  const submit = async () => {
+    const data = input.trim();
+    if (!data || submitting.current) return;
+    submitting.current = true;
+    try {
+      const results = await fetchRemoteProductSearch(data, 1);
+      const product = results[0];
+      if (!product) {
+        setLog((l) =>
+          [{ kind: "err" as const, line: `${data} — ${t("scan.notFound")}` }, ...l].slice(0, 12),
+        );
+      } else {
+        addItem({
+          productId: product.productId,
+          name: product.name,
+          brand: product.brand,
+          unit: product.unit,
+          barcode: product.barcode,
+          emoji: product.emoji,
+          imageUrl: product.imageUrl,
+        });
+        setLog((l) =>
+          [{ kind: "ok" as const, line: product.name }, ...l].slice(0, 12),
+        );
+      }
+    } catch {
+      setLog((l) =>
+        [{ kind: "err" as const, line: `${data} — error` }, ...l].slice(0, 12),
+      );
+    } finally {
+      submitting.current = false;
+      setInput("");
+    }
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+      <View style={{ padding: 16, gap: 12, flex: 1 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+            <Text style={{ color: theme.accent, fontWeight: "700", fontSize: 16 }}>
+              {t("scan.done")}
+            </Text>
+          </TouchableOpacity>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Ionicons name="cart-outline" size={18} color={theme.textPrimary} />
+            <Text style={{ color: theme.textPrimary, fontWeight: "700" }}>
+              {totalCount}
+            </Text>
+          </View>
+        </View>
+
+        <View
+          style={{
+            padding: 12,
+            borderRadius: 12,
+            backgroundColor: theme.warningBg,
+            borderWidth: 1,
+            borderColor: theme.warningBorder,
+          }}
+        >
+          <Text
+            style={{
+              color: theme.warningTextDark,
+              fontSize: 13,
+              textAlign: "auto",
+              lineHeight: 18,
+            }}
+          >
+            {t("scan.devFallbackBanner")}
+          </Text>
+        </View>
+
+        <TextInput
+          value={input}
+          onChangeText={setInput}
+          placeholder={t("scan.devFallbackPlaceholder")}
+          placeholderTextColor={theme.textMuted}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="numeric"
+          onSubmitEditing={submit}
+          returnKeyType="done"
+          style={{
+            backgroundColor: theme.inputBg,
+            color: theme.textPrimary,
+            padding: 14,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: theme.cardBorder,
+            textAlign: "auto",
+            fontFamily: "monospace",
+          }}
+        />
+        <TouchableOpacity
+          onPress={submit}
+          style={{
+            backgroundColor: theme.accent,
+            padding: 14,
+            borderRadius: 12,
+          }}
+        >
+          <Text
+            style={{ color: "white", fontWeight: "700", textAlign: "center" }}
+          >
+            {t("scan.devFallbackSubmit")}
+          </Text>
+        </TouchableOpacity>
+
+        <ScrollView style={{ flex: 1, marginTop: 8 }}>
+          {log.map((entry, i) => (
+            <View
+              key={i}
+              style={{
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                borderRadius: 8,
+                backgroundColor:
+                  entry.kind === "ok" ? theme.accentLight : theme.warningBg,
+                marginBottom: 4,
+              }}
+            >
+              <Text
+                style={{
+                  color:
+                    entry.kind === "ok"
+                      ? theme.accentTextDark
+                      : theme.warningTextDark,
+                  textAlign: "auto",
+                  fontSize: 13,
+                }}
+                numberOfLines={2}
+              >
+                {entry.kind === "ok" ? "✓ " : "✗ "}
+                {entry.line}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
