@@ -2,6 +2,9 @@ export type BasketItem = {
   id: string;
   productId: string;
   name: string;
+  /** Snapshotted at add-time so the UI can render the user's current
+   *  language without a fresh API lookup; falls back to `name` if absent. */
+  nameEn?: string;
   quantity: number;
   brand?: string;
   unit?: string;
@@ -14,6 +17,7 @@ export type BasketItem = {
 export type SearchProduct = {
   productId: string;
   name: string;
+  nameEn?: string;
   emoji?: string;
   brand?: string;
   unit?: string;

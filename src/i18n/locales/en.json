@@ -15,14 +15,18 @@
     "title": "Settings",
     "languageSection": "Language",
     "walkingSection": "Walking distance",
-    "walkingHint": "How long are you willing to walk for groceries?"
+    "walkingHint": "How long are you willing to walk for groceries?",
+    "privacySection": "Privacy",
+    "analyticsToggle": "Share usage data",
+    "analyticsHint": "Helps us improve the app. Anonymous only — no product names."
   },
   "onboarding": {
     "walkingTitle": "How long are you willing to walk for groceries?",
     "walkingSubtitle": "We'll use this to mark which stores count as walking distance for you.",
     "minutes_one": "1 minute",
     "minutes_other": "{{count}} minutes",
-    "footnote": "You can change this in settings later"
+    "footnote": "You can change this in settings later",
+    "privacyNotice": "We collect anonymous usage data to improve the app. You can turn this off in Settings."
   },
   "compare": {
     "title": "Best for your basket",
@@ -109,8 +113,8 @@
     "clearAll": "Clear all",
     "add": "Add",
     "compareNearby": "Compare nearby stores",
-    "coverageNearby_one": "1 store nearby",
-    "coverageNearby_other": "{{count}} stores nearby",
+    "coverageNearby_one": "Available at 1 store",
+    "coverageNearby_other": "Available at {{count}} stores",
     "coverageNoneNearby": "Not stocked nearby",
     "coverageNoneAnywhere": "Not found in our network",
     "freshnessFooter": "Prices from the daily snapshot · updated {{relative}}",

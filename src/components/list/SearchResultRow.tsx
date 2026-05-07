@@ -187,7 +187,7 @@ export default function SearchResultRow({
               </Text>
             </TouchableOpacity>
           </View>
-        ) : (
+        ) : onAdd ? (
           <TouchableOpacity
             onPress={onAdd}
             style={{
@@ -207,7 +207,7 @@ export default function SearchResultRow({
               {t("list.add")}
             </Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
     </View>
   );

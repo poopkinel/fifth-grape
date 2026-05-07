@@ -5,9 +5,11 @@ import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { usePreferenceStore } from "@/src/features/preferences/store";
 import { getStoreBasketDetails } from "@/src/features/stores/getStoreBasketDetails";
 import { getStoreScreenModel } from "@/src/features/stores/selectors";
+import { track } from "@/src/lib/analytics";
 import { useTheme } from "@/src/theme";
 import { formatCurrency } from "@/src/utils/format";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,6 +19,11 @@ export default function StoreDetailsScreen() {
   const { storeId } = useLocalSearchParams<{ storeId: string }>();
   const router = useRouter();
   const theme = useTheme();
+
+  useEffect(() => {
+    if (storeId) track("store_details_opened", { store_id: storeId });
+  }, [storeId]);
+
   const { t } = useTranslation();
   const basket = useBasketStore((state) => state.items);
   const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
@@ -339,7 +346,9 @@ export default function StoreDetailsScreen() {
         </View>
 
         <TouchableOpacity
-          onPress={() => router.push("/map/compare")}
+          onPress={() =>
+            router.push(`/map/compare?storeId=${encodeURIComponent(storeId)}`)
+          }
           style={{
             backgroundColor: theme.textPrimary,
             borderRadius: 16,

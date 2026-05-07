@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { AppLanguage } from "@/src/i18n";
+import { track } from "@/src/lib/analytics";
 
 import { learnWeights } from "./learning";
 import { DilemmaAnswer, ScoreWeights, TransportMode } from "./types";
@@ -18,6 +19,7 @@ type PreferenceStore = {
   maxWalkingDistanceKm: number;
   hasCompletedOnboarding: boolean;
   language?: AppLanguage;
+  analyticsOptedOut: boolean;
   setUsualStore: (storeId: string) => void;
   clearUsualStore: () => void;
   setTransportMode: (mode: TransportMode) => void;
@@ -28,6 +30,7 @@ type PreferenceStore = {
   setMaxWalkingDistanceKm: (km: number) => void;
   completeOnboarding: () => void;
   setLanguage: (lang: AppLanguage) => void;
+  setAnalyticsOptedOut: (optedOut: boolean) => void;
 };
 
 const DEFAULT_MAX_WALKING_KM = 1.2;
@@ -47,8 +50,15 @@ export const usePreferenceStore = create<PreferenceStore>()(
       maxWalkingDistanceKm: DEFAULT_MAX_WALKING_KM,
       hasCompletedOnboarding: false,
       language: undefined,
-      setUsualStore: (storeId) => set({ usualStoreId: storeId }),
-      clearUsualStore: () => set({ usualStoreId: undefined }),
+      analyticsOptedOut: false,
+      setUsualStore: (storeId) => {
+        set({ usualStoreId: storeId });
+        track("usual_store_set", { store_id: storeId });
+      },
+      clearUsualStore: () => {
+        set({ usualStoreId: undefined });
+        track("usual_store_cleared", {});
+      },
       setTransportMode: (mode) => set({ transportMode: mode }),
       setWeights: (mode, weights) =>
         set((state) => ({
@@ -78,6 +88,7 @@ export const usePreferenceStore = create<PreferenceStore>()(
       setMaxWalkingDistanceKm: (km) => set({ maxWalkingDistanceKm: km }),
       completeOnboarding: () => set({ hasCompletedOnboarding: true }),
       setLanguage: (lang) => set({ language: lang }),
+      setAnalyticsOptedOut: (optedOut) => set({ analyticsOptedOut: optedOut }),
     }),
     {
       name: "preferences-storage",

@@ -2,10 +2,18 @@
 
 import { demoBasketItems } from "@/src/constants/demoData/basket";
 import { DATA_SOURCE } from "@/src/data/config/dataSource";
+import { track } from "@/src/lib/analytics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { BasketItem, SearchProduct } from "./types";
+
+function basketSnapshot(items: BasketItem[]) {
+  return {
+    basket_unique_count: items.length,
+    basket_total_count: items.reduce((sum, it) => sum + it.quantity, 0),
+  };
+}
 
 const initialBasketItems: BasketItem[] =
   DATA_SOURCE === "demo" ? demoBasketItems : [];
@@ -24,10 +32,10 @@ type BasketStore = {
 
 export const useBasketStore = create<BasketStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       items: initialBasketItems,
 
-      addItem: (product) =>
+      addItem: (product) => {
         set((state) => {
           const existing = state.items.find(
             (i) => i.productId === product.productId
@@ -47,6 +55,7 @@ export const useBasketStore = create<BasketStore>()(
             id: product.productId,
             productId: product.productId,
             name: product.name,
+            nameEn: product.nameEn,
             quantity: 1,
             brand: product.brand,
             unit: product.unit,
@@ -56,7 +65,9 @@ export const useBasketStore = create<BasketStore>()(
           };
 
           return { items: [...state.items, newItem] };
-        }),
+        });
+        track("basket_item_added", basketSnapshot(get().items));
+      },
 
       increaseQuantity: (itemId) =>
         set((state) => ({
@@ -78,10 +89,12 @@ export const useBasketStore = create<BasketStore>()(
             .filter((item) => item.quantity > 0),
         })),
 
-      removeItem: (itemId) =>
+      removeItem: (itemId) => {
         set((state) => ({
           items: state.items.filter((item) => item.id !== itemId),
-        })),
+        }));
+        track("basket_item_removed", basketSnapshot(get().items));
+      },
 
       clearBasket: () => set({ items: [] }),
 

@@ -186,26 +186,26 @@ export default function OnboardingScreen() {
                   onPress={() => handlePickDistance(chip.km)}
                   style={{
                     backgroundColor: theme.card,
-                    borderRadius: 18,
-                    paddingVertical: 18,
-                    paddingHorizontal: 22,
+                    borderRadius: 14,
+                    paddingVertical: 12,
+                    paddingHorizontal: 14,
                     borderWidth: 1,
                     borderColor: theme.cardBorder,
-                    minWidth: 132,
+                    minWidth: 96,
                     alignItems: "center",
-                    gap: 4,
+                    gap: 2,
                   }}
                 >
                   <Text
                     style={{
                       color: theme.textPrimary,
-                      fontSize: 22,
+                      fontSize: 16,
                       fontWeight: "700",
                     }}
                   >
                     {t("onboarding.minutes", { count: chip.minutes })}
                   </Text>
-                  <Text style={{ color: theme.textSecondary, fontSize: 13 }}>
+                  <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
                     ≈ {formatMeters(chip.meters)}
                   </Text>
                 </TouchableOpacity>
@@ -226,6 +226,16 @@ export default function OnboardingScreen() {
                 }}
               >
                 {t("onboarding.footnote")}
+              </Text>
+              <Text
+                style={{
+                  color: theme.textMuted,
+                  fontSize: 11,
+                  textAlign: "center",
+                  paddingHorizontal: 16,
+                }}
+              >
+                {t("onboarding.privacyNotice")}
               </Text>
             </View>
           </>

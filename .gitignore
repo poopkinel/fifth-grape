@@ -44,3 +44,5 @@ yarn-error.*
 # dev related
 /development
 fifth-grape-MVP-to-V1-Codex_prompt*
+# Claude Code session state
+.claude/

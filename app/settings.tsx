@@ -3,7 +3,7 @@ import { usePreferenceStore } from "@/src/features/preferences/store";
 import { applyLanguageAndReload, AppLanguage } from "@/src/i18n";
 import { useTheme } from "@/src/theme";
 import { useTranslation } from "react-i18next";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Switch, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const WALK_PACE_M_PER_MIN = 80;
@@ -29,6 +29,12 @@ export default function SettingsScreen() {
   );
   const setMaxWalkingDistanceKm = usePreferenceStore(
     (state) => state.setMaxWalkingDistanceKm,
+  );
+  const analyticsOptedOut = usePreferenceStore(
+    (state) => state.analyticsOptedOut,
+  );
+  const setAnalyticsOptedOut = usePreferenceStore(
+    (state) => state.setAnalyticsOptedOut,
   );
 
   const formatMeters = (m: number) =>
@@ -150,6 +156,58 @@ export default function SettingsScreen() {
                 `≈ ${formatMeters(chip.meters)}`,
               ),
             )}
+          </View>
+        </View>
+
+        <View style={{ gap: 12 }}>
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: "700",
+              color: theme.textSecondary,
+            }}
+          >
+            {t("settings.privacySection")}
+          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              backgroundColor: theme.card,
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: theme.cardBorder,
+              padding: 14,
+              gap: 12,
+            }}
+          >
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text
+                style={{
+                  color: theme.textPrimary,
+                  fontWeight: "700",
+                  fontSize: 15,
+                  textAlign: "auto",
+                }}
+              >
+                {t("settings.analyticsToggle")}
+              </Text>
+              <Text
+                style={{
+                  color: theme.textSecondary,
+                  fontSize: 13,
+                  textAlign: "auto",
+                }}
+              >
+                {t("settings.analyticsHint")}
+              </Text>
+            </View>
+            <Switch
+              value={!analyticsOptedOut}
+              onValueChange={(enabled) => setAnalyticsOptedOut(!enabled)}
+              trackColor={{ false: theme.cardBorder, true: theme.accent }}
+            />
           </View>
         </View>
       </ScrollView>

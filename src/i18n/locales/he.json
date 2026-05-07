@@ -15,7 +15,10 @@
     "title": "הגדרות",
     "languageSection": "שפה",
     "walkingSection": "מרחק הליכה",
-    "walkingHint": "כמה זמן אתה מוכן ללכת ברגל לקניות?"
+    "walkingHint": "כמה זמן אתה מוכן ללכת ברגל לקניות?",
+    "privacySection": "פרטיות",
+    "analyticsToggle": "שיתוף נתוני שימוש",
+    "analyticsHint": "עוזר לנו לשפר את האפליקציה. נתונים אנונימיים בלבד — ללא שמות מוצרים."
   },
   "onboarding": {
     "walkingTitle": "כמה זמן אתה מוכן ללכת ברגל לקניות?",
@@ -23,7 +26,8 @@
     "minutes_one": "דקה",
     "minutes_two": "דקתיים",
     "minutes_other": "{{count}} דקות",
-    "footnote": "אפשר תמיד לשנות בהגדרות"
+    "footnote": "אפשר תמיד לשנות בהגדרות",
+    "privacyNotice": "אנחנו אוספים נתוני שימוש אנונימיים כדי לשפר את האפליקציה. אפשר לכבות בהגדרות."
   },
   "compare": {
     "title": "התוצאה הכי טובה עבורך",
@@ -106,8 +110,8 @@
     "clearAll": "נקה הכל",
     "add": "הוסף",
     "compareNearby": "השווה סניפים קרובים",
-    "coverageNearby_one": "סניף 1 בקרבת מקום",
-    "coverageNearby_other": "{{count}} סניפים בקרבת מקום",
+    "coverageNearby_one": "זמין בסניף אחד",
+    "coverageNearby_other": "זמין ב-{{count}} סניפים",
     "coverageNoneNearby": "לא נמכר בקרבת מקום",
     "coverageNoneAnywhere": "לא נמצא ברשת שלנו",
     "freshnessFooter": "מחירים מצילום יומי · עודכן {{relative}}",

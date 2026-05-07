@@ -13,9 +13,10 @@ import { getCompareScreenModel } from "@/src/features/compare/selectors";
 import { useUserLocation } from "@/src/features/location/useUserLocation";
 import { usePreferenceStore } from "@/src/features/preferences/store";
 import { DilemmaAnswer } from "@/src/features/preferences/types";
+import { track } from "@/src/lib/analytics";
 import { useTheme } from "@/src/theme";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -46,6 +47,52 @@ export default function CompareScreen() {
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  const compareModel =
+    items.length && data
+      ? getCompareScreenModel({
+          basket: items,
+          userCoords,
+          usualStoreId,
+          stores: data.stores,
+          prices: data.prices,
+          transportMode,
+          weights,
+          maxWalkingDistanceKm,
+        })
+      : null;
+
+  const dilemmaPairs = compareModel
+    ? findDilemmaPairs(compareModel.rankedStores)
+    : [];
+  const visiblePair =
+    bannerHidden || !compareModel
+      ? null
+      : findDilemma(compareModel.rankedStores, skipKey);
+  const showCards = hasInteracted || dilemmaPairs.length === 0;
+  const topCard = compareModel?.cards.find((c) => c.isBest) ?? null;
+  const visibleKey = visiblePair ? dilemmaKey(visiblePair) : null;
+  const topKey = topCard?.storeId ?? null;
+
+  useEffect(() => {
+    if (visibleKey) track("dilemma_shown", { transport_mode: transportMode });
+  }, [visibleKey, transportMode]);
+
+  useEffect(() => {
+    if (!topCard) return;
+    track("recommendation_top", {
+      store_id: topCard.storeId,
+      total: topCard.total,
+      distance_km: topCard.distanceKm,
+      missing_count: topCard.missingCount,
+      is_walkable: topCard.isWalkable,
+      basket_unique_count: items.length,
+      basket_total_count: totalCount,
+    });
+    // Fire once per top-recommendation storeId. Re-running on basket churn would
+    // over-fire when the best store doesn't change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topKey]);
+
   if (!items.length) {
     return (
       <SafeAreaView
@@ -67,7 +114,7 @@ export default function CompareScreen() {
       count: totalCount,
     });
 
-  if (isLoading || !data) {
+  if (isLoading || !data || !compareModel) {
     return (
       <SafeAreaView
         style={{ flex: 1, backgroundColor: theme.background }}
@@ -99,23 +146,6 @@ export default function CompareScreen() {
     );
   }
 
-  const compareModel = getCompareScreenModel({
-    basket: items,
-    userCoords,
-    usualStoreId,
-    stores: data.stores,
-    prices: data.prices,
-    transportMode,
-    weights,
-    maxWalkingDistanceKm,
-  });
-
-  const dilemmaPairs = findDilemmaPairs(compareModel.rankedStores);
-  const visiblePair = bannerHidden
-    ? null
-    : findDilemma(compareModel.rankedStores, skipKey);
-  const showCards = hasInteracted || dilemmaPairs.length === 0;
-
   const handlePick = (pickedStoreId: string, rejectedStoreId: string) => {
     if (!visiblePair) return;
     const picked: RankedStore =
@@ -137,18 +167,33 @@ export default function CompareScreen() {
       answeredAt: Date.now(),
     };
     recordAnswer(answer);
+    track("dilemma_picked", {
+      picked_store_id: picked.store.storeId,
+      rejected_store_id: rejected.store.storeId,
+      picked_total: picked.total,
+      rejected_total: rejected.total,
+      picked_distance_km: picked.distanceKm,
+      rejected_distance_km: rejected.distanceKm,
+      picked_missing_count: picked.missingCount,
+      rejected_missing_count: rejected.missingCount,
+      transport_mode: transportMode,
+    });
     setSkipKey(dilemmaKey(visiblePair));
     setBannerHidden(true);
     setHasInteracted(true);
   };
 
   const handleSkip = () => {
-    if (visiblePair) setSkipKey(dilemmaKey(visiblePair));
+    if (visiblePair) {
+      setSkipKey(dilemmaKey(visiblePair));
+      track("dilemma_skipped", { transport_mode: transportMode });
+    }
     setBannerHidden(true);
     setHasInteracted(true);
   };
 
   const handleNextDilemma = () => {
+    track("dilemma_refined", { transport_mode: transportMode });
     setBannerHidden(false);
   };
 
@@ -200,7 +245,9 @@ export default function CompareScreen() {
             isUsualStore={card.isUsualStore}
             isWalkable={card.isWalkable}
             onPressDetails={() => router.push(`/store/${card.storeId}`)}
-            onPressMap={() => router.push("/map/compare")}
+            onPressMap={() =>
+              router.push(`/map/compare?storeId=${encodeURIComponent(card.storeId)}`)
+            }
             onPressSetUsualStore={() =>
               card.isUsualStore
                 ? clearUsualStore()

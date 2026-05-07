@@ -15,9 +15,17 @@ import { getMapScreenModel } from "../selectors";
 type Props = {
   items: BasketItem[];
   onOpenStore: (storeId: string) => void;
+  /**
+   * When set, the map opens centered + zoomed in on this store. Tap
+   * navigation from the compare/store-details screens passes this so the
+   * user lands on the pin they were just looking at instead of the cluster
+   * fitted to all results. Default behavior (omitted) lands on the best
+   * recommended store at city-level zoom.
+   */
+  focusStoreId?: string;
 };
 
-export default function StoreMapScene({ items, onOpenStore }: Props) {
+export default function StoreMapScene({ items, onOpenStore, focusStoreId }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { userCoords, hasPermission } = useUserLocation();
@@ -43,7 +51,7 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
     : { markers: [], bestStoreId: undefined };
 
   const [selectedStoreId, setSelectedStoreId] = useState(
-    mapModel.bestStoreId ?? mapModel.markers[0]?.storeId ?? "",
+    focusStoreId ?? mapModel.bestStoreId ?? mapModel.markers[0]?.storeId ?? "",
   );
 
   useEffect(() => {
@@ -51,26 +59,36 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
       if (mapModel.markers.some((store) => store.storeId === current)) {
         return current;
       }
-      return mapModel.bestStoreId ?? mapModel.markers[0]?.storeId ?? "";
+      return focusStoreId ?? mapModel.bestStoreId ?? mapModel.markers[0]?.storeId ?? "";
     });
-  }, [mapModel.bestStoreId, mapModel.markers]);
+  }, [focusStoreId, mapModel.bestStoreId, mapModel.markers]);
 
   const selectedStore =
     mapModel.markers.find((s) => s.storeId === selectedStoreId) ??
     mapModel.markers[0];
 
+  // Animate the map ONCE — when markers first arrive — to land on the right
+  // store at the right zoom. Re-running on every selectedStoreId change would
+  // yank the camera back to a fixed delta on every marker tap, which feels
+  // like an unwanted zoom-out for users who'd panned/zoomed in.
+  const hasAnimatedOnceRef = useRef(false);
   useEffect(() => {
+    if (hasAnimatedOnceRef.current) return;
     if (!selectedStore) return;
+    // focused arrival from recommendations → tight street-level zoom on the
+    // tapped store. Cold map tab open → city-level so the cluster is visible.
+    const delta = focusStoreId ? 0.008 : 0.04;
     mapRef.current?.animateToRegion(
       {
         latitude: selectedStore.lat,
         longitude: selectedStore.lng,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.04,
+        latitudeDelta: delta,
+        longitudeDelta: delta,
       },
       400,
     );
-  }, [selectedStoreId, selectedStore]);
+    hasAnimatedOnceRef.current = true;
+  }, [selectedStore, focusStoreId]);
 
   if (isLoading || !data) {
     return (
@@ -101,7 +119,16 @@ export default function StoreMapScene({ items, onOpenStore }: Props) {
             return (
               <TouchableOpacity
                 key={store.storeId}
-                onPress={() => setSelectedStoreId(store.storeId)}
+                onPress={() => {
+                  setSelectedStoreId(store.storeId);
+                  // Pan only — preserves current zoom level. animateToRegion
+                  // would also overwrite latitudeDelta/longitudeDelta and yank
+                  // the user back to a fixed zoom on every pill tap.
+                  mapRef.current?.animateCamera(
+                    { center: { latitude: store.lat, longitude: store.lng } },
+                    { duration: 400 },
+                  );
+                }}
                 style={{
                   minWidth: 100,
                   backgroundColor: isActive ? theme.textPrimary : theme.card,

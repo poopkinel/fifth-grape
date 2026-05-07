@@ -1,18 +1,19 @@
 {
   "expo": {
-    "name": "fifth-grape",
-    "slug": "fifth-grape",
+    "name": "Sal",
+    "slug": "sal",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fifthgrape",
+    "scheme": "sal",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      // "config": {
-      //   "googleMapsApiKey": ""
-      // },
-      "supportsTablet": true
+      "bundleIdentifier": "com.ophek.sal",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +24,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.ophek.fifthgrape",
+      "package": "com.ophek.sal",
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",

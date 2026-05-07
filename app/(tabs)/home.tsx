@@ -31,7 +31,6 @@ export default function HomeScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const items = useBasketStore((state) => state.items);
-  const addItem = useBasketStore((state) => state.addItem);
   const usualStoreId = usePreferenceStore((state) => state.usualStoreId);
   const transportMode = usePreferenceStore((state) => state.transportMode);
   const weights = usePreferenceStore((state) => state.weights[transportMode]);
@@ -434,14 +433,9 @@ export default function HomeScreen() {
                 <TouchableOpacity
                   key={product.productId}
                   onPress={() =>
-                    addItem({
-                      productId: product.productId,
-                      name: product.name,
-                      brand: product.brand,
-                      unit: product.unit,
-                      barcode: product.barcode,
-                      emoji: product.emoji,
-                    })
+                    router.push(
+                      `/list/1?q=${encodeURIComponent(product.name)}` as any,
+                    )
                   }
                   style={{
                     flexDirection: "row",

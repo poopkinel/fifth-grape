@@ -1,15 +1,17 @@
+import BasketPeekSheet from "@/src/components/basket/BasketPeekSheet";
 import { DATA_SOURCE } from "@/src/data/config/dataSource";
 import { useMarketData } from "@/src/data/market/useMarketData";
 import { useProductSearch } from "@/src/data/remote/useProductSearch";
 import { computePerItemCoverage } from "@/src/domain/coverage/perItemCoverage";
 import { useBasketStore } from "@/src/features/basket/store";
 import { useUserLocation } from "@/src/features/location/useUserLocation";
+import { pickProductName } from "@/src/features/products/displayName";
 import { Product } from "@/src/features/products/types";
 import { useTheme } from "@/src/theme";
 import { formatRelativeUpdateTime } from "@/src/utils/format";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,7 +23,7 @@ import { realProducts } from "../../src/lib/constants/realProducts";
 export default function ListScreen() {
   const router = useRouter();
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const items = useBasketStore((state) => state.items);
   const addItem = useBasketStore((state) => state.addItem);
@@ -31,7 +33,22 @@ export default function ListScreen() {
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const [query, setQuery] = useState("");
+  const { q: incomingQuery } = useLocalSearchParams<{ q?: string }>();
+  const [query, setQuery] = useState(incomingQuery ?? "");
+  const [showBasket, setShowBasket] = useState(false);
+
+  // Re-prefill when navigating in fresh from /home with a different ?q.
+  // expo-router reuses the screen instance, so useState alone wouldn't pick
+  // up a new param; this useEffect makes the seed query reactive without
+  // overriding the user's own typing on the same visit.
+  useEffect(() => {
+    if (incomingQuery && incomingQuery !== query) {
+      setQuery(incomingQuery);
+    }
+    // Intentionally not depending on `query` — we don't want this effect
+    // re-running every keystroke and clobbering input.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingQuery]);
 
   const isRemote = DATA_SOURCE === "remote";
   const { data: remoteResults, isLoading: isSearching } = useProductSearch(
@@ -98,6 +115,33 @@ export default function ListScreen() {
       <AppHeader
         title={t("list.headerTitle")}
         subtitle={t("list.headerSubtitle", { count: totalCount })}
+        trailing={
+          <TouchableOpacity
+            onPress={() => setShowBasket(true)}
+            hitSlop={10}
+            accessibilityLabel={t("list.yourList")}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6,
+              backgroundColor: theme.statBg,
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 999,
+            }}
+          >
+            <Ionicons name="cart-outline" size={18} color={theme.textPrimary} />
+            <Text
+              style={{
+                color: theme.textPrimary,
+                fontWeight: "700",
+                fontSize: 13,
+              }}
+            >
+              {totalCount}
+            </Text>
+          </TouchableOpacity>
+        }
       />
 
       <ScrollView
@@ -161,10 +205,15 @@ export default function ListScreen() {
           <View style={{ gap: 10 }}>
             {results.map((item) => {
               const basketItem = basketByProductId.get(item.productId);
+              const displayName = pickProductName(
+                item.name,
+                item.nameEn,
+                i18n.language,
+              );
               return (
                 <SearchResultRow
                   key={item.productId}
-                  name={item.name}
+                  name={displayName}
                   subtitle={[item.brand, item.unit].filter(Boolean).join(" • ")}
                   brand={item.brand}
                   emoji={item.emoji}
@@ -175,6 +224,7 @@ export default function ListScreen() {
                     addItem({
                       productId: item.productId,
                       name: item.name,
+                      nameEn: item.nameEn,
                       brand: item.brand,
                       unit: item.unit,
                       barcode: item.barcode,
@@ -251,7 +301,7 @@ export default function ListScreen() {
           {items.map((item) => (
             <ListItemRow
               key={item.id}
-              name={item.name}
+              name={pickProductName(item.name, item.nameEn, i18n.language)}
               quantity={item.quantity}
               brand={item.brand}
               emoji={item.emoji}
@@ -314,6 +364,11 @@ export default function ListScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      <BasketPeekSheet
+        visible={showBasket}
+        onClose={() => setShowBasket(false)}
+      />
     </SafeAreaView>
   );
 }

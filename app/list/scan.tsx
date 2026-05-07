@@ -121,6 +121,7 @@ function CameraScanScreen() {
       addItem({
         productId: product.productId,
         name: product.name,
+        nameEn: product.nameEn,
         brand: product.brand,
         unit: product.unit,
         barcode: product.barcode,
@@ -549,6 +550,7 @@ function DevTypedBarcodeFallback() {
         addItem({
           productId: product.productId,
           name: product.name,
+          nameEn: product.nameEn,
           brand: product.brand,
           unit: product.unit,
           barcode: product.barcode,

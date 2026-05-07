@@ -111,7 +111,7 @@ export const realProducts: Product[] = [
   },
   {
     productId: "bananas-kg",
-    name: "בננות",
+    name: "בננה",
     brand: "טרי",
     unit: 'לק"ג',
     barcode: "729000000013",
